@@ -1,24 +1,39 @@
 ---
-description: User friendly apps for MacOS, Windows and Linux
 icon: bullseye-arrow
+description: User friendly apps for MacOS, Windows and Linux
 ---
 
 # App Quickstart
 
-<figure><img src="https://gitbookio.github.io/onboarding-template-images/quickstart-hero.png" alt=""><figcaption></figcaption></figure>
 
-Beautiful documentation starts with the content you create — and GitBook makes it easy to get started with any pre-existing content.
+
+<figure><img src="../.gitbook/assets/desktop_app-2.png" alt=""><figcaption></figcaption></figure>
+
+* :desktop: **MacOS, Windows and Linux**: run our app anywhere
+* 🧑‍💻 **Intuitive UI**: Our UI is designed for anyone, from AI novices to experts
+* 🚀 **One Click Setup**: No docker, terminal or dependancies required
+
+### Step 1: Download App
+
+Download the [latest release](https://github.com/Kiln-AI/Kiln/releases/latest). Be sure to download the correct version (Windows, Linux, Mac for Apple Silicon, Mac for Intel).
+
+[![Download button](https://github.com/user-attachments/assets/a5d51b8b-b30a-4a16-a902-ab6ef1d58dc0)](https://github.com/Kiln-AI/Kiln/releases/latest)
+
+### Step 2: Install the App
+
+After downloading, install the app:
+
+* MacOS: open the .dmg file, and drag the app to your Applications directory
+* Windows: double click the installer, and follow the guide to install
+* Linux: save the app and launch it from terminal
 
 {% hint style="info" %}
-Want to learn about writing content from scratch? Head to the [Basics](https://github.com/GitbookIO/onboarding-template/blob/main/getting-started/broken-reference/README.md) section to learn more.
+**Note for Windows Users:** The app may show up as "unrecognized" because it's new, but can be installed from the "More Info" link.
 {% endhint %}
 
-### Import
+### Step 3: Launch the App
 
-GitBook supports importing content from many popular writing tools and formats. If your content already exists, you can upload a file or group of files to be imported.
+Launch the app and get started!&#x20;
 
-<div data-full-width="false"><figure><img src="https://gitbookio.github.io/onboarding-template-images/quickstart-import.png" alt=""><figcaption></figcaption></figure></div>
+The app will guide you through creating a project, creating a task, and connecting to AI providers like Ollama, OpenAI, OpenRouter and more.
 
-### Sync a repository
-
-GitBook also allows you to set up a bi-directional sync with an existing repository on GitHub or GitLab. Setting up Git Sync allows you and your team to write content in GitBook or in code, and never have to worry about your content becoming out of sync.
