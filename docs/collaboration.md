@@ -7,9 +7,9 @@ description: Collaborate with your team using Kiln
 
 This guide will help you understand how a team can collaborate with Kiln.
 
-### Sharing a Kiln Project
+<figure><img src="../.gitbook/assets/Collab.png" alt=""><figcaption></figcaption></figure>
 
-Kiln is designed to be a collaborative environment for building AI projects.&#x20;
+### Sharing a Kiln Project
 
 It's easy to collaborate with Kiln across teams with technical team members (devs, data-scientists), and non-technical team members (labelers, subject-matter experts).
 
