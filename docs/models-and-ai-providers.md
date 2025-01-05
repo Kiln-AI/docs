@@ -11,6 +11,8 @@ Kiln can use essentially any LLM model from a number of providers:
 * Connect a cloud provider like OpenAI, Groq, OpenRouter, AWS, Fireworks and more. You provide your own API keys and we never have access to your dataset.
 * Connect to any OpenAI compatible server, like LiteLLM for vLLM
 
+<figure><img src="../.gitbook/assets/Models (1).png" alt=""><figcaption></figcaption></figure>
+
 ## Connecting AI Providers
 
 When you first run Kiln, the app will prompt you to setup one or more AI providers. You need at least one for the core features of Kiln to function.
