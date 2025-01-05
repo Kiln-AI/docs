@@ -13,6 +13,7 @@
 * [Collaboration](basics/collaboration.md)
 * [Reviewing and Rating Data](basics/reviewing-and-rating-data.md)
 * [Synthetic Data Generation](basics/synthetic-data-generation.md)
+* [Fine Tuning Guide](basics/fine-tuning-guide.md)
 * [Organizing Datasets](basics/organizing-datasets.md)
 * [Privacy](basics/privacy.md)
 * [Rest API](basics/rest-api.md)
