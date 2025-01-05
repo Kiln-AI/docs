@@ -39,4 +39,4 @@ The docs include several quick-start examples to get up and running:
 
 ### Web/Rest AP
 
-We also offer a self-hostable [REST API](../basics/rest-api.md) for Kiln, based on FastAPI.
+We also offer a self-hostable [REST API](../docs/rest-api.md) for Kiln, based on FastAPI.

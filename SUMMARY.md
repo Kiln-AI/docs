@@ -7,13 +7,13 @@
 * [App Quickstart](getting-started/quickstart.md)
 * [Python Library Quickstart](getting-started/python-library-quickstart.md)
 
-## Basics
+## Docs
 
-* [Models and AI Providers](basics/models-and-ai-providers.md)
-* [Collaboration](basics/collaboration.md)
-* [Reviewing and Rating Data](basics/reviewing-and-rating-data.md)
-* [Synthetic Data Generation](basics/synthetic-data-generation.md)
-* [Fine Tuning Guide](basics/fine-tuning-guide.md)
-* [Organizing Datasets](basics/organizing-datasets.md)
-* [Privacy](basics/privacy.md)
-* [Rest API](basics/rest-api.md)
+* [Models and AI Providers](docs/models-and-ai-providers.md)
+* [Collaboration](docs/collaboration.md)
+* [Reviewing and Rating](docs/reviewing-and-rating.md)
+* [Synthetic Data Generation](docs/synthetic-data-generation.md)
+* [Fine Tuning Guide](docs/fine-tuning-guide.md)
+* [Organizing Datasets](docs/organizing-datasets.md)
+* [Privacy](docs/privacy.md)
+* [Rest API](docs/rest-api.md)

@@ -1,13 +1,11 @@
 ---
-description: Ratings help multi-shot prompting, fine-tuning, evals, and more
 icon: star
+description: Ratings help multi-shot prompting, fine-tuning, evals, and more
 ---
 
-# Reviewing and Rating Data
+# Reviewing and Rating
 
-### Reviewing and Rating Data
-
-Kiln includes a rating interface for rating dataset entries. This can be used to score the quality of the generated data, or to score the quality of a model.
+Kiln includes a rating interface for rating dataset entries. This can be used to score the quality of the generated data, or to evaluate the quality of a model.
 
 <figure><img src="../.gitbook/assets/Screenshot 2025-01-05 at 12.12.38 PM (1).png" alt="" width="341"><figcaption><p>Rating UI in Kiln Desktop</p></figcaption></figure>
 
@@ -28,13 +26,13 @@ An "Overall" rating is always available, even if your task has zero requirements
 
 Kiln uses ratings in a variety of ways:
 
-* Only highly rated data will be used in our automatic multi-shot prompting. The generated prompt will filters to 4+ stars, and prefers 5-star ratings if available.
+* In our automatic multi-shot prompting only highly rated examples are used. The generated prompt will filters to examples 4+ stars, and prefers 5-star ratings if available.
 * When creating a fine-tune, you may optionally filter the training data to highly rated content.
-* When using the python library, you can access ratings for any reason.
+* When using the python library, you can access ratings.
 
 ### Rating Types:
 
-* 5-star: a 1-5 star rating
-* Pass/Fail: A binary pass/fail rating
-* Pass/Fail/Critical: A ternary pass/fail/critical rating. It can be useful to add the "critical" level when there are criteria where some failures are exceptionally important to avoid. For example, a customer service bot could have a "tone" criteria, where casual/slang language would be a failure, but profanity or insulting the user would be critical.
-* Custom: you can define a custom criteria using the python library, but you won't be able to use the UI to set it.
+* **5-star**: a 1-5 star rating
+* **Pass/Fail**: A binary pass/fail rating
+* **Pass/Fail/Critical**: A ternary pass/fail/critical rating. It can be useful to add the "critical" level when there are criteria where some failures are exceptionally important to avoid. For example, a customer service bot could have a "tone" criteria, where casual/slang language would be a failure, but profanity or insulting the user would be critical.
+* **Custom**: you can define a custom rating scale when using python library. However, you won't be able to use custom ratings in the Kiln UI.
