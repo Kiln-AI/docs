@@ -1,10 +1,11 @@
 # Table of contents
 
-* [Welcome to Kiln AI Docs](README.md)
+* [Welcome to Kiln AI](README.md)
 
 ## Getting Started
 
 * [App Quickstart](getting-started/quickstart.md)
+* [Python Library Quickstart](getting-started/python-library-quickstart.md)
 * [Publish your docs](getting-started/publish-your-docs.md)
 
 ## Basics

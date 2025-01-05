@@ -1,11 +1,9 @@
 ---
-icon: bullseye-arrow
+icon: person-running-fast
 description: User friendly apps for MacOS, Windows and Linux
 ---
 
 # App Quickstart
-
-
 
 <figure><img src="../.gitbook/assets/desktop_app-2.png" alt=""><figcaption></figcaption></figure>
 
