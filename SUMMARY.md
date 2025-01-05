@@ -6,7 +6,6 @@
 
 * [App Quickstart](getting-started/quickstart.md)
 * [Python Library Quickstart](getting-started/python-library-quickstart.md)
-* [Publish your docs](getting-started/publish-your-docs.md)
 
 ## Basics
 

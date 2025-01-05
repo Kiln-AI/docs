@@ -21,7 +21,7 @@ pip install kiln-ai
 
 Our [library docs](https://kiln-ai.github.io/Kiln/kiln_core_docs/kiln_ai.html) provide include an API reference for all of the libraries features. Use the sidebar to navigate.
 
-The docs include several quick-start examples to quickly get up and running:
+The docs include several quick-start examples to get up and running:
 
 * [Using the Kiln Data Model](https://kiln-ai.github.io/Kiln/kiln_core_docs/kiln_ai.html#using-the-kiln-data-model)
   * [Understanding the Kiln Data Model](https://kiln-ai.github.io/Kiln/kiln_core_docs/kiln_ai.html#understanding-the-kiln-data-model)
