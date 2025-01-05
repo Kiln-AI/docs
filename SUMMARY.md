@@ -10,13 +10,7 @@
 ## Basics
 
 * [Models and AI Providers](basics/models-and-ai-providers.md)
-* [Rest API](basics/rest-api.md)
 * [Collaboration](basics/collaboration.md)
 * [Organizing Datasets](basics/organizing-datasets.md)
 * [Privacy](basics/privacy.md)
-* [Editor](basics/editor.md)
-* [Markdown](basics/markdown.md)
-* [Images & media](basics/images-and-media.md)
-* [Interactive blocks](basics/interactive-blocks.md)
-* [OpenAPI](basics/openapi.md)
-* [Integrations](basics/integrations.md)
+* [Rest API](basics/rest-api.md)
