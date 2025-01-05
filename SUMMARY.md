@@ -9,6 +9,7 @@
 
 ## Basics
 
+* [Models and AI Providers](basics/models-and-ai-providers.md)
 * [Editor](basics/editor.md)
 * [Markdown](basics/markdown.md)
 * [Images & media](basics/images-and-media.md)
