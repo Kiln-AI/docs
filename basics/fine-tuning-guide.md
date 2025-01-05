@@ -65,13 +65,7 @@ Use the "Fine Tune" tab in the Kiln UI to kick off your fine-tunes. Simply selec
 
 We recommend setting aside a test and validation set when creating your dataset split. This will allow you to evaluate your fine-tunes after they are complete.
 
-<details>
-
-<summary> CreateTrainingJobs320.mp4 </summary>
-
-
-
-</details>
+{% embed url="https://files.gitbook.com/v0/b/gitbook-x-prod.appspot.com/o/spaces%2FEJ4b8A4QiEQlOGbYkXDX%2Fuploads%2F90AZYx6JVoCYFrhHCTUx%2FCreateTrainingJobs720.mp4?alt=media&token=c0e76a1b-0f55-4297-85b9-b1f9b6c4125f" %}
 
 #### Step 5: Deploy and Run Your Models
 
@@ -83,13 +77,7 @@ You can use your models outside of Kiln by calling Fireworks or OpenAI APIs with
 
 **Early Results**: Our fine-tuned models show some immediate promise. Previously models smaller than Llama 70b failed to produce the correct structured data for our task. After fine tuning even the smallest model, Llama 3.2 1b, consistently works.
 
-<details>
-
-<summary> Run320.mp4 </summary>
-
-
-
-</details>
+{% embed url="https://files.gitbook.com/v0/b/gitbook-x-prod.appspot.com/o/spaces%2FEJ4b8A4QiEQlOGbYkXDX%2Fuploads%2FevKBtLibJBN56hVGULL7%2FRun720.mp4?alt=media&token=f072c028-088b-4673-9d10-f88580d71cb7" %}
 
 #### Step 6 \[Optional]: Training on your own Infrastructure
 
