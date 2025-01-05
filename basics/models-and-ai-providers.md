@@ -1,6 +1,6 @@
 ---
-description: GPT, Llama, and Qwen - oh my!
 icon: crystal-ball
+description: GPT, Llama, and Qwen - oh my!
 ---
 
 # Models and AI Providers
@@ -23,11 +23,11 @@ If you want to remove a provider, edit your `~/.kiln_ai/settings.yaml`and remove
 
 Models come in a range of flavours, from very easy to use, to advanced methods for expert users
 
-* [Included models](https://github.com/Kiln-AI/Kiln#included-models-recommended)
-* [Custom Ollama models](https://github.com/Kiln-AI/Kiln#custom-ollama-models)
-* [Custom models from existing providers](https://github.com/Kiln-AI/Kiln#custom-models-from-existing-providers)
-* [Custom OpenAI compatible servers](https://github.com/Kiln-AI/Kiln#custom-openai-compatible-servers)
-  * [LiteLLM](https://github.com/Kiln-AI/Kiln#litellm) - Anthropic, Huggingface, VertexAI, TogetherAI, and more.
+* [Included models](models-and-ai-providers.md#included-models-recommended)
+* [Custom Ollama models](models-and-ai-providers.md#custom-ollama-models)
+* [Custom models from existing providers](models-and-ai-providers.md#custom-models-from-existing-providers)
+* [Custom OpenAI compatible servers](models-and-ai-providers.md#custom-openai-compatible-servers)
+  * [LiteLLM](models-and-ai-providers.md#litellm) - Anthropic, Huggingface, VertexAI, TogetherAI, and more.
 
 ### Included models \[Recommended]
 
