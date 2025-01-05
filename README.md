@@ -1,15 +1,11 @@
 ---
 icon: hand-wave
-cover: https://gitbookio.github.io/onboarding-template-images/header.png
-coverY: 0
+description: Rapid AI Prototyping and Dataset Collaboration Tool
 layout:
-  cover:
-    visible: true
-    size: full
   title:
     visible: true
   description:
-    visible: false
+    visible: true
   tableOfContents:
     visible: true
   outline:
