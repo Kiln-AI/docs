@@ -31,9 +31,11 @@ Analysis:
 
 First, we’ll need to define what the models should do. In Kiln we call this a “task definition”. Create a new task in the Kiln UI to get started, including a initial prompt, requirements, and input/output schema.
 
-For this demo we'll make a task that generates news article headlines of various styles from a summary of a news topic.
+For this demo we'll make a task that generates news article headlines of various styles, given a summary of a news topic.
 
 {% embed url="https://files.gitbook.com/v0/b/gitbook-x-prod.appspot.com/o/spaces%2FEJ4b8A4QiEQlOGbYkXDX%2Fuploads%2FL6pUgqBP3wgAhIZtfJ5L%2FCreateTask720.mp4?alt=media&token=1e8dcf3a-bb10-4774-a421-0fed5b0adb2e" %}
+Create a task to fine-tune for
+{% endembed %}
 
 #### Step 2: Generate Training Data with Synthetic Data Generation
 
@@ -46,6 +48,8 @@ Kiln includes topic trees to generate diverse content, a range of models/prompti
 When generating synthetic data you want to generate the best quality content possible. Don’t worry about cost and performance at this stage. Use large high quality models, detailed prompts with multi-shot prompting, chain of thought, and anything else that improves quality. You’ll be able to address performance and costs in later steps with fine tuning.
 
 {% embed url="https://files.gitbook.com/v0/b/gitbook-x-prod.appspot.com/o/spaces%2FEJ4b8A4QiEQlOGbYkXDX%2Fuploads%2FwVRCYmuIg1s2d38NLZ2t%2FDatagen720.mp4?alt=media&token=6d1a18c7-67a7-4062-8ac6-fb88525676e7" %}
+Synthetic Data Generation
+{% endembed %}
 
 #### Step 3: Select Models to Fine Tune
 
@@ -66,6 +70,8 @@ Use the "Fine Tune" tab in the Kiln UI to kick off your fine-tunes. Simply selec
 We recommend setting aside a test and validation set when creating your dataset split. This will allow you to evaluate your fine-tunes after they are complete.
 
 {% embed url="https://files.gitbook.com/v0/b/gitbook-x-prod.appspot.com/o/spaces%2FEJ4b8A4QiEQlOGbYkXDX%2Fuploads%2F90AZYx6JVoCYFrhHCTUx%2FCreateTrainingJobs720.mp4?alt=media&token=c0e76a1b-0f55-4297-85b9-b1f9b6c4125f" %}
+Dispatching Training Jobs
+{% endembed %}
 
 #### Step 5: Deploy and Run Your Models
 
@@ -78,6 +84,8 @@ You can use your models outside of Kiln by calling Fireworks or OpenAI APIs with
 **Early Results**: Our fine-tuned models show some immediate promise. Previously models smaller than Llama 70b failed to produce the correct structured data for our task. After fine tuning even the smallest model, Llama 3.2 1b, consistently works.
 
 {% embed url="https://files.gitbook.com/v0/b/gitbook-x-prod.appspot.com/o/spaces%2FEJ4b8A4QiEQlOGbYkXDX%2Fuploads%2FevKBtLibJBN56hVGULL7%2FRun720.mp4?alt=media&token=f072c028-088b-4673-9d10-f88580d71cb7" %}
+Running our Fine Tuned Models
+{% endembed %}
 
 #### Step 6 \[Optional]: Training on your own Infrastructure
 
@@ -91,13 +99,9 @@ See this example [Unsloth notebook](https://colab.research.google.com/drive/1Ivm
 
 Export your dataset using the "Hugging Face chat template (JSONL)" option for compatibility with the demo notebook.
 
-<details>
-
-<summary> Unsloth320.mp4 </summary>
-
-
-
-</details>
+{% embed url="https://files.gitbook.com/v0/b/gitbook-x-prod.appspot.com/o/spaces%2FEJ4b8A4QiEQlOGbYkXDX%2Fuploads%2Fsr97NzR4hJGsUWiIJPCv%2FUnsloth720.mp4?alt=media&token=041646ce-fbeb-4627-894b-1b4a20f27090" %}
+Unsloth Demo
+{% endembed %}
 
 #### Cost Breakdown
 
