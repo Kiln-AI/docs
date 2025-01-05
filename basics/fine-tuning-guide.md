@@ -1,5 +1,6 @@
 ---
 description: Fine Tuning 9 Models in 18 minutes with Kiln AI
+icon: bullseye-arrow
 ---
 
 # Fine Tuning Guide
@@ -32,13 +33,7 @@ First, we’ll need to define what the models should do. In Kiln we call this a 
 
 For this demo we'll make a task that generates news article headlines of various styles from a summary of a news topic.
 
-<details>
-
-<summary> CreateTask320.mp4 </summary>
-
-
-
-</details>
+{% embed url="https://files.gitbook.com/v0/b/gitbook-x-prod.appspot.com/o/spaces%2FEJ4b8A4QiEQlOGbYkXDX%2Fuploads%2FL6pUgqBP3wgAhIZtfJ5L%2FCreateTask720.mp4?alt=media&token=1e8dcf3a-bb10-4774-a421-0fed5b0adb2e" %}
 
 #### Step 2: Generate Training Data with Synthetic Data Generation
 
