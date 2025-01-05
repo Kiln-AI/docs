@@ -1,6 +1,6 @@
 ---
-description: Generate synthetic data for fine-tuning or evaluation
 icon: robot
+description: Generate synthetic data for fine-tuning or evaluation
 ---
 
 # Synthetic Data Generation
@@ -91,14 +91,6 @@ The new examples will be saved to your dataset, and will include a unique tag to
 
 1. Simple: Fix the root prompt, and use this new dataset subset in your evaluations to ensure it works (and doesn't regress in the future)
 2. Advanced: [Fine-tune a model](https://github.com/Kiln-AI/Kiln/blob/main/guides/Fine%20Tuning%20LLM%20Models%20Guide.md) with this data, so smaller and faster models learn to emulate your desired styles. Withhold a test set to ensure it worked.
-
-### Reviewing and Rating Data
-
-Kiln includes a rating interface for rating dataset entries. This can be used to score the quality of the generated data, or to score the quality of a model.
-
-Only highly rated data will be used for features like multi-shot prompting.
-
-[![rating UI](https://private-user-images.githubusercontent.com/848343/388585660-6872d5ad-18ad-46f3-9091-2e26741cb852.png?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3MzYwOTYyNTcsIm5iZiI6MTczNjA5NTk1NywicGF0aCI6Ii84NDgzNDMvMzg4NTg1NjYwLTY4NzJkNWFkLTE4YWQtNDZmMy05MDkxLTJlMjY3NDFjYjg1Mi5wbmc_WC1BbXotQWxnb3JpdGhtPUFXUzQtSE1BQy1TSEEyNTYmWC1BbXotQ3JlZGVudGlhbD1BS0lBVkNPRFlMU0E1M1BRSzRaQSUyRjIwMjUwMTA1JTJGdXMtZWFzdC0xJTJGczMlMkZhd3M0X3JlcXVlc3QmWC1BbXotRGF0ZT0yMDI1MDEwNVQxNjUyMzdaJlgtQW16LUV4cGlyZXM9MzAwJlgtQW16LVNpZ25hdHVyZT02MTYyZGM0MDc2OTZmNjJkMTQyNWIzM2U1ZTBlMmQxN2IwOTRlMmQ5MTZhNGM1NWNjODQ2ZWZiODU2N2YzMTUxJlgtQW16LVNpZ25lZEhlYWRlcnM9aG9zdCJ9.7mDDjOec2DGMIOO7_G4j74xA7gz9LZkuP7VK8hZfD5g)](https://private-user-images.githubusercontent.com/848343/388585660-6872d5ad-18ad-46f3-9091-2e26741cb852.png?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3MzYwOTYyNTcsIm5iZiI6MTczNjA5NTk1NywicGF0aCI6Ii84NDgzNDMvMzg4NTg1NjYwLTY4NzJkNWFkLTE4YWQtNDZmMy05MDkxLTJlMjY3NDFjYjg1Mi5wbmc_WC1BbXotQWxnb3JpdGhtPUFXUzQtSE1BQy1TSEEyNTYmWC1BbXotQ3JlZGVudGlhbD1BS0lBVkNPRFlMU0E1M1BRSzRaQSUyRjIwMjUwMTA1JTJGdXMtZWFzdC0xJTJGczMlMkZhd3M0X3JlcXVlc3QmWC1BbXotRGF0ZT0yMDI1MDEwNVQxNjUyMzdaJlgtQW16LUV4cGlyZXM9MzAwJlgtQW16LVNpZ25hdHVyZT02MTYyZGM0MDc2OTZmNjJkMTQyNWIzM2U1ZTBlMmQxN2IwOTRlMmQ5MTZhNGM1NWNjODQ2ZWZiODU2N2YzMTUxJlgtQW16LVNpZ25lZEhlYWRlcnM9aG9zdCJ9.7mDDjOec2DGMIOO7_G4j74xA7gz9LZkuP7VK8hZfD5g)
 
 
 
