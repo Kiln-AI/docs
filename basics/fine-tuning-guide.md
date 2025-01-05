@@ -1,6 +1,6 @@
 ---
-description: Fine Tuning 9 Models in 18 minutes with Kiln AI
 icon: bullseye-arrow
+description: Fine Tuning 9 Models in 18 minutes with Kiln AI
 ---
 
 # Fine Tuning Guide
@@ -45,13 +45,7 @@ Kiln includes topic trees to generate diverse content, a range of models/prompti
 
 When generating synthetic data you want to generate the best quality content possible. Don’t worry about cost and performance at this stage. Use large high quality models, detailed prompts with multi-shot prompting, chain of thought, and anything else that improves quality. You’ll be able to address performance and costs in later steps with fine tuning.
 
-<details>
-
-<summary> Datagen320.mp4 </summary>
-
-
-
-</details>
+{% embed url="https://files.gitbook.com/v0/b/gitbook-x-prod.appspot.com/o/spaces%2FEJ4b8A4QiEQlOGbYkXDX%2Fuploads%2FwVRCYmuIg1s2d38NLZ2t%2FDatagen720.mp4?alt=media&token=6d1a18c7-67a7-4062-8ac6-fb88525676e7" %}
 
 #### Step 3: Select Models to Fine Tune
 
