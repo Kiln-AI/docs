@@ -1,9 +1,22 @@
 ---
-description: Tag, Filter and Sort
 icon: tag
+description: Tag, Filter and Sort
+layout:
+  title:
+    visible: true
+  description:
+    visible: true
+  tableOfContents:
+    visible: true
+  outline:
+    visible: true
+  pagination:
+    visible: true
 ---
 
 # Organizing Datasets
+
+<figure><img src="../.gitbook/assets/dataset-2 (1).png" alt=""><figcaption></figcaption></figure>
 
 ### Using Tags to Organize Your Dataset
 
@@ -31,7 +44,7 @@ The dataset view offers a number of tools that make working with large datasets 
 
 ### Batch Editing
 
-Once you have selected rows youn can perform a number of batch actions:
+Once you have selected rows you can perform a number of batch actions:
 
 * Add tags
 * Remove Tags
