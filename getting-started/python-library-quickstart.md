@@ -5,6 +5,12 @@ description: pip install kiln_ai
 
 # Python Library Quickstart
 
+{% hint style="info" %}
+If you aren't a developer, feel free to skip ahead.&#x20;
+
+The Python library is completely optional. It's not required to use Kiln.
+{% endhint %}
+
 Our open source [python library](https://pypi.org/project/kiln-ai/) allows you to use Kiln from your codebase. The can be as simple as accessing a Kiln dataset from a notebook, or as advanced as running any of our features from code.
 
 [![PyPI - Version](https://img.shields.io/pypi/v/kiln-ai.svg?logo=pypi\&label=PyPI\&logoColor=gold)](https://pypi.org/project/kiln-ai/) [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/kiln-ai.svg?logo=python\&label=Python\&logoColor=gold)](https://pypi.org/project/kiln-ai/) [![Docs](https://img.shields.io/badge/docs-pdoc-blue)](https://kiln-ai.github.io/Kiln/kiln_core_docs/index.html)&#x20;
