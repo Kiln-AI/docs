@@ -18,6 +18,7 @@
 * [Organizing Datasets](docs/organizing-datasets.md)
 * [Structured Data / JSON](docs/structured-data-json.md)
 * [Kiln Data Model](docs/kiln-datamodel.md)
+* [Repairing Responses](docs/repairing-responses.md)
 * [Keyboard Shortcuts](docs/keyboard-shortcuts.md)
 * [Privacy](docs/privacy.md)
 * [Rest API](docs/rest-api.md)
