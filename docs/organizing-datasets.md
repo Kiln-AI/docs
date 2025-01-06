@@ -1,6 +1,6 @@
 ---
 icon: tag
-description: Tag, Filter and Sort
+description: Tag, Filter, Sort, Freeze and Split
 layout:
   title:
     visible: true
