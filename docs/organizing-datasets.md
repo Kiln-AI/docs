@@ -49,3 +49,12 @@ Once you have selected rows you can perform a number of batch actions:
 * Add tags
 * Remove tags
 * Delete dataset items
+
+### Dataset Splits
+
+When creating a fine-tune, you can define a "dataset split". This is a frozen subset of your data.
+
+* Dataset splits may be broken into sub-sets like "train", "validation" and "test" which are useful for systematically training and evaluating models.
+* Dataset splits will randomly assign items between sub-sets (train/test/val), but the assignment is static. Items do not shift between subsets once the dataset split is created.
+* Dataset splits to not grow/change when you add new data. They are frozen at the point in time when they are created. This makes it easier to run multiple experiments (fine-tunes, evals, etc) on exactly the same training/eval datasets.
+
