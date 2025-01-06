@@ -4,11 +4,13 @@ icon: brackets-curly
 
 # Structured Data / JSON
 
-Kiln treats structured data, in the form of JSON input/output, as a first class citizen.&#x20;
+Structured data is a first class citizen in Kiln. &#x20;
 
-* You can define input/output schemas for your tasks.
+* JSON input/output is supported for any task.
+* You can define input/output schemas for each task you create.
 * We automatically detect when a AI model doesn't produce output in the correct format.
 * No data gets into the dataset without first passing validation, which keeps the dataset clean.
+* Our [included models](models-and-ai-providers.md#included-models-recommended) are tested for JSON compatibility, and models that don't perform well with structured data will show a warning.
 
 ### Creating a Schema
 
