@@ -12,6 +12,7 @@
 * [Models and AI Providers](docs/models-and-ai-providers.md)
 * [Collaboration](docs/collaboration.md)
 * [Reviewing and Rating](docs/reviewing-and-rating.md)
+* [Prompts](docs/prompts.md)
 * [Synthetic Data Generation](docs/synthetic-data-generation.md)
 * [Fine Tuning Guide](docs/fine-tuning-guide.md)
 * [Organizing Datasets](docs/organizing-datasets.md)
