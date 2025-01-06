@@ -4,6 +4,8 @@ icon: brackets-curly
 
 # Structured Data / JSON
 
+<figure><img src="../.gitbook/assets/json.png" alt=""><figcaption></figcaption></figure>
+
 Structured data is a first-class citizen in Kiln.
 
 * JSON input/output is supported for any task.
