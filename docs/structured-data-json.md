@@ -1,5 +1,5 @@
 ---
-icon: table-tree
+icon: brackets-curly
 ---
 
 # Structured Data / JSON
