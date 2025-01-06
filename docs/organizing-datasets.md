@@ -32,12 +32,12 @@ Some examples of how you might use tags within a team:
 * Regression Testing: tag important customer use cases with a tag ("customer\_use\_case") and run evals to ensure the model doesn't regress on them prior to a new release.
 * Fine-tuning: exclude tags from fine-tuning datasets (golden, customer\_use\_case, etc), to prevent contamination.
 
-### Sort and Filter&#x20;
+### Sort and Filter
 
 The dataset view offers a number of tools that make working with large datasets easier:
 
 * Filter: Tap the filter button (![](<../.gitbook/assets/filter 2.png>)) to filter to specific tags
-* Sort: You can sort by any column by clicking it's header
+* Sort: You can sort by any column by clicking its header
 * Multi-select: you can enter "selection" mode by clicking the select button
   * Select any row by clicking it
   * Select a range of rows by clicking the first, then holding shift while clicking the last
@@ -47,5 +47,5 @@ The dataset view offers a number of tools that make working with large datasets 
 Once you have selected rows you can perform a number of batch actions:
 
 * Add tags
-* Remove Tags
-* Delete
+* Remove tags
+* Delete dataset items

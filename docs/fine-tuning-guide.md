@@ -107,11 +107,13 @@ Unsloth Demo
 
 Our demo use case was quite reasonably priced.
 
-* Generating training data: $2.06 on OpenRouter
-* Fine tuning 5 models on Fireworks (Llama 3.2 1b, Llama 3.2 3b, Llama 3.1 8b, Llama 3.1 70b, and Mixtral 8x7b): $1.47
-* Fine tuning GPT 4o-Mini on OpenAI: $2.03
-* Fine tuning GPT 4o on OpenAI: $16.91
-* Fine tuning Llama 3.2 1b & 3b on Unsloth: $0.00 (free Google Colab T4)
+| Task | Platform | Cost |
+|------|----------|------|
+| Training Data Generation | OpenRouter | $2.06 |
+| 5 Llama/Mixtral Models | Fireworks | $1.47 |
+| GPT-4o Mini Fine-tuning | OpenAI | $2.03 |
+| GPT-4o Fine-tuning | OpenAI | $16.91 |
+| Llama 3.2 (1b & 3b) | Unsloth (Colab) | $0.00 |
 
 If it wasn't for GPT-4o, the whole project would have cost less than $6!
 
@@ -123,7 +125,7 @@ What’s next after fine tuning?
 
 **Evaluate Model Quality**
 
-We now have 9 fine-tuned models, but which is best for our task? We should evaluate their quality for quality/speed/cost tradeoffs.
+We now have 9 fine-tuned models, but which is best for our task? We should evaluate them for quality/speed/cost tradeoffs.
 
 We will be adding eval tools into Kiln soon to help with this process! In the meantime, you can used the reserved test/val splits to evaluate the fine tunes.
 
@@ -157,9 +159,9 @@ Kiln can be used entirely through the UI and doesn't require coding. However, if
 
 Kiln enables a "Ladder" data strategy: the steps start from from small quantity and high effort, and progress to high quantity and low effort. Each step builds on the prior:
 
-* \~10 manual high quality examples
+* \~10 manual high quality examples.
 * \~30 LLM generated examples using the prior examples for multi-shot prompting. Use expensive models, detailed prompts, and token-heavy techniques (chain of thought). Manually review each ensuring low quality examples are not used as samples.
 * \~1000 synthetically generated examples, using the prior content for multi-shot prompting. Again, using expensive models, detailed prompts and chain of thought. Some interactive sanity checking as we go, but less manual review once we have confidence in the prompt and quality.
 * 1M+: after fine-tuning on our 1000 sample set, most inference happens on our fine-tuned model. This model is faster and cheaper than the models we used for building it through zero shot prompting, shorter prompts, and smaller models.
 
-Like a ladder, skipping a step is dangerous. You need to make sure you’re solid before you to the next step.
+Like a ladder, skipping a step is dangerous. You need to make sure you’re solid before you continue to the next step.

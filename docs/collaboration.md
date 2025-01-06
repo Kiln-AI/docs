@@ -13,11 +13,11 @@ This guide will help you understand how a team can collaborate with Kiln.
 
 It's easy to collaborate with Kiln across teams with technical team members (devs, data-scientists), and non-technical team members (labelers, subject-matter experts).
 
-We suggest [git](collaboration.md#option-1-use-git) for technical teams, [shared drives](collaboration.md#option-2-use-shared-drives-for-non-technical-team-members) for non-technical teams, or a [mix](collaboration.md#option-3-combining-git-and-shared-drives) for mixed teams.
+We suggest [Git](collaboration.md#option-1-use-git) for technical teams, [shared drives](collaboration.md#option-2-use-shared-drives-for-non-technical-team-members) for non-technical teams, or a [mix](collaboration.md#option-3-combining-git-and-shared-drives) for mixed teams.
 
 ### Collaboration Architecture
 
-Unlike other collaboration tools, you don't need to allow a third party to access your data, or maintain a database.&#x20;
+Unlike other collaboration tools, you don't need to allow a third party to access your data, or maintain a database.
 
 Kiln's data structure was designed with collaboration in mind:
 
@@ -34,7 +34,7 @@ Kiln projects are simply a folder of files, making it easy to share them using G
 
 Not everyone is familiar with git, and that's okay! Since Kiln projects are just a folder of files, you can share the folder with your team using a shared drive of your choice (Google Drive, Dropbox, iCloud, etc).
 
-Kiln project files will track who created them (internally in their JSON), which can help when many folks are making changes on the same shared drive. It's not as rich as git for tracking changes, but it's doesn't require any technical background.
+Kiln project files will track who created them (internally in their JSON), which can help when many folks are making changes on the same shared drive. It's not as rich as git for tracking changes, but it doesn't require any technical background.
 
 #### Option 3: Combining Git and Shared Drives
 

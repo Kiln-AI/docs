@@ -7,9 +7,9 @@ description: User friendly apps for MacOS, Windows and Linux
 
 <figure><img src="../.gitbook/assets/desktop_app-2.png" alt=""><figcaption></figcaption></figure>
 
-* :desktop: **MacOS, Windows and Linux**: run our app anywhere
-* 🧑‍💻 **Intuitive UI**: Our UI is designed for anyone, from AI novices to experts
-* 🚀 **One Click Setup**: No docker, terminal or dependancies required
+* :desktop: **macOS, Windows and Linux**: run our app anywhere.
+* 🧑‍💻 **Intuitive UI**: Our UI is designed for anyone, from AI novices to experts.
+* 🚀 **One Click Setup**: No docker, terminal or dependencies required.
 
 ### Step 1: Download App
 
@@ -21,7 +21,7 @@ Download the [latest release](https://github.com/Kiln-AI/Kiln/releases/latest). 
 
 After downloading, install the app:
 
-* MacOS: open the .dmg file, and drag the app to your Applications directory
+* macOS: open the .dmg file, and drag the app to your Applications directory
 * Windows: double click the installer, and follow the guide to install
 * Linux: save the app and launch it from terminal
 
@@ -31,7 +31,7 @@ After downloading, install the app:
 
 ### Step 3: Launch the App
 
-Launch the app and get started!&#x20;
+Launch the app and get started!
 
 The app will guide you through creating a project, creating a task, and connecting to AI providers like Ollama, OpenAI, OpenRouter and more.
 

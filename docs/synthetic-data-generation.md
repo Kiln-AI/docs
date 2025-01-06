@@ -23,7 +23,7 @@ Synthetic data is helpful for many reasons:
 * To generate eval datasets
 * To generate targeted data to reproduce a bug/issue, which can be used for training a fix, evaluating a fix, and backtesting
 
-### How it works
+### How It Works
 
 #### Zero-Shot Data Generation
 
@@ -51,7 +51,7 @@ Adding a short guidance prompt can quickly improve the quality of the generated 
 
 Kiln synthetic data generation is designed to be used in our interactive UI.
 
-As you work, delete topics or examples that don't match your goals, and regenerate the data until you're happy with the results. Adding human guidance can help with this process
+As you work, delete topics or examples that don't match your goals, and regenerate the data until you're happy with the results. Adding human guidance can help with this process.
 
 #### Structured Data Generation (JSON, tool calling)
 
@@ -76,7 +76,7 @@ You can use synthetic data generation as many times as you'd like. Data will be 
 
 Synthetic data can help resolve issues in your LLM systems.
 
-As an example, let's assume your model is often generating text using the wrong tone. For this example: too formal when the use case calls for more causal tone.
+As an example, let's assume your model is often generating text using the wrong tone. For this example: too formal when the use case calls for more casual tone.
 
 Synthetic data can help resolve this issue, and ensure it doesn't regress.
 
@@ -87,7 +87,7 @@ Synthetic data can help resolve this issue, and ensure it doesn't regress.
 5. Once the synthetic data tool is reliably generating correct data (with this model and guidance pair), scale up your generation to hundreds of samples.
 6. Save your new synthetic dataset
 
-The new examples will be saved to your dataset, and will include a unique tag to idenity them (e.g. `synthetic_session_12345`). With this new dataset in hand you can resolve the issue:
+The new examples will be saved to your dataset, and will include a unique tag to identify them (e.g. `synthetic_session_12345`). With this new dataset in hand you can resolve the issue:
 
 1. Simple: Fix the root prompt, and use this new dataset subset in your evaluations to ensure it works (and doesn't regress in the future)
 2. Advanced: [Fine-tune a model](https://github.com/Kiln-AI/Kiln/blob/main/guides/Fine%20Tuning%20LLM%20Models%20Guide.md) with this data, so smaller and faster models learn to emulate your desired styles. Withhold a test set to ensure it worked.

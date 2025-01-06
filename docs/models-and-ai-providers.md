@@ -19,7 +19,7 @@ When you first run Kiln, the app will prompt you to setup one or more AI provide
 
 If you want to add providers after initial setup, open **Settings > AI Providers & Models.**
 
-If you want to remove a provider, edit your `~/.kiln_ai/settings.yaml`and remove the provider's config.
+If you want to remove a provider, edit your `~/.kiln_ai/settings.yaml` and remove the provider's config.
 
 ## Understanding and Adding Models
 
@@ -33,7 +33,7 @@ Models come in a range of flavours, from very easy to use, to advanced methods f
 
 ### Included models \[Recommended]
 
-These models that have been tested to work with Kiln's various features (structured output, data gen, fine tuning, etc.). These are the easiest to use, and generally won't result in errors.
+These are models that have been tested to work with Kiln's various features. These are the easiest to use, and generally won't result in errors.
 
 To get access to these models, simply connect any AI provider (in the Settings page). We suggest OpenRouter as it has the widest selection of models. Once connected, you can select the model you want to use in the model dropdown.
 
@@ -45,7 +45,7 @@ Included models include common models like Claude, GPT-4, Llama, and many more. 
 
 Any Ollama model you have installed on your server will be available to use in Kiln. To add models, simply install them with the Ollama CLI `ollama pull <model_name>`.
 
-Some Ollama models are included/tested, and will automtically appear in the model dropdown. Any untested Ollama models will still appear in the dropdown, but in the "Untested" section.
+Some Ollama models are included/tested, and will automatically appear in the model dropdown. Any untested Ollama models will still appear in the dropdown, but in the "Untested" section.
 
 ### Custom Models from Existing Providers
 
