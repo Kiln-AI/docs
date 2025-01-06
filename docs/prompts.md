@@ -1,6 +1,6 @@
 ---
-description: How Kiln generates prompts
 icon: pen-to-square
+description: How Kiln generates prompts
 ---
 
 # Prompts
@@ -10,6 +10,8 @@ Once you define a task, Kiln can generate many prompt styles without any manual 
 {% hint style="info" %}
 Kiln prompts are data-driven, meaning the prompts automatically improve as you run your task and collect more examples of good responses (and mistakes!).&#x20;
 {% endhint %}
+
+<figure><img src="../.gitbook/assets/Prompts.png" alt=""><figcaption></figcaption></figure>
 
 ### Base Prompt Inputs
 
