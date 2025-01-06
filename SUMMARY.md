@@ -16,6 +16,7 @@
 * [Fine Tuning Guide](docs/fine-tuning-guide.md)
 * [Organizing Datasets](docs/organizing-datasets.md)
 * [Structured Data / JSON](docs/structured-data-json.md)
+* [Kiln Datamodel](docs/kiln-datamodel.md)
 * [Keyboard Shortcuts](docs/keyboard-shortcuts.md)
 * [Privacy](docs/privacy.md)
 * [Rest API](docs/rest-api.md)

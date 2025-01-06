@@ -1,0 +1,39 @@
+---
+description: How Kiln projects are structured
+icon: database
+---
+
+# Kiln Datamodel
+
+### Understanding the Kiln Data Model
+
+Kiln projects are simply a directory of files (mostly JSON files with the extension `.kiln`) that describe your project, including tasks, runs, ratings, fine-tunes and other data.
+
+This dataset design was chosen for several reasons:
+
+* Git compatibility: Kiln project folders are easy to collaborate on with Git (or a shared drive). See our [collaboration guide](collaboration.md#technical-collaboration-architecture) for additional details of how we avoid conflicts and format to support diff tools.
+* JSON allows you to easily load and manipulate the data using standard tools (pandas, polars, etc)
+
+### Datamodel Overview
+
+Here's a high level overview of the Kiln datamodel. A project folder will reflect this nested structure:
+
+* Project: a Kiln Project that contains related tasks.
+  * Task: a specific task including prompt instructions, input/output schemas, and requirements.
+    * TaskRun: a sample (run) of a task including input, output and human rating information.
+    * DatasetSplit: a frozen collection of task runs divided into train/test/validation splits.
+    * Finetune: a model for fine-tuning jobs. Includes configuration, status tracking, and data necessary to call the deployed fine-tuned model.
+
+See the [python library datamodel docs](https://kiln-ai.github.io/Kiln/kiln_core_docs/kiln_ai/datamodel.html) for detailed descriptions of classes, fields and validations.
+
+### Python Library
+
+If you want to access the data model via code, check out our [python library](../getting-started/python-library-quickstart.md). The library offers iterators, typed classes, pydantic validation, and more. It's the easiest way to read and mutate a Kiln dataset.
+
+### Direct Access
+
+You can load Kiln project files using any tool which support JSON, including polars and pandas. See the [example](https://kiln-ai.github.io/Kiln/kiln_core_docs/kiln_ai.html#using-kiln-dataset-in-pandas) in our library docs.
+
+{% hint style="info" %}
+We highly recommend the Kiln python library for any writes to `.kiln` files. It will run validators which catch issues which could break your project.
+{% endhint %}
