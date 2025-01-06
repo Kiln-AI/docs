@@ -107,13 +107,13 @@ Unsloth Demo
 
 Our demo use case was quite reasonably priced.
 
-| Task | Platform | Cost |
-|------|----------|------|
-| Training Data Generation | OpenRouter | $2.06 |
-| 5 Llama/Mixtral Models | Fireworks | $1.47 |
-| GPT-4o Mini Fine-tuning | OpenAI | $2.03 |
-| GPT-4o Fine-tuning | OpenAI | $16.91 |
-| Llama 3.2 (1b & 3b) | Unsloth (Colab) | $0.00 |
+| Task                     | Platform                   | Cost   |
+| ------------------------ | -------------------------- | ------ |
+| Training Data Generation | OpenRouter                 | $2.06  |
+| 5 Llama/Mixtral Models   | Fireworks                  | $1.47  |
+| GPT-4o Mini Fine-tuning  | OpenAI                     | $2.03  |
+| GPT-4o Fine-tuning       | OpenAI                     | $16.91 |
+| Llama 3.2 (1b & 3b)      | Unsloth on Google Colab T4 | $0.00  |
 
 If it wasn't for GPT-4o, the whole project would have cost less than $6!
 
