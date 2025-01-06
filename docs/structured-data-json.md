@@ -4,7 +4,7 @@ icon: brackets-curly
 
 # Structured Data / JSON
 
-Structured data is a first class citizen in Kiln. &#x20;
+Structured data is a first-class citizen in Kiln.
 
 * JSON input/output is supported for any task.
 * You can define input/output schemas for each task you create.
@@ -24,7 +24,7 @@ You can't edit the input/output schemas after creating a task, as that would inv
 
 For technical users, we support any valid [JSON-schema](https://json-schema.org) for inputs and output schemas.
 
-JSON schema is more powerful than the visual editor, allowing arrays, nested objects, enums, constraints and more. You can use raw JSON schemas from the python library, or from the UI (by picking the array type).
+JSON schema is more powerful than the visual editor, allowing arrays, nested objects, enums, constraints and more. You can use raw JSON schemas from the Python library, or from the UI (by picking an array type).
 
 {% hint style="warning" %}
 We only recommend JSON schema for technical users/developers. It's much more complex than the visual editor.
