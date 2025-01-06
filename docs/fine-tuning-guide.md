@@ -1,6 +1,6 @@
 ---
 icon: bullseye-arrow
-description: Fine Tuning 9 Models in 18 minutes with Kiln AI
+description: Fine tuning 9 Models in 18 minutes
 ---
 
 # Fine Tuning Guide
