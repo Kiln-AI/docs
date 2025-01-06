@@ -15,7 +15,7 @@
 * [Synthetic Data Generation](docs/synthetic-data-generation.md)
 * [Fine Tuning Guide](docs/fine-tuning-guide.md)
 * [Organizing Datasets](docs/organizing-datasets.md)
-* [Keyboard Shortcuts](docs/keyboard-shortcuts.md)
 * [Structured Data / JSON](docs/structured-data-json.md)
+* [Keyboard Shortcuts](docs/keyboard-shortcuts.md)
 * [Privacy](docs/privacy.md)
 * [Rest API](docs/rest-api.md)
