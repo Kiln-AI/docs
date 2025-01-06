@@ -84,7 +84,7 @@ You can use your models outside of Kiln by calling Fireworks or OpenAI APIs with
 **Early Results**: Our fine-tuned models show some immediate promise. Previously models smaller than Llama 70b failed to produce the correct structured data for our task. After fine tuning even the smallest model, Llama 3.2 1b, consistently works.
 
 {% embed url="https://files.gitbook.com/v0/b/gitbook-x-prod.appspot.com/o/spaces%2FEJ4b8A4QiEQlOGbYkXDX%2Fuploads%2FevKBtLibJBN56hVGULL7%2FRun720.mp4?alt=media&token=f072c028-088b-4673-9d10-f88580d71cb7" %}
-Running our Fine Tuned Models
+Running some of our Fine Tuned Models (Llama 3.2 1b & GPT 4o-mini)
 {% endembed %}
 
 ### Step 6 \[Optional]: Training on your own Infrastructure
