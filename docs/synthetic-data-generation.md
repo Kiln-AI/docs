@@ -90,7 +90,4 @@ Synthetic data can help resolve this issue, and ensure it doesn't regress.
 The new examples will be saved to your dataset, and will include a unique tag to identify them (e.g. `synthetic_session_12345`). With this new dataset in hand you can resolve the issue:
 
 1. Simple: Fix the root prompt, and use this new dataset subset in your evaluations to ensure it works (and doesn't regress in the future)
-2. Advanced: [Fine-tune a model](https://github.com/Kiln-AI/Kiln/blob/main/guides/Fine%20Tuning%20LLM%20Models%20Guide.md) with this data, so smaller and faster models learn to emulate your desired styles. Withhold a test set to ensure it worked.
-
-
-
+2. Advanced: [Fine tune a model](fine-tuning-guide.md) with this data. Create a smaller and faster models which has learned to emulate your desired styles. Withhold a test set to ensure it worked.
