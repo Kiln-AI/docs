@@ -4,6 +4,8 @@ icon: keyboard
 
 # Keyboard Shortcuts
 
+<figure><img src="../.gitbook/assets/KBD.png" alt=""><figcaption></figcaption></figure>
+
 Kiln offers a number of keyboard shortcuts which makes navigating the app easier:
 
 * After opening an dataset item from the "Dataset" screen, use right and left keys to navigate to the next and prior item
