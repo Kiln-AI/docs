@@ -27,7 +27,7 @@ Analysis:
 * [Cost Breakdown](fine-tuning-guide.md#cost-breakdown)
 * [Next steps](fine-tuning-guide.md#next-steps): evaluation, exporting models, iteration and data strategies
 
-#### Step 1: Define your Task and Goals
+### Step 1: Define your Task and Goals
 
 First, we’ll need to define what the models should do. In Kiln we call this a “task definition”. Create a new task in the Kiln UI to get started, including a initial prompt, requirements, and input/output schema.
 
@@ -37,7 +37,7 @@ For this demo we'll make a task that generates news article headlines of various
 Create a task to fine-tune for
 {% endembed %}
 
-#### Step 2: Generate Training Data with Synthetic Data Generation
+### Step 2: Generate Training Data with Synthetic Data Generation
 
 To fine tune, you’ll need a dataset to learn from.
 
@@ -51,7 +51,7 @@ When generating synthetic data you want to generate the best quality content pos
 Synthetic Data Generation
 {% endembed %}
 
-#### Step 3: Select Models to Fine Tune
+### Step 3: Select Models to Fine Tune
 
 Kiln supports a wide range of models from our UI, including:
 
@@ -63,7 +63,7 @@ Kiln supports a wide range of models from our UI, including:
 
 In this demo, we'll use them all!
 
-#### Step 4: Dispatch Training Jobs
+### Step 4: Dispatch Training Jobs
 
 Use the "Fine Tune" tab in the Kiln UI to kick off your fine-tunes. Simply select the models you want to train, select a dataset, and add any training parameters.
 
@@ -73,7 +73,7 @@ We recommend setting aside a test and validation set when creating your dataset 
 Dispatching Training Jobs
 {% endembed %}
 
-#### Step 5: Deploy and Run Your Models
+### Step 5: Deploy and Run Your Models
 
 Kiln will automatically deploy your fine-tunes when they are complete. You can use them from the Kiln UI without any additional configuration. Simply select a fine-tune by name from the model dropdown in the "Run" tab.
 
@@ -87,7 +87,7 @@ You can use your models outside of Kiln by calling Fireworks or OpenAI APIs with
 Running our Fine Tuned Models
 {% endembed %}
 
-#### Step 6 \[Optional]: Training on your own Infrastructure
+### Step 6 \[Optional]: Training on your own Infrastructure
 
 Kiln can also export your dataset to common formats for fine tuning on your own infrastructure. Simply select one of the "Download" options when creating your fine tune, and use the exported JSONL file to train with your own tools.
 
@@ -103,7 +103,7 @@ Export your dataset using the "Hugging Face chat template (JSONL)" option for co
 Unsloth Demo
 {% endembed %}
 
-#### Cost Breakdown
+### Cost Breakdown
 
 Our demo use case was quite reasonably priced.
 
@@ -123,7 +123,7 @@ Meanwhile our fastest fine-tune (Llama 3.2 1b) is about 10x faster and 150x chea
 
 What’s next after fine tuning?
 
-**Evaluate Model Quality**
+#### **Evaluate Model Quality**
 
 We now have 9 fine-tuned models, but which is best for our task? We should evaluate them for quality/speed/cost tradeoffs.
 
@@ -131,7 +131,7 @@ We will be adding eval tools into Kiln soon to help with this process! In the me
 
 If your task is deterministic (classification), Kiln AI will provide the validation set to OpenAI during tuning, and OpenAI will report val\_loss on their dashboard. For non-deterministic tasks (including generative tasks) you'll need to use human evaluation
 
-**Exporting Models**
+#### **Exporting Models**
 
 You can export your models for use on your machine, deployment to the cloud, or embedding in your product.
 
@@ -139,7 +139,7 @@ You can export your models for use on your machine, deployment to the cloud, or 
 * Unsloth: your fine-tunes can be directly export to GGUF or other formats which make these model easy to deploy. A GGUF can be [imported to Ollama](https://github.com/ollama/ollama/blob/main/docs/import.md) for local use. Once added to Ollama, the models will become available in Kiln UI as well.
 * OpenAI: sadly OpenAI won’t let you download their models.
 
-**Iterate to Improve Quality**
+#### **Iterate to Improve Quality**
 
 Models and products are rarely perfect on their first try. When you find bugs or have new goals, Kiln makes it easy to build new models. Some ways to iterate:
 
@@ -151,11 +151,11 @@ Models and products are rarely perfect on their first try. When you find bugs or
 * Regenerate fine-tunes as your dataset grows and evolves
 * Try new foundation models (directly and with fine tuning) when new state of the art models are released.
 
-**Integrate with Code**
+#### **Integrate with Code**
 
 Kiln can be used entirely through the UI and doesn't require coding. However, if you'd like a code-based integration, our open-source [Python library](https://pypi.org/project/kiln-ai/) is available.
 
-**Our "Ladder" Data Strategy**
+### **Our "Ladder" Data Strategy**
 
 Kiln enables a "Ladder" data strategy: the steps start from from small quantity and high effort, and progress to high quantity and low effort. Each step builds on the prior:
 
