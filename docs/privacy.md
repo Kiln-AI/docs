@@ -1,6 +1,6 @@
 ---
-description: Private by Design
 icon: shield-keyhole
+description: Kiln is private by design
 ---
 
 # Privacy
@@ -18,8 +18,7 @@ If you bring your own keys for an AI provider (OpenAI, OpenRouter, Groq, AWS, et
 {% hint style="info" %}
 We collect anonymous usage metrics via [Posthog analytics](https://github.com/PostHog/posthog).
 
-This analytics data never includes dataset content or your identity.&#x20;
+This analytics data never includes dataset content or your identity.
 
 Analytics can be blocked with standard ad-blockers.
 {% endhint %}
-
