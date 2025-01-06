@@ -4,8 +4,8 @@
 
 ## Getting Started
 
-* [App Quickstart](getting-started/quickstart.md)
-* [Python Library Quickstart](getting-started/python-library-quickstart.md)
+* [Quickstart](getting-started/quickstart.md)
+* [Python Library Setup](getting-started/python-library-quickstart.md)
 
 ## Docs
 
