@@ -29,9 +29,11 @@ In order to use multi-shot prompting in Kiln, we need some correct example conte
 
 Kiln will automatically select content for multi-shot prompts using your dataset, using the following priority:
 
-* 5-star repairs: where a human has given feedback, repaired the response, and rated the repair 5-stars
+* 5-star [repairs](repairing-responses.md): where a human has given feedback, repaired the response, and rated the repair 5-stars
 * 5-star responses
 * 4-star response
+
+Responses with a 3-star or worse rating are never used, unless they have been [repaired](repairing-responses.md) to 5-stars.
 
 ### Viewing Prompts
 
