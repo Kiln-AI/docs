@@ -1,9 +1,9 @@
 ---
 icon: person-running-fast
-description: User friendly apps for MacOS, Windows and Linux
+description: Download our app for MacOS, Windows or Linux
 ---
 
-# App Quickstart
+# Quickstart
 
 <figure><img src="../.gitbook/assets/desktop_app-2.png" alt=""><figcaption></figcaption></figure>
 
@@ -34,4 +34,3 @@ After downloading, install the app:
 Launch the app and get started!
 
 The app will guide you through creating a project, creating a task, and connecting to AI providers like Ollama, OpenAI, OpenRouter and more.
-
