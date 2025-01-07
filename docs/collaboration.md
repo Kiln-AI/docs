@@ -1,17 +1,15 @@
 ---
 icon: people-arrows
-description: Collaborate with your team using Kiln
+description: How to collaborate with your team using Kiln
 ---
 
 # Collaboration
 
-This guide will help you understand how a team can collaborate with Kiln.
-
-<figure><img src="../.gitbook/assets/Collab.png" alt=""><figcaption></figcaption></figure>
+<figure><img src="../.gitbook/assets/Collab2.png" alt=""><figcaption></figcaption></figure>
 
 ### Designed for Techies and Non-techies Alike
 
-It's easy to collaborate with Kiln across teams with technical team members (devs, data-scientists), and non-technical team members (labelers, subject-matter experts, QA, etc).
+It's easy to collaborate with Kiln across teams with technical team members (devs, data-scientists), and non-technical team members (subject-matter experts, QA, labelers, etc).
 
 We suggest [Git](collaboration.md#option-1-use-git) for technical teams, [shared drives](collaboration.md#option-2-use-shared-drives-for-non-technical-team-members) for non-technical teams, or a [mix](collaboration.md#option-3-combining-git-and-shared-drives) for mixed teams.
 
@@ -25,11 +23,11 @@ See [below](collaboration.md#collaboration-design) for how our file format is op
 
 Not everyone is familiar with Git, and that's okay! Since Kiln projects are just a folder of files, you can share the folder with your team using a shared drive of your choice (Google Drive, Dropbox, iCloud, etc).
 
-Kiln project files will track who created them (internally in their JSON), which can help when many folks are making changes on the same shared drive.
+Kiln project files will track who created them (internally in their JSON), which adds version history when many folks are making changes on the same shared drive.
 
 ### Option 3: Combining Git and Shared Drives
 
-You can combine both approaches for larger teams. Setup Git for technical team members, then host a branch on the shared drive for non-technical team members.&#x20;
+You can combine both approaches for teams with a mix of technical backgrounds. Setup Git for technical team members, then host a branch on the shared drive for non-technical team members.&#x20;
 
 A technical team member can merge changes from the shared drive branch into main on occasion.&#x20;
 
