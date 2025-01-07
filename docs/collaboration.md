@@ -19,6 +19,8 @@ We suggest [Git](collaboration.md#option-1-use-git) for technical teams, [shared
 
 Kiln projects are simply a folder of files, making it easy to share them using Git. Add your project folder(s) to a git repo and you're set up with an excellent collaboration workflow with branches, pull requests, version control, access control, and more!
 
+See [below](collaboration.md#collaboration-design) for how our file format is optimized for Git-based workflows.
+
 ### Option 2: Use Shared Drives for Non-Technical Team Members
 
 Not everyone is familiar with Git, and that's okay! Since Kiln projects are just a folder of files, you can share the folder with your team using a shared drive of your choice (Google Drive, Dropbox, iCloud, etc).
@@ -31,7 +33,7 @@ You can combine both approaches for larger teams. Setup Git for technical team m
 
 A technical team member can merge changes from the shared drive branch into main on occasion.&#x20;
 
-### Technical Collaboration Architecture
+### Collaboration Design
 
 As you may have already guessed, you don't need to allow a third party to access your data, or maintain a database. Everything runs locally on your machine, and syncs through existing tools you control.
 
