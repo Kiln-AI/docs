@@ -31,8 +31,8 @@ After downloading, install the app:
 
 If you have any issues installing on Windows, check the solutions below:
 
-* "Unrecognized App" warning: this warning may appear after we ship a new app update. This is just a warning. To bypass it click "More Info" then continue the install.
-* Anti-virus blockers: every release is scanned for viruses using [VirusTotal](https://www.virustotal.com/gui/home/upload), a comprehensive scanner that scans the app with over 70 virus scanners. Occasionally McAfee has a false positive (detects a virus when there isn't one). Feel free to scan the installer yourself (using VirusTotal or similar tool), and once you trust the installer, whitelist it in your virus scanner.
+* "Unrecognized App" warning: this warning may appear after we ship a new app update. This is just a warning. To bypass it, click "More Info" and continue the install.
+* Anti-virus blockers: every release is scanned for viruses using [VirusTotal](https://www.virustotal.com/gui/home/upload), a comprehensive scanner that scans the app with over 70 virus scanners. Occasionally McAfee/AVG/Avast has a false positive (detects a virus when there isn't one). Feel free to scan the installer yourself (using VirusTotal or similar tool); once you trust the installer, add it to your virus scanner's allow-list.
 
 </details>
 
