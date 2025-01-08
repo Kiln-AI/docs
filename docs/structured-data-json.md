@@ -22,6 +22,8 @@ Our easy-to-use visual schema builder lets you create and use structured schemas
 You can't edit the input/output schemas after creating a task, as that would invalidate all prior data. Create a new task with your updated schema instead.
 {% endhint %}
 
+<figure><img src="../.gitbook/assets/Screenshot 2025-01-08 at 12.38.31 PM.png" alt="" width="375"><figcaption><p>Kiln's Visual Schema Editor</p></figcaption></figure>
+
 ### Raw JSON Schema
 
 For technical users, we support any valid [JSON-schema](https://json-schema.org) for inputs and output schemas.
