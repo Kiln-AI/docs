@@ -7,13 +7,15 @@ description: How Kiln generates prompts
 
 Once you define a task, Kiln can generate many prompt styles without any manual prompt management. This guide explains how the process works.
 
+You can also create custom prompts if desired.
+
 {% hint style="info" %}
 Kiln prompts are data-driven, meaning the prompts automatically improve as you run your task and collect more examples of good responses (and mistakes!).&#x20;
 {% endhint %}
 
 <figure><img src="../.gitbook/assets/Prompts.png" alt=""><figcaption></figcaption></figure>
 
-### Base Prompt Inputs
+### Prompt Generator Inputs
 
 When you create a Kiln task you specify several fields which are used when generating prompts:
 
@@ -39,9 +41,9 @@ Responses with a 3-star or worse rating are never used, unless they have been [r
 
 The "Prompts" tab in the UI lets you quickly preview what each prompt builder generates.
 
-### Prompt Builders / Prompt Styles
+### Prompt Generators
 
-Once you've setup your task and added some example content, you'll have a number of prompt styles to choose from:
+Once you've setup your task and added some example content, you'll have a number of prompt generators to choose from:
 
 * **Basic (Zero Shot)**: a prompt template that will only use your task definition (instructions and requirements). This prompt is deterministic, and won't change unless you edit your task.
 * **Few Shot**: a mult-shot prompt that will include the 4 best examples from your dataset, on top of the basic prompt.
