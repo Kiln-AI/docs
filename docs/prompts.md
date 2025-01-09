@@ -1,6 +1,6 @@
 ---
 icon: pen-to-square
-description: How Kiln generates prompts
+description: How to use our prompt generators, or create your own prompt
 ---
 
 # Prompts
@@ -10,7 +10,7 @@ Once you define a task, Kiln can generate many prompt styles without any manual 
 You can also create custom prompts if desired.
 
 {% hint style="info" %}
-Kiln prompts are data-driven, meaning the prompts automatically improve as you run your task and collect more examples of good responses (and mistakes!).&#x20;
+Kiln prompt generators are data-driven, meaning the prompts automatically improve as you run your task and collect more examples of good responses (and mistakes!). This is commonly known as "multi-shot" prompting.
 {% endhint %}
 
 <figure><img src="../.gitbook/assets/Prompts.png" alt=""><figcaption></figcaption></figure>
