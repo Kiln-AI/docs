@@ -5,15 +5,18 @@ description: How to use our prompt generators, or create your own prompt
 
 # Prompts
 
-Once you define a task, Kiln can generate many prompt styles without any manual prompt management. This guide explains how the process works.
+There are two style of prompts in Kiln:
 
-You can also create custom prompts if desired.
+* Prompt Generators: Kiln can automatically generate many popular prompt styles from your task and dataset (few-shot, many-shot, chain of thought, chain of thought multi-shot, and more)
+* Custom Prompts: create, save and share any custom prompts
 
 {% hint style="info" %}
 Kiln prompt generators are data-driven, meaning the prompts automatically improve as you run your task and collect more examples of good responses (and mistakes!). This is commonly known as "multi-shot" prompting.
 {% endhint %}
 
 <figure><img src="../.gitbook/assets/Prompts.png" alt=""><figcaption></figcaption></figure>
+
+## Prompt Generators
 
 ### Prompt Generator Inputs
 
@@ -63,3 +66,18 @@ However, if fine-tuning we generally suggest a tiered approach:
 * When building fine-tunes, try a range of included prompts, including the original prompt used when generating training data, the "Basic (Zero Shot)", and an even shorter custom fine-tune prompt. Also include a range of models and model sizes in your search (llama 1b, 3b, 8b, 70b, etc).
 * Evaluate the resulting models. See if the longer prompts are necessary. It's possible the very short prompts will perform well after fine-tuning, which improves speed and lowers costs.
 
+## Custom Prompts
+
+You can also create and share custom prompts inside Kiln. Simply open the "Prompts" tab on the left of the UI. Anyone you [collaborate](collaboration.md) with will have access to these prompts as well.
+
+Give each a unique name to make them easy to manage.
+
+## Using Prompts
+
+You can select any available prompt from the prompt dropdown:
+
+<figure><img src="../.gitbook/assets/Screenshot 2025-01-09 at 6.27.57 PM.png" alt="" width="310"><figcaption><p>Select a Prompt</p></figcaption></figure>
+
+{% hint style="info" %}
+Chain of thought prompting isn't available for fine-tuning. Use a non-COT prompt for fine tuning.
+{% endhint %}
