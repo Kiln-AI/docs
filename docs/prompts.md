@@ -48,16 +48,6 @@ Once you've setup your task and added some example content, you'll have a number
 * **Chain of Thought - Few Shot**: a prompt that applies both the few shot template (4 examples), and chain-of-thought thinking instructions.
 * **Chain of Thought - Many Shot**: a prompt that applies both the many shot template (25 examples), and chain-of-thought thinking instructions.
 
-### When to Use Each Style
-
-Ultimately it's up to you when to use each style. The best approach varies from task to task, and model to model. It's worth evaluating a range of prompt/model pairs to find one that works best for your task, while considering speed/cost tradeoffs of longer prompts and larger models.
-
-However, if fine-tuning we generally suggest a tiered approach:
-
-* For generating training data: use a long/powerful prompt like "Chain of Though - Few Shot", on a powerful model (GPT, Claude)&#x20;
-* When building fine-tunes, try a range of included prompts, including the original prompt used when generating training data, the "Basic (Zero Shot)", and an even shorter custom fine-tune prompt. Also include a range of models and model sizes in your search (llama 1b, 3b, 8b, 70b, etc).
-* Evaluate the resulting models. See if the longer prompts are necessary. It's possible the very short prompts will perform well after fine-tuning, which improves speed and lowers costs.
-
 ## Custom Prompts / Saved Prompts
 
 You can also create and share custom prompts inside Kiln. Simply open the "Prompts" tab on the left of the UI. Anyone you [collaborate](collaboration.md) with will have access to these prompts as well.
@@ -77,3 +67,14 @@ You can select any available prompt from the prompt dropdown:
 {% hint style="info" %}
 Chain of thought prompting isn't available for fine-tuning. Use a non-COT prompt for fine tuning.
 {% endhint %}
+
+## When to Use Each Type of Prompt
+
+Ultimately it's up to you when to use each style. The best approach varies from task to task, and model to model. It's worth evaluating a range of prompt/model pairs to find one that works best for your task, while considering speed/cost tradeoffs of longer prompts and larger models.
+
+However, if fine-tuning we generally suggest a tiered approach:
+
+* For generating training data: use a long/powerful prompt like "Chain of Though - Few Shot", on a powerful model (GPT, Claude)&#x20;
+* When building fine-tunes, try a range of included prompts, including the original prompt used when generating training data, the "Basic (Zero Shot)", and an even shorter custom fine-tune prompt. Also include a range of models and model sizes in your search (llama 1b, 3b, 8b, 70b, etc).
+* Evaluate the resulting models. See if the longer prompts are necessary. It's possible the very short prompts will perform well after fine-tuning, which improves speed and lowers costs.
+* Read more from [OpenAI](https://platform.openai.com/docs/guides/fine-tuning#crafting-prompts)
