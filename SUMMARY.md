@@ -22,3 +22,4 @@
 * [Keyboard Shortcuts](docs/keyboard-shortcuts.md)
 * [Privacy](docs/privacy.md)
 * [Rest API](docs/rest-api.md)
+* [Contact Us](docs/contact-us.md)
