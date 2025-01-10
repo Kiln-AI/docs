@@ -7,12 +7,8 @@ description: How to use our prompt generators, or create your own prompt
 
 There are two style of prompts in Kiln:
 
-* Prompt Generators: Kiln can automatically generate many popular prompt styles from your task and dataset (few-shot, many-shot, chain of thought, chain of thought multi-shot, and more)
-* Custom Prompts: create, save and share any custom prompts
-
-{% hint style="info" %}
-Kiln prompt generators are data-driven, meaning the prompts automatically improve as you run your task and collect more examples of good responses (and mistakes!). This is commonly known as "multi-shot" prompting.
-{% endhint %}
+* [Prompt Generators](prompts.md#prompt-generators): Kiln can automatically generate many popular prompt styles from your task and dataset (few-shot, many-shot, chain of thought, chain of thought multi-shot, and more). The more you use your task, and rate the results, the richer your prompts become.
+* [Custom Prompts](prompts.md#custom-prompts): create, save and share any custom prompts
 
 <figure><img src="../.gitbook/assets/Prompts.png" alt=""><figcaption></figcaption></figure>
 
@@ -40,10 +36,6 @@ Kiln will automatically select content for multi-shot prompts using your dataset
 
 Responses with a 3-star or worse rating are never used, unless they have been [repaired](repairing-responses.md) to 5-stars.
 
-### Viewing Prompts
-
-The "Prompts" tab in the UI lets you quickly preview what each prompt builder generates.
-
 ### Prompt Generators
 
 Once you've setup your task and added some example content, you'll have a number of prompt generators to choose from:
@@ -66,11 +58,15 @@ However, if fine-tuning we generally suggest a tiered approach:
 * When building fine-tunes, try a range of included prompts, including the original prompt used when generating training data, the "Basic (Zero Shot)", and an even shorter custom fine-tune prompt. Also include a range of models and model sizes in your search (llama 1b, 3b, 8b, 70b, etc).
 * Evaluate the resulting models. See if the longer prompts are necessary. It's possible the very short prompts will perform well after fine-tuning, which improves speed and lowers costs.
 
-## Custom Prompts
+## Custom Prompts / Saved Prompts
 
 You can also create and share custom prompts inside Kiln. Simply open the "Prompts" tab on the left of the UI. Anyone you [collaborate](collaboration.md) with will have access to these prompts as well.
 
 Give each a unique name to make them easy to manage.
+
+## Viewing Prompts
+
+The "Prompts" tab in the UI lets you quickly preview what each prompt builder generates, or review your saved custom prompts
 
 ## Using Prompts
 
