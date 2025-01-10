@@ -1,6 +1,6 @@
 ---
-description: How Kiln projects are structured
 icon: database
+description: How Kiln projects are structured
 ---
 
 # Kiln Data Model
@@ -21,8 +21,9 @@ Here's a high level overview of the Kiln datamodel. A project folder will reflec
 * Project: a Kiln Project that contains related tasks.
   * Task: a specific task including prompt instructions, input/output schemas, and requirements.
     * TaskRun: a sample (run) of a task including input, output, and human rating information.
-    * DatasetSplit: a frozen collection of task runs divided into train/test/validation splits.
     * Finetune: a model for fine-tuning jobs. Includes configuration, status tracking, and data necessary to call the deployed fine-tuned model.
+    * Prompts: a custom prompt for this task. See our [prompts docs](prompts.md) for details.
+    * DatasetSplit: a frozen collection of task runs divided into train/test/validation splits.
 
 See the [python library datamodel docs](https://kiln-ai.github.io/Kiln/kiln_core_docs/kiln_ai/datamodel.html) for detailed descriptions of classes, fields and validations.
 
