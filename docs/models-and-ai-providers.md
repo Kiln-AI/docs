@@ -15,31 +15,31 @@ Kiln can use essentially any LLM model from a number of providers:
 
 ## Connecting AI Providers
 
-When you first run Kiln, the app will prompt you to setup one or more AI providers. You need at least one for the core features of Kiln to function.
+When you first run Kiln, the app will prompt you to setup one or more AI providers. You need at least one for the core features of Kiln to function.&#x20;
 
-If you want to add providers after initial setup, open **Settings > AI Providers & Models.**
+We currently support the following AI providers: Ollama, OpenRouter, OpenAI, Groq, Fireworks.ai, AWS Bedrock, or any OpenAI compatible endpoing (like LiteLLM, Anthropic, HuggingFace and more).
+
+If you want to add providers after initial setup, open `Settings > AI Providers & Models`**.**
 
 If you want to remove a provider, edit your `~/.kiln_ai/settings.yaml` and remove the provider's config.
 
 ## Understanding and Adding Models
 
-Models come in a range of flavours, from very easy to use, to advanced methods for expert users
+Models come in several flavours, from very easy to use, to advanced methods for expert users:
 
-* [Included models](models-and-ai-providers.md#included-models-recommended)
+* [Included Models - Recommended](models-and-ai-providers.md#included-models-recommended)
 * [Custom Ollama models](models-and-ai-providers.md#custom-ollama-models)
 * [Custom models from existing providers](models-and-ai-providers.md#custom-models-from-existing-providers)
 * [Custom OpenAI compatible servers](models-and-ai-providers.md#custom-openai-compatible-servers)
   * [LiteLLM](models-and-ai-providers.md#litellm) - Anthropic, Huggingface, VertexAI, TogetherAI, and more.
 
-### Included models \[Recommended]
+### Included Models - Recommended
 
 These are models that have been tested to work with Kiln's various features. These are the easiest to use, and generally won't result in errors.
 
-To get access to these models, simply connect any AI provider (in the Settings page). We suggest OpenRouter as it has the widest selection of models. Once connected, you can select the model you want to use in the model dropdown.
+To use these models simply connect any AI provider from the Settings page. Once connected, you can select these model from the model dropdown on the Run screen. The dropdown will warn if you attempt to use a model that doesn't support a feature (like structured output).
 
-Note: some models may only work with unstructured output, or may not support data generation. The dropdown will warn if you try to use a model that doesn't support a feature.
-
-Included models include common models like Claude, GPT-4, Llama, and many more:
+You can request we add models [here](https://github.com/Kiln-AI/Kiln/issues/29).
 
 <table data-full-width="true"><thead><tr><th>Model Name</th><th>Providers</th><th>Structured Output</th><th>Synthetic Data</th><th>API Fine-Tuneable</th></tr></thead><tbody><tr><td>GPT 4o Mini</td><td>OpenAI, OpenRouter</td><td>✅︎</td><td>✅︎</td><td>✅︎</td></tr><tr><td>GPT 4o</td><td>OpenAI, OpenRouter</td><td>✅︎</td><td>✅︎</td><td>✅︎</td></tr><tr><td>Claude 3.5 Haiku</td><td>OpenRouter</td><td>✅︎</td><td>✅︎</td><td></td></tr><tr><td>Claude 3.5 Sonnet</td><td>OpenRouter</td><td>✅︎</td><td>✅︎</td><td></td></tr><tr><td>DeepSeek v3</td><td>OpenRouter</td><td>✅︎</td><td>✅︎</td><td></td></tr><tr><td>Gemini 1.5 Pro</td><td>OpenRouter</td><td></td><td></td><td></td></tr><tr><td>Gemini 1.5 Flash</td><td>OpenRouter</td><td>✅︎</td><td></td><td></td></tr><tr><td>Gemini 1.5 Flash 8B</td><td>OpenRouter</td><td></td><td></td><td></td></tr><tr><td>Nemotron 70B</td><td>OpenRouter</td><td></td><td></td><td></td></tr><tr><td>Llama 3.1 8B</td><td>Amazon Bedrock, Fireworks AI, Groq, Ollama, OpenRouter</td><td>✅︎ (some providers)</td><td>✅︎ (some providers)</td><td>✅︎</td></tr><tr><td>Llama 3.1 70B</td><td>Amazon Bedrock, Fireworks AI, Groq, Ollama, OpenRouter</td><td>✅︎ (some providers)</td><td>✅︎ (some providers)</td><td>✅︎</td></tr><tr><td>Llama 3.1 405B</td><td>Amazon Bedrock, Fireworks AI, Ollama, OpenRouter</td><td>✅︎</td><td>✅︎ (some providers)</td><td></td></tr><tr><td>Mistral Nemo</td><td>OpenRouter</td><td>✅︎</td><td>✅︎</td><td></td></tr><tr><td>Mistral Large</td><td>Amazon Bedrock, Ollama, OpenRouter</td><td>✅︎</td><td>✅︎</td><td></td></tr><tr><td>Llama 3.2 1B</td><td>Fireworks AI, Ollama, OpenRouter</td><td></td><td></td><td>✅︎</td></tr><tr><td>Llama 3.2 3B</td><td>Fireworks AI, Ollama, OpenRouter</td><td></td><td></td><td>✅︎</td></tr><tr><td>Llama 3.2 11B</td><td>Fireworks AI, Ollama, OpenRouter</td><td>✅︎ (some providers)</td><td>✅︎ (some providers)</td><td></td></tr><tr><td>Llama 3.2 90B</td><td>Fireworks AI, Ollama, OpenRouter</td><td>✅︎</td><td>✅︎</td><td></td></tr><tr><td>Llama 3.3 70B</td><td>Fireworks AI, Groq, Ollama, OpenRouter</td><td>✅︎ (some providers)</td><td>✅︎ (some providers)</td><td></td></tr><tr><td>Phi 3.5</td><td>Fireworks AI, Ollama, OpenRouter</td><td></td><td></td><td></td></tr><tr><td>Gemma 2 2B</td><td>Ollama</td><td></td><td></td><td></td></tr><tr><td>Gemma 2 9B</td><td>Ollama, OpenRouter</td><td>✅︎</td><td></td><td></td></tr><tr><td>Gemma 2 27B</td><td>Ollama, OpenRouter</td><td>✅︎</td><td></td><td></td></tr><tr><td>Mixtral 8x7B</td><td>Ollama, OpenRouter</td><td>✅︎ (some providers)</td><td>✅︎ (some providers)</td><td></td></tr><tr><td>Qwen 2.5 7B</td><td>Ollama, OpenRouter</td><td>✅︎ (some providers)</td><td>✅︎ (some providers)</td><td></td></tr><tr><td>Qwen 2.5 72B</td><td>Fireworks AI, Ollama, OpenRouter</td><td>✅︎ (some providers)</td><td>✅︎ (some providers)</td><td></td></tr></tbody></table>
 
