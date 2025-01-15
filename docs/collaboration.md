@@ -42,3 +42,19 @@ Kiln's data structure was designed with collaboration in mind:
 * Projects files are kept small and predominantly append-only. It's rare multiple people will need to work on the same file at the same time, reducing conflicts.
 * The Kiln project files are JSON files, and are formatted to be easily used with diff tools and standard PR tools (GitHub, GitLab, etc).
 * Static paths: even when changing the name of resource, the path will remain static.
+
+### We don't recommend deploying as a service
+
+{% hint style="info" %}
+This section is for engineers/developers attempting custom deployments. If you're a normal app users who launches Kiln as an app, you can skip this!
+{% endhint %}
+
+Kiln's desktop app is designed as an app. Even though internally it uses web tech (HTML), it's still an app designed to be run locally on each user's machine, not a hosted service.&#x20;
+
+We don't recommend or support trying to host it as a service and access it over the network. There are several downsides/risks if you do:
+
+* Security: there's no web-based logins or access controls, so anyone who can access the service can edit data and send requests. That's okay when running as an app locally behind your machine login, but brings risk when opening the service up to anyone on over a network.
+* Collaboration: If multiple users are sharing an instance of Kiln, all the created\_by tags in your dataset will all have the machine name of your VM/host, not the individuals.&#x20;
+* Data backup and history: if you run as suggested above, Git and/or the shared drive will provide data sync, backup and history. If you run on a single server, there's a higher risk of data loss if that server drive is lost/damaged.
+
+You can still access remote LLM services when running locally. It can connect to remote LLM providers, like Ollama on a custom URL over the network.
