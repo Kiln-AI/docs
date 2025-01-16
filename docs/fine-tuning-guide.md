@@ -103,6 +103,12 @@ Export your dataset using the "Hugging Face chat template (JSONL)" option for co
 Unsloth Demo
 {% endembed %}
 
+#### Google Gemini on Vertext AI
+
+Kiln can generate the training format needed by Google's Vertext AI to fine tune Gemini models.
+
+Select the Vertex AI/Gemini option in the dropdown, to download training/validation files in the appriopiate format. Then follow the Google's fine-tuning [guide](https://cloud.google.com/vertex-ai/generative-ai/docs/models/tune-models), using the files from Kiln as you training/validation sets.
+
 ### Cost Breakdown
 
 Our demo use case was quite reasonably priced.
