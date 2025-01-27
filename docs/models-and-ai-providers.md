@@ -41,7 +41,35 @@ To use these models simply connect any AI provider from the Settings page. Once 
 
 You can request we add models [here](https://github.com/Kiln-AI/Kiln/issues/29).
 
-<table data-full-width="true"><thead><tr><th>Model Name</th><th>Providers</th><th>Structured Output</th><th>Synthetic Data</th><th>API Fine-Tuneable</th></tr></thead><tbody><tr><td>GPT 4o Mini</td><td>OpenAI, OpenRouter</td><td>✅︎</td><td>✅︎</td><td>✅︎</td></tr><tr><td>GPT 4o</td><td>OpenAI, OpenRouter</td><td>✅︎</td><td>✅︎</td><td>✅︎</td></tr><tr><td>Claude 3.5 Haiku</td><td>OpenRouter</td><td>✅︎</td><td>✅︎</td><td></td></tr><tr><td>Claude 3.5 Sonnet</td><td>OpenRouter</td><td>✅︎</td><td>✅︎</td><td></td></tr><tr><td>DeepSeek v3</td><td>OpenRouter</td><td>✅︎</td><td>✅︎</td><td></td></tr><tr><td>Gemini 1.5 Pro</td><td>OpenRouter</td><td></td><td></td><td></td></tr><tr><td>Gemini 1.5 Flash</td><td>OpenRouter</td><td>✅︎</td><td></td><td></td></tr><tr><td>Gemini 1.5 Flash 8B</td><td>OpenRouter</td><td></td><td></td><td></td></tr><tr><td>Nemotron 70B</td><td>OpenRouter</td><td></td><td></td><td></td></tr><tr><td>Llama 3.1 8B</td><td>Amazon Bedrock, Fireworks AI, Groq, Ollama, OpenRouter</td><td>✅︎ (some providers)</td><td>✅︎ (some providers)</td><td>✅︎</td></tr><tr><td>Llama 3.1 70B</td><td>Amazon Bedrock, Fireworks AI, Groq, Ollama, OpenRouter</td><td>✅︎ (some providers)</td><td>✅︎ (some providers)</td><td>✅︎</td></tr><tr><td>Llama 3.1 405B</td><td>Amazon Bedrock, Fireworks AI, Ollama, OpenRouter</td><td>✅︎</td><td>✅︎ (some providers)</td><td></td></tr><tr><td>Mistral Nemo</td><td>OpenRouter</td><td>✅︎</td><td>✅︎</td><td></td></tr><tr><td>Mistral Large</td><td>Amazon Bedrock, Ollama, OpenRouter</td><td>✅︎</td><td>✅︎</td><td></td></tr><tr><td>Llama 3.2 1B</td><td>Fireworks AI, Ollama, OpenRouter</td><td></td><td></td><td>✅︎</td></tr><tr><td>Llama 3.2 3B</td><td>Fireworks AI, Ollama, OpenRouter</td><td></td><td></td><td>✅︎</td></tr><tr><td>Llama 3.2 11B</td><td>Fireworks AI, Ollama, OpenRouter</td><td>✅︎ (some providers)</td><td>✅︎ (some providers)</td><td></td></tr><tr><td>Llama 3.2 90B</td><td>Fireworks AI, Ollama, OpenRouter</td><td>✅︎</td><td>✅︎</td><td></td></tr><tr><td>Llama 3.3 70B</td><td>Fireworks AI, Groq, Ollama, OpenRouter</td><td>✅︎ (some providers)</td><td>✅︎ (some providers)</td><td></td></tr><tr><td>Phi 3.5</td><td>Fireworks AI, Ollama, OpenRouter</td><td></td><td></td><td></td></tr><tr><td>Gemma 2 2B</td><td>Ollama</td><td></td><td></td><td></td></tr><tr><td>Gemma 2 9B</td><td>Ollama, OpenRouter</td><td>✅︎</td><td></td><td></td></tr><tr><td>Gemma 2 27B</td><td>Ollama, OpenRouter</td><td>✅︎</td><td></td><td></td></tr><tr><td>Mixtral 8x7B</td><td>Ollama, OpenRouter</td><td>✅︎ (some providers)</td><td>✅︎ (some providers)</td><td></td></tr><tr><td>Qwen 2.5 7B</td><td>Ollama, OpenRouter</td><td>✅︎ (some providers)</td><td>✅︎ (some providers)</td><td></td></tr><tr><td>Qwen 2.5 72B</td><td>Fireworks AI, Ollama, OpenRouter</td><td>✅︎ (some providers)</td><td>✅︎ (some providers)</td><td></td></tr></tbody></table>
+| Model Name          | Providers                                              | Structured Output   | Synthetic Data      | API Fine-Tuneable |
+| ------------------- | ------------------------------------------------------ | ------------------- | ------------------- | ----------------- |
+| GPT 4o Mini         | OpenAI, OpenRouter                                     | ✅︎                  | ✅︎                  | ✅︎                |
+| GPT 4o              | OpenAI, OpenRouter                                     | ✅︎                  | ✅︎                  | ✅︎                |
+| Claude 3.5 Haiku    | OpenRouter                                             | ✅︎                  | ✅︎                  |                   |
+| Claude 3.5 Sonnet   | OpenRouter                                             | ✅︎                  | ✅︎                  |                   |
+| DeepSeek v3         | OpenRouter                                             | ✅︎                  | ✅︎                  |                   |
+| DeepSeek R1         | Fireworks AI, Ollama, OpenRouter                       | ✅︎ (some providers) | ✅︎ (some providers) |                   |
+| Gemini 1.5 Pro      | OpenRouter                                             |                     |                     |                   |
+| Gemini 1.5 Flash    | OpenRouter                                             | ✅︎                  |                     |                   |
+| Gemini 1.5 Flash 8B | OpenRouter                                             |                     |                     |                   |
+| Nemotron 70B        | OpenRouter                                             |                     |                     |                   |
+| Llama 3.1 8B        | Amazon Bedrock, Fireworks AI, Groq, Ollama, OpenRouter | ✅︎ (some providers) | ✅︎ (some providers) | ✅︎                |
+| Llama 3.1 70B       | Amazon Bedrock, Fireworks AI, Groq, Ollama, OpenRouter | ✅︎ (some providers) | ✅︎ (some providers) | ✅︎                |
+| Llama 3.1 405B      | Amazon Bedrock, Fireworks AI, Ollama, OpenRouter       | ✅︎                  | ✅︎ (some providers) |                   |
+| Mistral Nemo        | OpenRouter                                             | ✅︎                  | ✅︎                  |                   |
+| Mistral Large       | Amazon Bedrock, Ollama, OpenRouter                     | ✅︎                  | ✅︎                  |                   |
+| Llama 3.2 1B        | Fireworks AI, Ollama, OpenRouter                       |                     |                     |                   |
+| Llama 3.2 3B        | Fireworks AI, Ollama, OpenRouter                       |                     |                     | ✅︎                |
+| Llama 3.2 11B       | Fireworks AI, Ollama, OpenRouter                       | ✅︎ (some providers) | ✅︎ (some providers) |                   |
+| Llama 3.2 90B       | Fireworks AI, Ollama, OpenRouter                       | ✅︎                  | ✅︎                  |                   |
+| Llama 3.3 70B       | Fireworks AI, Groq, Ollama, OpenRouter                 | ✅︎ (some providers) | ✅︎ (some providers) |                   |
+| Phi 3.5             | Fireworks AI, Ollama, OpenRouter                       |                     |                     |                   |
+| Gemma 2 2B          | Ollama                                                 |                     |                     |                   |
+| Gemma 2 9B          | Ollama, OpenRouter                                     | ✅︎                  |                     |                   |
+| Gemma 2 27B         | Ollama, OpenRouter                                     | ✅︎                  |                     |                   |
+| Mixtral 8x7B        | Ollama, OpenRouter                                     | ✅︎ (some providers) | ✅︎ (some providers) |                   |
+| Qwen 2.5 7B         | Ollama, OpenRouter                                     | ✅︎ (some providers) | ✅︎ (some providers) |                   |
+| Qwen 2.5 72B        | Fireworks AI, Ollama, OpenRouter                       | ✅︎ (some providers) | ✅︎ (some providers) |                   |
 
 ### Custom Ollama Models
 
