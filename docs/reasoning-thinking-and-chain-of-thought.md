@@ -63,7 +63,7 @@ Kiln uses supervised fine tuning to distill reasoning models.
 
 ### Performance & Cost
 
-More inference time compute doesn't necessarily mean slower or more costly requests. Sometimes a smaller model using more inference-time compute can be faster, better, and cheaper than a larger model performing the same task.
+Reasoning and COT doesn't necessarily mean slower or more costly requests. Sometimes a smaller model with these methods can be faster, better, and cheaper than a larger model performing the same task. Fine-tuning can help further reduce costs and improve quality.
 
 ### Supported Reasoning Models
 
