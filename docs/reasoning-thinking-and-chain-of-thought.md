@@ -17,14 +17,16 @@ Kiln has powerful support for reasoning models and chain of thought. These techn
 
 <summary>What are reasoning models and chain of thought?</summary>
 
-Reasoning models and chain of thought (COT) are methods that give models time to "think" before giving a final answer. Their "thinking" takes the form of discussing the request and possible answers in a stream of generated tokens. These additional tokens allow for more complex reasoning, step-by-step thinking, and have been shown to improve the quality of results. These approaches are also known as "inference time scaling," where models improve from spending more compute power at inference time — as opposed to improving by spending more compute at training time.
+Reasoning models and chain of thought (COT) are methods that give models time to "think" before giving a final answer. Their "thinking" takes the form of discussing the request and possible answers in a stream of generated tokens. These additional tokens allow for more complex reasoning, step-by-step thinking, and have been shown to improve the quality of results.&#x20;
 
-Both methods are similar, but they have some differences:
+These approaches are also known as "inference time scaling," where models improve from spending more compute power at inference time — as opposed to improving by spending more compute at training time.
+
+While similar in some ways, the methods have some differences:
 
 * **Chain of thought** is a method that's been around for a few years, and simply involves asking the model to think before giving an answer. This can be as simple as appending "Think step by step" to your prompt or adding detailed instructions for what the model should "think" about before giving its final answer.
 * **Reasoning/thinking models** like Deepseek R1 or OpenAI's O3 are a newer form of inference time compute, where the model itself was trained to develop powerful reasoning skills. These models are trained with reinforcement learning, where the model is rewarded for being correct and penalized when incorrect. This training system uses deep learning to help models develop reasoning skills across a range of domains.
 
-While reasoning models are generally more powerful than a simple chain of thought, it's often worth testing both approaches for your use case. Thinking models strive to reason about everything effectively, but a well-crafted chain of thought prompt from a human expert can often outperform them when developing use-case-specific models/APIs.&#x20;
+While reasoning models are generally more powerful than chain of thought, it's often worth testing both approaches for your use case. Thinking models strive to reason about everything effectively, but a well-crafted chain of thought prompt from a human expert can often outperform them when developing use-case-specific models/APIs.&#x20;
 
 </details>
 
