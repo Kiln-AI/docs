@@ -1,9 +1,9 @@
 ---
 icon: brain
-description: Build your own thinking models
+description: Improve your model's quality with inference time scaling
 ---
 
-# Reasoning, Thinking, & Chain of Thought
+# Reasoning, Thinking & Chain of Thought
 
 {% hint style="info" %}
 **Reasoning model support is on our main branch, but not yet in a release.** If you want to use it now, download a daily build from Github Actions.
@@ -11,36 +11,38 @@ description: Build your own thinking models
 
 ### What are reasoning models and chain of thought?
 
-Reasoning models and chain of thought are methods that give models time to "think" before giving a final answering. Their "thinking" takes the form of discussing the request and possible answers in a stream of generated tokens. These additional tokens allows for more complex reasoning,  step-by-step thinking, and has been shown to improve the quality of results. These approaches are also known as "inference time scaling", where models improve from spending more compute power at inference time — as opposed to improving by spending more compute at training time.
+Reasoning models and chain of thought (COT) are methods that give models time to "think" before giving a final answering. Their "thinking" takes the form of discussing the request and possible answers in a stream of generated tokens. These additional tokens allows for more complex reasoning,  step-by-step thinking, and has been shown to improve the quality of results. These approaches are also known as "inference time scaling": where models improve from spending more compute power at inference time — as opposed to improving by spending more compute at training time.
 
 Both methods are similar, but they have some differences:
 
 * **Chain of thought** is a method that's been around for a few years, and simply involves asking the model to think before giving an answer. This can be as simple as appending "Think step by step" to your prompt, or adding detailed instructions for what the model should "think" about before giving it's final answer.
-* **Reasoning/thinking models** like Deepseek R1 or OpenAI o3 are a newer form of inference time compute, where the model itself was trained to develop powerful reasoning skills. These models are trained with reinforcement learning, where the model is rewarded for being correct and penalized when incorrect. This training system uses deep learning to help the models to develop reasoning skills across a range of problem domains.
+* **Reasoning/thinking models** like Deepseek R1 or OpenAI o3 are a newer form of inference time compute, where the model itself was trained to develop powerful reasoning skills. These models are trained with reinforcement learning, where the model is rewarded for being correct and penalized when incorrect. This training system uses deep learning to help the models to develop reasoning skills across a range of domains.
 
 While reasoning models are generally more powerful than simple chain of thought, it's often worth testing both approaches for your use case. Thinking models attempt to be good about reasoning about everything, but a well crafted chain of thought prompt from a human expert can often beat them when developing use-case specific models/APIs.
+
+[Creating your own task-specific thinking model](reasoning-thinking-and-chain-of-thought.md#building-your-own-reasoning-model-distillation) is another powerful option supported by Kiln.
 
 {% hint style="info" %}
 While you can call OpenAI's reasoning models (o1, o3) from Kiln, they are treated as normal models. OpenAI hides the reasoning tokens from users, only returning the final answer. To distill a reasoning model for your use case use an open model like Deepseek R1 which returns the thinking tokens, or use a custom chain-of-thought prompt.
 {% endhint %}
 
-### How Kiln treats reasoning models and COT
+### How Kiln handles reasoning models and COT
 
 Kiln has native support for both these methods. This includes:
 
 * Parsers: Kiln includes parsers that separate out "thinking" from answers for common thinking models.
 * Data Model: Our data model stores thinking separately from final answers, allowing you to evaluate or train on them independently.&#x20;
-* Custom Message Flow: When using chain-of-thought with models that don't support reasoning (anything except Deepseek R1), we make a chain of calls to the model to formally separate the thinking from the answer.
+* [Custom Message Flow](reasoning-thinking-and-chain-of-thought.md#custom-message-chat-flow): When using chain-of-thought with models that don't support reasoning (anything except Deepseek R1), we make a chain of calls to the model to formally separate the thinking from the answer.
 * Structured Data: our chat call flow allows the final answer messages can use structured data tools (json\_schema, json\_object, tool-calls, etc), without adding "thinking" fields to your data structures.
 * Prompts: Prompts are divided into the primary system message, and a separate "thinking instruction".&#x20;
-* Fine tuning: you can fine tune models with thinking data and prompts, allowing you to build small, fast and high quality thinking models for your uses cases.
+* [Fine tuning/Distillation](reasoning-thinking-and-chain-of-thought.md#building-your-own-reasoning-model-distillation): you can fine tune models with thinking data and prompts, allowing you to build small, fast and high quality thinking models for your use case.
 
-### Using reasoning in Kiln
+### Using reasoning or COT in Kiln
 
-Using thinking models in Kiln is easy! Simply do one of the following:
+Using thinking models or COT in Kiln is easy! Simply do one of the following:
 
-* Run a model with any "Chain of thought" prompt selected (including a custom prompt with thinking instructions included)
-* Run a thinking model (e.g. Deepseek R1) with any prompt. If a chain of thought prompt is used, the thinking instructions will be provided to R1. If a non-COT prompt is used, deepseek will still think, but using it's own reasoning guidance.
+* Run a model with any "Chain of thought" prompt selected (including a custom prompt with thinking instructions included).
+* Run a reasoning model (e.g. Deepseek R1) with any prompt. If a chain of thought prompt is used, the thinking instructions will be passed along to the model in the system prompt. If a non-COT prompt is used, the reasoning model will still "think", but using it's own reasoning guidance.
 
 Once the run is complete, you'll see both a final answer and reasoning in the model output.
 
@@ -73,6 +75,8 @@ Here's the message call flow Kiln uses for each configuration:
 * \[Assistant Message]: COT reasoning tokens
 * \[User Message]: Kiln managed message: "Considering the above, return a final result."
 * \[Assistant Message]: Final Answer, optionally structured data
+
+This flow is also used on fine-tunes you create with Kiln, if the fine-tune was created with the "Final answer and intermediate reasoning" training strategy.
 
 #### Reasoning model call-flow:
 
