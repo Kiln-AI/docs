@@ -9,6 +9,8 @@ description: Improve your model's quality with inference time scaling
 **Reasoning model support is on our main branch, but not yet in a release**. If you want to use it now, download a daily build from GitHub Actions.
 {% endhint %}
 
+<figure><img src="../.gitbook/assets/reasoning (1).png" alt=""><figcaption></figcaption></figure>
+
 ### What are reasoning models and chain of thought?
 
 Reasoning models and chain of thought (COT) are methods that give models time to "think" before giving a final answer. Their "thinking" takes the form of discussing the request and possible answers in a stream of generated tokens. These additional tokens allow for more complex reasoning, step-by-step thinking, and have been shown to improve the quality of results. These approaches are also known as "inference time scaling," where models improve from spending more compute power at inference time — as opposed to improving by spending more compute at training time.
