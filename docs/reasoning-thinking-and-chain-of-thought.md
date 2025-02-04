@@ -1,6 +1,6 @@
 ---
-description: Build your own thinking models
 icon: brain
+description: Build your own thinking models
 ---
 
 # Reasoning, Thinking, & Chain of Thought
@@ -57,20 +57,25 @@ More inference time compute doesn't necessarily mean slower or more costly reque
 
 ### Custom message chat flow
 
-Here's the message call flow for each&#x20;
+Here's the message call flow Kiln uses for each configuration:
 
-* Normal call-flow (non COT, non-reasoning model)
-  * \[System Message]: System prompt
-  * \[User Message]: User inputs
-  * \[Assistant Message]: Final Answer, optionally structured data
-* Chain of thought call-flow (Non-reasoning model):
-  * \[System Message]: System prompt
-  * \[User Message]: User inputs
-  * \[User Message]: Thinking instructions. User provided if available, defaults to "Think step by step, explaining your reasoning.".
-  * \[Assistant Message]: COT reasoning tokens
-  * \[User Message]: Kiln managed message: "Considering the above, return a final result."
-  * \[Assistant Message]: Final Answer, optionally structured data
-* Reasoning model call-flow:
-  * \[System Message]: System prompt. Optionally appending thinking-instructions if the selected prompt includes them.
-  * \[User Message]: User inputs
-  * \[Assistant Message]: Final Answer and reasoning in 1 message, but will be parsed into separate reasoning and answer fields. Will parse structured data if the task has structured output.
+#### Normal call-flow (non COT, non-reasoning model)
+
+* \[System Message]: System prompt
+* \[User Message]: User inputs
+* \[Assistant Message]: Final Answer, optionally structured data
+
+#### Chain of thought call-flow (Non-reasoning model):
+
+* \[System Message]: System prompt
+* \[User Message]: User inputs
+* \[User Message]: Thinking instructions. User provided if available, defaults to "Think step by step, explaining your reasoning.".
+* \[Assistant Message]: COT reasoning tokens
+* \[User Message]: Kiln managed message: "Considering the above, return a final result."
+* \[Assistant Message]: Final Answer, optionally structured data
+
+#### Reasoning model call-flow:
+
+* \[System Message]: System prompt. Optionally appending thinking-instructions if the selected prompt includes them.
+* \[User Message]: User inputs
+* \[Assistant Message]: Final Answer and reasoning in 1 message, but will be parsed into separate reasoning and answer fields. Will parse structured data if the task has structured output.
