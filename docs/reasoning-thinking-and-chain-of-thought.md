@@ -26,7 +26,7 @@ While reasoning models are generally more powerful than a simple chain of though
 While you can call OpenAI's reasoning models (o1, O3) from Kiln, they are treated as normal models. OpenAI hides the reasoning tokens from users, only returning the final answer. To distill a reasoning model for your use case, use an open model like Deepseek R1, which returns the thinking tokens, or use a custom chain-of-thought prompt.
 {% endhint %}
 
-### How Kiln handles reasoning models and chain of thought (COT)
+### How Kiln handles reasoning models and chain of thought
 
 Kiln has native support for both these methods. This includes:
 
@@ -37,49 +37,49 @@ Kiln has native support for both these methods. This includes:
 * [**Prompts**](prompts.md)**:** Prompts are divided into the primary system message and a separate "thinking instruction."
 * [**Fine-tuning/Distillation**](reasoning-thinking-and-chain-of-thought.md#building-your-own-reasoning-model-distillation)**:** You can fine-tune models with thinking data and prompts, allowing you to build small, fast, and high-quality thinking models for your use case.
 
-### Using reasoning or COT in Kiln
+### Using Reasoning or COT in Kiln
 
-Using thinking models or COT in Kiln is easy! Simply do one of the following:
+Using reasoning models or COT in Kiln is easy! Simply do one of the following:
 
-* Run a model with any "Chain of thought" prompt selected (including a custom prompt with thinking instructions included).
-* Run a reasoning model (e.g. Deepseek R1) with any prompt. If a chain of thought prompt is used, the thinking instructions will be passed along to the model in the system prompt. If a non-COT prompt is used, the reasoning model will still "think", but using it's own reasoning guidance.
+* Run a model with any "Chain of Thought" prompt selected, including a custom prompt with thinking instructions included.
+* Run a reasoning model (e.g., Deepseek R1) with any prompt. If a Chain of Thought prompt is used, the thinking instructions will be passed along to the model in the system prompt. If a non-COT prompt is used, the reasoning model will still "think," but using its own reasoning guidance.
 
 Once the run is complete, you'll see both a final answer and reasoning in the model output.
 
 ### Building your own reasoning model (distillation)
 
-Kiln can fine-tune a thinking model using your dataset. Often called distillation, these models can learn the reasoning strategies for your use case from examples in your Kiln dataset. By fine-tuning/distilling a model, you can produce a model that's smaller, faster, cheaper and better than the original model.
+Kiln can fine-tune a thinking model using your dataset. Often called distillation, these models can learn the reasoning strategies for your use case from examples in your Kiln dataset. By fine-tuning a model, you can produce a model that's smaller, faster, cheaper, and better than the original model.
 
 * See our guide on fine-tuning reasoning models
-* See our guide for [general fine-tuning](fine-tuning-guide.md) (non reasoning models)
+* See our guide for [general fine-tuning](fine-tuning-guide.md) (non-reasoning models)
 
 ### Performance & Cost
 
-More inference time compute doesn't necessarily mean slower or more costly requests. Sometimes a smaller model using more inference-time compute can be faster, better and cheaper than a larger model performing the same task.
+More inference time compute doesn't necessarily mean slower or more costly requests. Sometimes a smaller model using more inference-time compute can be faster, better, and cheaper than a larger model performing the same task.
 
-### Custom message chat flow
+### Custom Message Chat Flow
 
 Here's the message call flow Kiln uses for each configuration:
 
-#### Normal call-flow (non COT, non-reasoning model)
+#### Normal Call-Flow (non-reasoning model)
 
-* \[System Message]: System prompt
-* \[User Message]: User inputs
-* \[Assistant Message]: Final Answer, optionally structured data
+* \[System-Message]: System prompt
+* \[User-Message]: User inputs
+* \[Assistant-Message]: Final Answer, optionally structured data
 
-#### Chain of thought call-flow (Non-reasoning model):
+#### Chain of Thought Call-Flow (non-reasoning model):
 
-* \[System Message]: System prompt
-* \[User Message]: User inputs
-* \[User Message]: Thinking instructions. User provided if available, defaults to "Think step by step, explaining your reasoning.".
-* \[Assistant Message]: COT reasoning tokens
-* \[User Message]: Kiln managed message: "Considering the above, return a final result."
-* \[Assistant Message]: Final Answer, optionally structured data
+* \[System-Message]: System prompt
+* \[User-Message]: User inputs
+* \[User-Message]: Thinking instructions. User-provided if available, defaults to "Think step by step, explaining your reasoning."
+* \[Assistant-Message]: COT reasoning tokens
+* \[User-Message]: Kiln managed message: "Considering the above, return a final result."
+* \[Assistant-Message]: Final Answer, optionally structured data
 
-This flow is also used on fine-tunes you create with Kiln, if the fine-tune was created with the "Final answer and intermediate reasoning" training strategy.
+This flow is also used on fine-tunes you create with Kiln if the fine-tune was created with the "Final answer and intermediate reasoning" training strategy.
 
-#### Reasoning model call-flow:
+#### Reasoning Model Call-Flow:
 
-* \[System Message]: System prompt. Optionally appending thinking-instructions if the selected prompt includes them.
-* \[User Message]: User inputs
-* \[Assistant Message]: Final Answer and reasoning in 1 message, but will be parsed into separate reasoning and answer fields. Will parse structured data if the task has structured output.
+* \[System-Message]: System prompt, optionally appending thinking instructions if the selected prompt includes them.
+* \[User-Message]: User inputs
+* \[Assistant-Message]: Final Answer and reasoning in one message, but will be parsed into separate reasoning and answer fields. Will parse structured data if the task has structured output.
