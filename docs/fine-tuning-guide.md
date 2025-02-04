@@ -87,6 +87,12 @@ You can use your models outside of Kiln by calling Fireworks or OpenAI APIs with
 Running some of our Fine Tuned Models (Llama 3.2 1b & GPT 4o-mini)
 {% endembed %}
 
+{% hint style="info" %}
+If a Fireworks fine tune gives you the error \`Model not found, inaccessible, and/or not deployed\`, it means that model was un-deployed by Fireworks. Opening the model in the "Fine Tune" tab of Kiln will trigger a re-deploy.
+{% endhint %}
+
+
+
 ### Step 6 \[Optional]: Training on your own Infrastructure
 
 Kiln can also export your dataset to common formats for fine tuning on your own infrastructure. Simply select one of the "Download" options when creating your fine tune, and use the exported JSONL file to train with your own tools.
