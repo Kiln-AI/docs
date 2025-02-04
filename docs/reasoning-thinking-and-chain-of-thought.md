@@ -11,7 +11,11 @@ description: Improve your model's quality with inference time scaling
 
 <figure><img src="../.gitbook/assets/reasoning (1).png" alt=""><figcaption></figcaption></figure>
 
-### What are reasoning models and chain of thought?
+Kiln has powerful support for reasoning models and chain of thought. These techniques can generate higher quality results, while also reducing costs and improving performance.
+
+<details>
+
+<summary>What are reasoning models and chain of thought?</summary>
 
 Reasoning models and chain of thought (COT) are methods that give models time to "think" before giving a final answer. Their "thinking" takes the form of discussing the request and possible answers in a stream of generated tokens. These additional tokens allow for more complex reasoning, step-by-step thinking, and have been shown to improve the quality of results. These approaches are also known as "inference time scaling," where models improve from spending more compute power at inference time — as opposed to improving by spending more compute at training time.
 
@@ -22,24 +26,20 @@ Both methods are similar, but they have some differences:
 
 While reasoning models are generally more powerful than a simple chain of thought, it's often worth testing both approaches for your use case. Thinking models strive to reason about everything effectively, but a well-crafted chain of thought prompt from a human expert can often outperform them when developing use-case-specific models/APIs.&#x20;
 
-[Creating your own task-specific thinking model](reasoning-thinking-and-chain-of-thought.md#building-your-own-reasoning-model-distillation) is another powerful option supported by Kiln.
-
-{% hint style="info" %}
-While you can call OpenAI's reasoning models (o1, O3) from Kiln, they are treated as normal models. OpenAI hides the reasoning tokens from users, only returning the final answer. To distill a reasoning model for your use case, use an open model like Deepseek R1, which returns the thinking tokens, or use a custom chain-of-thought prompt.
-{% endhint %}
+</details>
 
 ### How Kiln handles reasoning models and chain of thought
 
 Kiln has native support for both these methods. This includes:
 
-* **Reasoning Parsers:** Kiln includes parsers that separate out "thinking" from answers for common thinking models.
+* [**Creating Reasoning Models**](reasoning-thinking-and-chain-of-thought.md#building-your-own-reasoning-model-distillation)**:** You can fine-tune/distill reasoning models using Kiln. Models train on your Kiln dataset, using samples generated from reasoning models. This approach allows you to build small, fast, and high-quality thinking models, tuned to your use case.
 * [**Data Model**](kiln-datamodel.md)**:** Our data model stores thinking separately from final answers, allowing you to evaluate or train on them independently.
 * [**Custom Message Flow**](reasoning-thinking-and-chain-of-thought.md#custom-message-chat-flow)**:** When using chain-of-thought with models that don't support reasoning we make a chain of calls to the model to formally separate the thinking from the answer.
 * [**Structured Data**](structured-data-json.md): Our chat call flow allows for the final answer messages to use structured data tools (json\_schema, json\_object, tool-calls, etc.) without adding "thinking" fields to your data structures.
 * [**Prompts**](prompts.md)**:** Prompts are divided into the primary system message and a separate "thinking instruction."
-* [**Fine-tuning/Distillation**](reasoning-thinking-and-chain-of-thought.md#building-your-own-reasoning-model-distillation)**:** You can fine-tune models with thinking data and prompts, allowing you to build small, fast, and high-quality thinking models for your use case.
+* **Reasoning Parsers:** Kiln includes parsers that separate out "thinking" from answers for common thinking models.
 
-### Using Reasoning or COT in Kiln
+### Using Reasoning or COT in Kiln for inference
 
 Using reasoning models or COT in Kiln is easy! Simply do one of the following:
 
@@ -50,14 +50,26 @@ Once the run is complete, you'll see both a final answer and reasoning in the mo
 
 ### Building your own reasoning model (distillation)
 
-Kiln can fine-tune a thinking model using your dataset. Often called distillation, these models can learn the reasoning strategies for your use case from examples in your Kiln dataset. By fine-tuning a model, you can produce a model that's smaller, faster, cheaper, and better than the original model.
+Kiln can fine-tune a thinking model using your dataset. Often called distillation, these models can learn the reasoning strategies for your use case from examples in your Kiln dataset. By fine-tuning a model, you can produce a model that's smaller, faster, cheaper, and better than the original model (for your use case).
 
 * See our guide on fine-tuning reasoning models
 * See our guide for [general fine-tuning](fine-tuning-guide.md) (non-reasoning models)
 
+{% hint style="info" %}
+Kiln uses supervised fine tuning to distill reasoning models.
+{% endhint %}
+
 ### Performance & Cost
 
 More inference time compute doesn't necessarily mean slower or more costly requests. Sometimes a smaller model using more inference-time compute can be faster, better, and cheaper than a larger model performing the same task.
+
+### Supported Reasoning Models
+
+Currently we support Deepseek R1 and it's official distillations. We expect to see many more open reasoning models emerge over the next few months. See the [model capability list in our docs](models-and-ai-providers.md#included-models-recommended) for the latest .
+
+{% hint style="info" %}
+While you can call OpenAI's reasoning models (o1, o3) from Kiln, they behave like normal models. OpenAI hides the reasoning tokens from users, only returning the final answer.
+{% endhint %}
 
 ### Custom Message Chat Flow
 
