@@ -3,7 +3,7 @@ icon: brain
 description: Improve your model's quality with inference time scaling
 ---
 
-# Reasoning, Thinking & Chain of Thought
+# Reasoning & Chain of Thought
 
 {% hint style="warning" %}
 **Reasoning model support requires our** [**latest beta**](https://github.com/Kiln-AI/Kiln/releases/tag/v0.10.0)**. Older builds do not include these features.**
@@ -34,9 +34,9 @@ While reasoning models are generally more powerful than chain of thought, it's o
 
 Kiln has native support for both these methods. This includes:
 
-* [**Creating Reasoning Models**](reasoning-thinking-and-chain-of-thought.md#building-your-own-reasoning-model-distillation)**:** You can fine-tune/distill reasoning models using Kiln. Models train on your Kiln dataset, using samples generated from reasoning models. This approach allows you to build small, fast, and high-quality thinking models, tuned to your use case.
+* [**Creating Reasoning Models**](reasoning-and-chain-of-thought.md#building-your-own-reasoning-model-distillation)**:** You can fine-tune/distill reasoning models using Kiln. Models train on your Kiln dataset, using samples generated from reasoning models. This approach allows you to build small, fast, and high-quality thinking models, tuned to your use case.
 * [**Data Model**](kiln-datamodel.md)**:** Our data model stores thinking separately from final answers, allowing you to evaluate or train on them independently.
-* [**Custom Message Flow**](reasoning-thinking-and-chain-of-thought.md#custom-message-chat-flow)**:** When using chain-of-thought with models that don't support reasoning we make a chain of calls to the model to formally separate the thinking from the answer.
+* [**Custom Message Flow**](reasoning-and-chain-of-thought.md#custom-message-chat-flow)**:** When using chain-of-thought with models that don't support reasoning we make a chain of calls to the model to formally separate the thinking from the answer.
 * [**Structured Data**](structured-data-json.md): Our chat call flow allows for the final answer messages to use structured data tools (json\_schema, json\_object, tool-calls, etc.) without adding "thinking" fields to your data structures.
 * [**Prompts**](prompts.md)**:** Prompts are divided into the primary system message and a separate "thinking instruction."
 * **Reasoning Parsers:** Kiln includes parsers that separate out "thinking" from answers for common thinking models.

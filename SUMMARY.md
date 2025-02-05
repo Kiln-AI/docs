@@ -15,7 +15,7 @@
 * [Prompts](docs/prompts.md)
 * [Synthetic Data Generation](docs/synthetic-data-generation.md)
 * [Fine Tuning Guide](docs/fine-tuning-guide.md)
-* [Reasoning, Thinking & Chain of Thought](docs/reasoning-thinking-and-chain-of-thought.md)
+* [Reasoning & Chain of Thought](docs/reasoning-and-chain-of-thought.md)
 * [Organizing Datasets](docs/organizing-datasets.md)
 * [Structured Data / JSON](docs/structured-data-json.md)
 * [Kiln Data Model](docs/kiln-datamodel.md)

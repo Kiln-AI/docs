@@ -44,7 +44,7 @@ Once you've setup your task and added some example content, you'll have a number
 * **Few Shot**: a mult-shot prompt that will include the 4 best examples from your dataset, on top of the basic prompt.
 * **Many Shot**: a mult-shot prompt that will include the 25 best examples from your dataset, on top of the basic prompt.
 * **Repair Multi Shot**:  a mult-shot prompt that will include the 25 best examples from your dataset, on top of the basic prompt. This [prompt will use repaired examples](repairing-responses.md) to show 1) the generated content which had issues, 2) the human feedback about what was incorrect, 3) the corrected 5-star content. This gives the LLM examples of common errors to avoid.
-* **Basic Chain of Though**: a [chain of thought](reasoning-thinking-and-chain-of-thought.md) prompt template that will only use your task definition (instructions, requirements, and thinking instructions). Kiln will return the response in 2 stages, 1) thinking stage, 2) response stage. Both are stored in the dataset, but typically only stage 2 is used in the app/product. For structured tasks, the final answer must conform to the schema, but the thinking stage is plain test. This prompt is deterministic, and won't change unless you edit your task.
+* **Basic Chain of Though**: a [chain of thought](reasoning-and-chain-of-thought.md) prompt template that will only use your task definition (instructions, requirements, and thinking instructions). Kiln will return the response in 2 stages, 1) thinking stage, 2) response stage. Both are stored in the dataset, but typically only stage 2 is used in the app/product. For structured tasks, the final answer must conform to the schema, but the thinking stage is plain test. This prompt is deterministic, and won't change unless you edit your task.
 * **Chain of Thought - Few Shot**: a prompt that applies both the few shot template (4 examples), and chain-of-thought thinking instructions.
 * **Chain of Thought - Many Shot**: a prompt that applies both the many shot template (25 examples), and chain-of-thought thinking instructions.
 
@@ -56,7 +56,7 @@ Custom prompts include several fields:
 
 * Name: a name for you and your team to idenify this prompt. Not used by the model.
 * Prompt (aka System Message): The core of your prompt. Will be passed to the model as a system message before any user data is sent.
-* Chain of thought instructions: if provided, using this prompt will add an extra "thinking"/reasoning phase it's it's execution. These instructions guide how the model should "think" about the problem before answering. See [COT docs](reasoning-thinking-and-chain-of-thought.md#chain-of-thought-call-flow-non-reasoning-model) for details.&#x20;
+* Chain of thought instructions: if provided, using this prompt will add an extra "thinking"/reasoning phase it's it's execution. These instructions guide how the model should "think" about the problem before answering. See [COT docs](reasoning-and-chain-of-thought.md#chain-of-thought-call-flow-non-reasoning-model) for details.&#x20;
 
 ## Viewing Prompts
 
