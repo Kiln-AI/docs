@@ -9,7 +9,13 @@ description: Improve your model's quality with inference time scaling
 **Reasoning model support requires our** [**latest beta**](https://github.com/Kiln-AI/Kiln/releases/tag/v0.10.0)**. Older builds do not include these features.**
 {% endhint %}
 
+{% hint style="info" %}
+Want to dive in and build a reasoning model? See our [Guide for Training A Reasoning Model](guide-train-a-reasoning-model.md)!
+{% endhint %}
+
 <figure><img src="../.gitbook/assets/reasoning (1).png" alt=""><figcaption></figcaption></figure>
+
+
 
 Kiln has powerful support for reasoning models and chain of thought. These techniques can generate higher quality results, while also reducing costs and improving performance.
 

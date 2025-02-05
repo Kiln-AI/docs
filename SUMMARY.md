@@ -15,7 +15,7 @@
 * [Prompts](docs/prompts.md)
 * [Synthetic Data Generation](docs/synthetic-data-generation.md)
 * [Fine Tuning Guide](docs/fine-tuning-guide.md)
-* [Guide: Train your own reasoning model](docs/guide-train-your-own-reasoning-model.md)
+* [Guide: Train a Reasoning Model](docs/guide-train-a-reasoning-model.md)
 * [Reasoning & Chain of Thought](docs/reasoning-and-chain-of-thought.md)
 * [Organizing Datasets](docs/organizing-datasets.md)
 * [Structured Data / JSON](docs/structured-data-json.md)

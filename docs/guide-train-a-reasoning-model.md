@@ -3,7 +3,7 @@ icon: person-chalkboard
 description: Built a reasoning model, like o3 or R1, for your use case
 ---
 
-# Guide: Train your own reasoning model
+# Guide: Train a Reasoning Model
 
 Kiln is a platform that makes building task-specific AI models easy and fast. By creating a fine-tuned model targeted to your use case, you can produce a model that's higher quality, faster and cheaper that standard foundation models.
 
@@ -19,7 +19,7 @@ We already have a [detailed guide on fine-tuning models](fine-tuning-guide.md). 
 
 When developing your training data with our [synthetic data generation](synthetic-data-generation.md) tool, be sure to use either a reasoning model or chain-of-thought prompting. Using either of these will ensure your dataset has reasoning data to learn from. See our [model list](models-and-ai-providers.md#included-models-recommended) for which models have native reasoning support.
 
-See below for [how to choose between reasoning and chain of thought](guide-train-your-own-reasoning-model.md#choosing-between-reasoning-and-chain-of-thought).
+See below for [how to choose between reasoning and chain of thought](guide-train-a-reasoning-model.md#choosing-between-reasoning-and-chain-of-thought).
 
 <figure><img src="../.gitbook/assets/run method.png" alt="" width="375"><figcaption><p>Synthetic Data Run Options</p></figcaption></figure>
 
@@ -77,7 +77,7 @@ Human curation feedback can add the nuance that makes a truly great model/produc
 
 * Have a subject matter expert [rate the synthetic training set](reviewing-and-rating.md), and filter your training data to only use high quality samples.
 * Have subject matter experts [repair poorly rated outputs](repairing-responses.md), giving the model important examples of places it likely would have failed without fine-tuning.
-* Use human-led chain of thought prompts as described [here](guide-train-your-own-reasoning-model.md#choosing-between-reasoning-and-chain-of-thought), to generate [large synthetic data sets](synthetic-data-generation.md) for fine-tuning.
+* Use human-led chain of thought prompts as described [here](guide-train-a-reasoning-model.md#choosing-between-reasoning-and-chain-of-thought), to generate [large synthetic data sets](synthetic-data-generation.md) for fine-tuning.
 * When you find a pattern of bugs, use [synthetic data generation with human guidance](synthetic-data-generation.md) to create samples of correct input/output pairs. Add these to your training set to fix the behaviour the next time you train.
 * Use Kiln's [collaboration system](collaboration.md) to anyone on your team to contribute to model quality with feedback, data generation and quality. Our UI is designed for anyone, and does not require command line or coding skills.
 
