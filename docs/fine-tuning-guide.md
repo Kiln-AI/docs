@@ -27,6 +27,10 @@ Analysis:
 * [Cost Breakdown](fine-tuning-guide.md#cost-breakdown)
 * [Next steps](fine-tuning-guide.md#next-steps): evaluation, exporting models, iteration and data strategies
 
+{% hint style="info" %}
+If you want to tune a reasoning model, see our [guide for training reasoning models](guide-train-a-reasoning-model.md). It includes notes about each step of this guide which are necessary to produce a reasoning model.
+{% endhint %}
+
 ### Step 1: Define your Task and Goals
 
 First, we’ll need to define what the models should do. In Kiln we call this a “task definition”. Create a new task in the Kiln UI to get started, including a initial prompt, requirements, and input/output schema.
