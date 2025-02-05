@@ -6,7 +6,7 @@ description: Improve your model's quality with inference time scaling
 # Reasoning, Thinking & Chain of Thought
 
 {% hint style="warning" %}
-**Reasoning model support is on our main branch, but not yet in a release**. If you want to use it now, download a daily build from GitHub Actions.
+**Reasoning model support requires our** [**latest beta**](https://github.com/Kiln-AI/Kiln/releases/tag/v0.10.0)**. Older builds do not include these features.**
 {% endhint %}
 
 <figure><img src="../.gitbook/assets/reasoning (1).png" alt=""><figcaption></figcaption></figure>
