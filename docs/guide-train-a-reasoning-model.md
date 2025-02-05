@@ -15,7 +15,7 @@ Also see our docs on [how Kiln supports Reasoning and Chain of Thought](reasonin
 
 We already have a [detailed guide on fine-tuning models](fine-tuning-guide.md). This article covers the settings to use throughout that process to ensure the final model you produce is a reasoning model, and not just a standard fine-tune.
 
-### Tuning Demo Video
+### Training Demo Video
 
 {% embed url="https://files.gitbook.com/v0/b/gitbook-x-prod.appspot.com/o/spaces%2FEJ4b8A4QiEQlOGbYkXDX%2Fuploads%2Fmu70DOoxZr5BMnhd0uck%2Ffinal_1080.mp4?alt=media&token=0089a86c-d89c-4f06-8868-a8b6766f6718" %}
 
