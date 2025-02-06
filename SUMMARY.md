@@ -5,7 +5,6 @@
 ## Getting Started
 
 * [Quickstart](getting-started/quickstart.md)
-* [Python Library Setup](getting-started/python-library-quickstart.md)
 
 ## Docs
 
@@ -19,6 +18,7 @@
 * [Reasoning & Chain of Thought](docs/reasoning-and-chain-of-thought.md)
 * [Organizing Datasets](docs/organizing-datasets.md)
 * [Structured Data / JSON](docs/structured-data-json.md)
+* [Python Library Setup](docs/python-library-quickstart.md)
 * [Kiln Data Model](docs/kiln-datamodel.md)
 * [Repairing Responses](docs/repairing-responses.md)
 * [Keyboard Shortcuts](docs/keyboard-shortcuts.md)

@@ -29,7 +29,7 @@ See the [python library datamodel docs](https://kiln-ai.github.io/Kiln/kiln_core
 
 ### Python Library
 
-If you want to access the data model via code, check out our [python library](../getting-started/python-library-quickstart.md). The library offers iterators, typed classes, pydantic validation, and more. It's the easiest way to read and mutate a Kiln dataset.
+If you want to access the data model via code, check out our [python library](python-library-quickstart.md). The library offers iterators, typed classes, pydantic validation, and more. It's the easiest way to read and mutate a Kiln dataset.
 
 ### Direct Access
 
