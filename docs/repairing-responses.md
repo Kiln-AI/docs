@@ -32,7 +32,7 @@ Currently this data is used in [repair prompts](prompts.md#prompt-builders-promp
 
 In the future we plan to use it in other places, like evaluations, so collecting it now will help you in the future.
 
-You can also use this data for your own evaluation processes via our [python library](python-library-quickstart.md). For example, clustering repair feedback to identify recurring issues.
+You can also use this data for your own evaluation processes via our [python library](../getting-started/python-library-quickstart.md). For example, clustering repair feedback to identify recurring issues.
 
 ### Why can't I just manually correct errors?
 

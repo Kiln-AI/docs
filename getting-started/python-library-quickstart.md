@@ -1,6 +1,6 @@
 ---
-icon: python
 description: pip install kiln_ai
+icon: python
 ---
 
 # Python Library Setup
