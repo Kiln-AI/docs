@@ -75,6 +75,10 @@ Both approaches can build great task specific models. Which to choose depends on
 
 In each case, you're building a model that will be focused on the use-case samples it is trained on. This can produce a model that's faster, cheaper and higher quality than the original model, within the domain of your task.
 
+{% hint style="info" %}
+For the example in the demo video, I actually found custom chain-of-thought on Sonnet 3.5 to product better content than Deepseek R1. It's worth experimenting with different models and prompts to find the best pair suited for your task, before jumping to building a synthetic dataset.
+{% endhint %}
+
 ### Improving qualtiy with human curation and feedback
 
 Human curation feedback can add the nuance that makes a truly great model/product. Kiln offers a number of tools to make this easy:
