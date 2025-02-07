@@ -35,3 +35,25 @@ We only recommend JSON schema for technical users/developers. It's much more com
 
 Errors in the schema will likely result in bugs when running your task.
 {% endhint %}
+
+### Troubleshooting Structured Data Issues
+
+LLMs aren't always great at producing valid JSON output. Kiln does it's best to use a variety of techniques to get the correct output, but it's never guaranteed.
+
+You may see errors in the UI if the model produces invalid JSON, or JSON that doesn't match the output schema of your task.
+
+Here are some tips to getting consistent JSON output:
+
+* Use a model that is suggested for JSON output. The model drop down will warn you if you're using an untested model, or a model with known issues producing JSON.
+* Consider [fine-tuning a model](fine-tuning-guide.md) on synthetic data from a larger and more reliable model. Fine tuning is a great way to get consistent format output, and you can get models as small as 1B parameters to consistently produce JSON with fine-tuning.
+* Try adding an example of the output structure you want to your prompt. You can do this in `Settings > Edit Task > Task Instructions` or via a [custom prompt](prompts.md#custom-prompts-saved-prompts).  For example, add this to your prompt:
+
+````
+Provide the output in the following JSON format:
+```
+{
+  "setup": "Why did the chicken cross the road",
+  "punchline": "To get to the other side."
+}
+ ``` 
+````

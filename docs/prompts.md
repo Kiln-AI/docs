@@ -22,6 +22,8 @@ When you create a Kiln task you specify several fields which are used when gener
 * Requirements: A list of requirements you want the LLM to adhere to (e.g. "Use professional tone"). These are used in 2 places: 1) they are included in the prompt text sent to the LLM, and 2) they available as rating criteria on any run response.
 * Thinking Instructions: This field allows you to specify a portion of the prompt, which is only used when you select a "chain of thought" prompt template. If omitted, the default is "Think step by step, explaining your reasoning.".&#x20;
 
+These can be edited in  `Settings > Edit Task > Task Instructions` .
+
 ### Adding Content for Multi-Shot Prompts
 
 Multi-shot prompting is when you provide several examples in the prompt, and has been shown to greatly improve output quality.
@@ -81,4 +83,4 @@ However, if fine-tuning we generally suggest a tiered approach:
 * For generating training data: use a long/powerful prompt like "Chain of Though - Few Shot", on a powerful model (GPT, Claude, R1)&#x20;
 * When building fine-tunes, try a range of included prompts, including the original prompt used when generating training data, the "Basic (Zero Shot)", and an even shorter custom fine-tune prompt. Also include a range of models and model sizes in your search (llama 1b, 3b, 8b, 70b, etc).
 * Evaluate the resulting models. See if the longer prompts are necessary. It's possible the very short prompts will perform well after fine-tuning, which improves speed and lowers costs.
-* Read more from [OpenAI](https://platform.openai.com/docs/guides/fine-tuning#crafting-prompts)
+* Read more guidance from [OpenAI](https://platform.openai.com/docs/guides/fine-tuning#crafting-prompts)
