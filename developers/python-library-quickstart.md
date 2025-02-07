@@ -6,9 +6,7 @@ description: pip install kiln_ai
 # Python Library Setup
 
 {% hint style="info" %}
-If you aren't a developer, feel free to skip ahead.
-
-The Python library is completely optional. It's not required to use Kiln.
+The Python library is completely optional. If you just want to use the app, follow our [Quickstart guide](../docs/quickstart.md).
 {% endhint %}
 
 Our open source [python library](https://pypi.org/project/kiln-ai/) allows you to use Kiln from your codebase. This can be as simple as accessing a Kiln dataset from a notebook, or as advanced as running any of our features from code.
