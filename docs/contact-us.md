@@ -1,6 +1,6 @@
 ---
-description: We'd love to chat!
 icon: envelope
+description: We'd love to chat!
 ---
 
 # Contact Us
@@ -8,6 +8,7 @@ icon: envelope
 Feel free to reach out:
 
 * Bugs and Feature Requests: [Github Issues](https://github.com/Kiln-AI/Kiln/issues)
+* Chat: [Discord](https://discord.gg/sVJEzDGu)
 * Discussions: [Github Discussions](https://github.com/Kiln-AI/Kiln/discussions?discussions_q=)
 * Email: support at our\_domain dot ai
 * Security Reports: [Github Security](https://github.com/Kiln-AI/Kiln/security)

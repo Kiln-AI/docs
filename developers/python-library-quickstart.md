@@ -1,6 +1,6 @@
 ---
-description: pip install kiln_ai
 icon: python
+description: pip install kiln_ai
 ---
 
 # Python Library Setup
@@ -39,4 +39,4 @@ The docs include several quick-start examples to get up and running:
 
 ### Web/REST API
 
-We also offer a self-hostable [REST API](../docs/rest-api.md) for Kiln, based on FastAPI.
+We also offer a self-hostable [REST API](rest-api.md) for Kiln, based on FastAPI.
