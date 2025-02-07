@@ -52,6 +52,7 @@ You can request we add models [here](https://github.com/Kiln-AI/Kiln/issues/29).
 | Gemini 1.5 Pro                | OpenRouter                                             | ✅︎                  |           | ✅︎                  |                   |
 | Gemini 1.5 Flash              | OpenRouter                                             | ✅︎                  |           | ✅︎                  |                   |
 | Gemini 1.5 Flash 8B           | OpenRouter                                             | ✅︎                  |           | ✅︎                  |                   |
+| Gemini 2.0 Flash              | OpenRouter                                             | ✅︎                  |           | ✅︎                  |                   |
 | Nemotron 70B                  | OpenRouter                                             |                     |           |                     |                   |
 | Llama 3.1 8B                  | Amazon Bedrock, Fireworks AI, Groq, Ollama, OpenRouter | ✅︎                  |           | ✅︎ (some providers) | ✅︎                |
 | Llama 3.1 70B                 | Amazon Bedrock, Fireworks AI, Ollama, OpenRouter       | ✅︎                  |           | ✅︎ (some providers) | ✅︎                |
