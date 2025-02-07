@@ -37,6 +37,15 @@ You can use automatic topic generation, or manually add topics to your topic tre
 
 <figure><img src="../.gitbook/assets/Screenshot 2025-01-05 at 12.06.43 PM.png" alt="" width="151"><figcaption><p>Example Topic Tree</p></figcaption></figure>
 
+#### Recommended Models
+
+While you can try any model for synthetic data generation, we recommend starting with one of the following models for best results:
+
+* Claude Sonnet 3.5
+* OpenAI GPT 4o and 4o mini
+* Gemini Flash 2.0
+* Mistral Small 3
+
 #### Human Guidance
 
 Sometimes you may want to guide the generation process to ensure that the data generated matches your needs. You can add human guidance to your data generation task at any time.
