@@ -41,10 +41,10 @@ You can use automatic topic generation, or manually add topics to your topic tre
 
 While you can try any model for synthetic data generation, we recommend starting with one of the following models for best results:
 
-* Claude Sonnet 3.5
-* OpenAI GPT 4o and 4o mini
+* Claude: Sonnet 3.5 and Haiku 3.5
+* OpenAI: GPT 4o and GPT 4o mini
 * Gemini Flash 2.0
-* Mistral Small 3
+* Mistral Large
 
 #### Human Guidance
 
