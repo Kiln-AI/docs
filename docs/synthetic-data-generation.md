@@ -56,6 +56,8 @@ Adding a short guidance prompt can quickly improve the quality of the generated 
 * Generate examples in Spanish
 * The model is having trouble classifying sediment of sarcastic messages. Generate sarcastic messages.
 
+<figure><img src="../.gitbook/assets/Screenshot 2025-02-07 at 9.31.39 AM.png" alt="" width="152"><figcaption><p>Click "Add Guidance"</p></figcaption></figure>
+
 #### Interactive Curation UX
 
 Kiln synthetic data generation is designed to be used in our interactive UI.
