@@ -19,9 +19,7 @@ When you first run Kiln, the app will prompt you to setup one or more AI provide
 
 We currently support the following AI providers: Ollama, OpenRouter, OpenAI, Groq, Fireworks.ai, AWS Bedrock, or any OpenAI compatible endpoing (like LiteLLM, Anthropic, HuggingFace and more).
 
-If you want to add providers after initial setup, open `Settings > AI Providers & Models`**.**
-
-If you want to remove a provider, edit your `~/.kiln_ai/settings.yaml` and remove the provider's config.
+If you want to add or remove providers after initial setup, open `Settings > AI Providers & Models`.
 
 ## Understanding and Adding Models
 
