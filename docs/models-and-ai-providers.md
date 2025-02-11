@@ -37,7 +37,7 @@ Models come in several flavours, from very easy to use, to advanced methods for 
 
 These are models that have been tested to work with Kiln's various features. These are the easiest to use, and generally won't result in errors.
 
-To use these models simply connect any AI provider from the Settings page. Once connected, you can select these model from the model dropdown on the Run screen. The dropdown will warn if you attempt to use a model that doesn't support a feature (like structured output).
+To use these models simply connect any AI provider from the Settings page. Once connected, you can select these model from the model dropdown on the Run screen. The dropdown will warn if you attempt to use a model that doesn't support a feature (like structured output or synthetic data generation).
 
 You can request we add models [here](https://github.com/Kiln-AI/Kiln/issues/29).
 
@@ -66,7 +66,7 @@ You can request we add models [here](https://github.com/Kiln-AI/Kiln/issues/29).
 | Llama 3.3 70B                 | Fireworks AI, Groq, Ollama, OpenRouter                 | ✅︎ (some providers) |           | ✅︎ (some providers) |                   |
 | Phi 3.5                       | Fireworks AI, Ollama, OpenRouter                       | ✅︎ (some providers) |           |                     |                   |
 | Phi 4                         | Ollama, OpenRouter                                     | ✅︎                  |           | ✅︎ (some providers) |                   |
-| Gemma 2 2B                    | Ollama                                                 |                     |           |                     |                   |
+| Gemma 2 2B                    | Ollama                                                 | ✅︎                  |           |                     |                   |
 | Gemma 2 9B                    | Ollama, OpenRouter                                     | ✅︎                  |           |                     |                   |
 | Gemma 2 27B                   | Ollama, OpenRouter                                     | ✅︎                  |           |                     |                   |
 | Mixtral 8x7B                  | Ollama, OpenRouter                                     | ✅︎                  |           | ✅︎ (some providers) |                   |
@@ -76,6 +76,13 @@ You can request we add models [here](https://github.com/Kiln-AI/Kiln/issues/29).
 | DeepSeek R1 Distill Qwen 32B  | Ollama, OpenRouter                                     | ✅︎                  | ✅︎        | ✅︎                  |                   |
 | DeepSeek R1 Distill Llama 70B | Ollama, OpenRouter                                     | ✅︎                  | ✅︎        | ✅︎ (some providers) |                   |
 | DeepSeek R1 Distill Qwen 14B  | Ollama, OpenRouter                                     | ✅︎                  | ✅︎        |                     |                   |
+| DeepSeek R1 Distill Llama 8B  | Ollama, OpenRouter                                     | ✅︎                  | ✅︎        |                     |                   |
+| DeepSeek R1 Distill Qwen 7B   | Ollama                                                 | ✅︎                  | ✅︎        |                     |                   |
+| DeepSeek R1 Distill Qwen 1.5B | Ollama, OpenRouter                                     | ✅︎ (some providers) | ✅︎        |                     |                   |
+
+{% hint style="info" %}
+For "`✅︎ (some providers)` ", see [the code on Github](https://github.com/Kiln-AI/Kiln/blob/main/libs/core/kiln_ai/adapters/ml_model_list.py) for details.
+{% endhint %}
 
 ### Custom Ollama Models
 
