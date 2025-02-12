@@ -9,6 +9,7 @@ Feel free to reach out:
 
 * Bugs and Feature Requests: [Github Issues](https://github.com/Kiln-AI/Kiln/issues)
 * Chat: [Discord](https://discord.gg/sVJEzDGu)
-* Discussions: [Github Discussions](https://github.com/Kiln-AI/Kiln/discussions?discussions_q=)
+* Newsletter (app update emails): [Substack](https://kilnai.substack.com)
+* Ideas & Discussions: [Github Discussions](https://github.com/Kiln-AI/Kiln/discussions?discussions_q=)
 * Email: support at our\_domain dot ai
 * Security Reports: [Github Security](https://github.com/Kiln-AI/Kiln/security)
