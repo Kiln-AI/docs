@@ -18,6 +18,7 @@
 * [Keyboard Shortcuts](docs/keyboard-shortcuts.md)
 * [Privacy](docs/privacy.md)
 * [Repairing Responses](docs/repairing-responses.md)
+* [Troubleshooting & Logs](docs/troubleshooting-and-logs.md)
 * [Contact Us](docs/contact-us.md)
 
 ## Developers
