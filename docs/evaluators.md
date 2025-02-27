@@ -1,5 +1,6 @@
 ---
 description: Evaluate the quality of your models/tasks using state of the art evals
+icon: list-check
 ---
 
 # Evaluators
