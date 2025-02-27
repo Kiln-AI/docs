@@ -1,9 +1,9 @@
 ---
-description: Evaluate the quality of your models/tasks using state of the art evals
 icon: list-check
+description: Evaluate the quality of your models/tasks using state of the art evals
 ---
 
-# Evaluators
+# Evaluations
 
 {% hint style="warning" %}
 Evals are in beta, and have not been included in a release yet. If you want to preview evals, download a [daily build](https://github.com/Kiln-AI/Kiln/actions/runs/13552265493).
@@ -34,12 +34,12 @@ This is a quick summary of all of the concepts in creating evals with Kiln:
 
 Working with Evals in Kiln is easy. We'll walk through the flow of creating your first evaluator end to end:
 
-* [Creating an Evaluator](evaluators.md#creating-an-eval)
-* [Add an Evaluation Method to your Eval](evaluators.md#add-an-evaluation-method-to-your-eval)
-* [Create your Eval Datasets](evaluators.md#create-your-eval-datasets)
-* [Finding the Ideal Eval Method](evaluators.md#finding-the-ideal-eval-method)
-* [Finding the Ideal Run Method](evaluators.md#finding-the-ideal-run-method)
-* [Iterate and Expand](evaluators.md#iterate-and-expand)
+* [Creating an Evaluator](evaluations.md#creating-an-eval)
+* [Add an Evaluation Method to your Eval](evaluations.md#add-an-evaluation-method-to-your-eval)
+* [Create your Eval Datasets](evaluations.md#create-your-eval-datasets)
+* [Finding the Ideal Eval Method](evaluations.md#finding-the-ideal-eval-method)
+* [Finding the Ideal Run Method](evaluations.md#finding-the-ideal-run-method)
+* [Iterate and Expand](evaluations.md#iterate-and-expand)
 
 ### Creating an Eval
 
