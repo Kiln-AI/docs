@@ -10,6 +10,7 @@
 * [Fine Tuning Guide](docs/fine-tuning-guide.md)
 * [Guide: Train a Reasoning Model](docs/guide-train-a-reasoning-model.md)
 * [Reasoning & Chain of Thought](docs/reasoning-and-chain-of-thought.md)
+* [Evaluators](docs/evaluators.md)
 * [Prompts](docs/prompts.md)
 * [Reviewing and Rating](docs/reviewing-and-rating.md)
 * [Collaboration](docs/collaboration.md)
