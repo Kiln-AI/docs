@@ -46,8 +46,9 @@ Try our sample task for a quick exploration, or define your own custom task for 
 
 Check out some more of our guides to learn about the capabilities of Kiln:
 
-* [Reviewing and Rating](../docs/reviewing-and-rating.md)
-* [Synthetic Data Generation](../docs/synthetic-data-generation.md)
-* [Fine Tuning Guide](../docs/fine-tuning-guide.md)
-* [Collaboration](../docs/collaboration.md)
-* [Organizing Datasets](../docs/organizing-datasets.md)
+* [Reviewing and Rating](reviewing-and-rating.md)
+* [Synthetic Data Generation](synthetic-data-generation.md)
+* [Fine Tuning Guide](fine-tuning-guide.md)
+* [Evaluations](evaluations.md)
+* [Collaboration](collaboration.md)
+* [Organizing Datasets](organizing-datasets.md)
