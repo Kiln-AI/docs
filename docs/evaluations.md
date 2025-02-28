@@ -160,6 +160,14 @@ We suggest using the "topic tree" option in our synthetic data gen tool to ensur
 
 For the "overall score" eval template, the default data generation UX should work well without any custom guidance. However, evals like bias, toxicity and jailbreaking you'll want to generate data with specific guidance that ensures the dataset includes the necessary content (toxic data, biased data, maliciousness, etc). The following templates can be added to the "Human Guidance" option in synthetic data gen UI, to help generate (in)appropriate content.
 
+{% hint style="info" %}
+Golden eval datasets work best if they have a range of ratings (some pass, some fail, some of each star-score).&#x20;
+
+If your dataset doesn't have enough variation, you may see "N/A" scores when comparing evaluators.
+
+If after rating your golden set doesn't a range of content (for example, one score always passes or always fails), generate some additional content for the missing cases. You can use human guidance to do this, see "Guidance Templates" below for examples.
+{% endhint %}
+
 <details>
 
 <summary>Synthetic Data Generation - Guidance Templates</summary>
