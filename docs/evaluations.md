@@ -354,11 +354,61 @@ Once you've added multiple eval methods, you can compare scores to find the best
 
 There's no benchmark good/bad score for an evaluator; it all depends on your task.
 
-For an easy and highly deterministic task, you might be able to find many eval-methods which achieve near perfect scores, even with smaller eval models.
+For an easy and highly deterministic task, you might be able to find many eval-methods which achieve near perfect scores, even with small eval models and default prompts.
 
-For a highly subjective task, it's likely no evaluator will perfectly match the human scores, even with SOTA models. It's often the case that two humans can't match each other on subjective tasks. Try a range of eval methods, and pick the one with the best (lowest) score. The more subjective the task, the more beneficial a larger and more diverse golden dataset becomes.
+For a highly subjective task, it's likely no evaluator will perfectly match the human scores, even with SOTA models and custom prompts. It's often the case that two humans can't match each other on subjective tasks. Try a range of eval methods, and pick the one with the best score (which is the highest score if using the default Kendall Tau comparison).&#x20;
 
-For a technical description of how each score is calculated, see the in-app "Learn about score types" popup in app.
+The more subjective the task, the more beneficial a larger and more diverse golden dataset becomes.
+
+<details>
+
+<summary>Technical comparison of score options: Kendall Tau, Spearman, Pearson, Mean Squared Error, Mean Absolute Error</summary>
+
+> Each score is a correlation score between the eval method's scores and the human scores.
+
+#### TL;DR&#x20;
+
+We suggest you use Kendall Tau correlation scores to compare results.&#x20;
+
+Kendall Tau scores range from -1.0 to 1, with higher values being higher correlation between the human ratings and the automated eval method's scores.&#x20;
+
+The absolute value of Kendall Tau scores will vary depending on how subjective your task is. Find the highest score for your task, and select it as your default eval method.&#x20;
+
+#### Spearman, Kendall Tau, and Pearson Correlation&#x20;
+
+_From -1 to 1. Higher is better._
+
+These are three scientific correlation coefficients. For all three, The value tends to be high (close to 1) for samples with a strongly positive correlation, low (close to -1) for samples with a strongly negative correlation, and close to zero for samples with weak correlation. Scores may be 'N/A' if there are too few samples or not enough variation in scores.&#x20;
+
+* Spearman evaluates the rank of the scores, not the absolute values.&#x20;
+* Kendall Tau evaluates pair order, is more robust to outliers, handles ties better, and performs better on small datasets.&#x20;
+* Pearson evaluates linear correlation.&#x20;
+
+#### Mean Absolute Error&#x20;
+
+_Lower is better_&#x20;
+
+Example: If a human scores an item a 3, and the eval scores it a 5, the absolute error would be 2 \[abs(3-5)]. The overall score is the mean of all absolute errors.&#x20;
+
+#### Normalized Mean Absolute Error
+
+_Lower is better_&#x20;
+
+Like mean absolute error, but scores are normalized to the range 0-1. For example, for a 1-5 star rating, 1-star is score 0 and 5-star is score 1.&#x20;
+
+**Mean Squared Error**&#x20;
+
+_Lower is better_&#x20;
+
+Example: If a human scores an item a 3, and the eval scores it a 5, the squared error would be 4 \[(3-5)^2]. The overall score is the mean of all squared errors. This imporoves over absolute error as it penalizes larger errors more.&#x20;
+
+#### Normalized Mean Squared Error&#x20;
+
+_Lower is better_&#x20;
+
+Like mean squared error, but scores are normalized to the range 0-1. For example, for a 1-5 star rating, 1-star is score 0 and 5-star is score 1.
+
+</details>
 
 #### Select a Default Eval Method
 
