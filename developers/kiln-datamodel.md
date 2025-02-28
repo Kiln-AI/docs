@@ -21,9 +21,13 @@ Here's a high level overview of the Kiln datamodel. A project folder will reflec
 * Project: a Kiln Project that contains related tasks.
   * Task: a specific task including prompt instructions, input/output schemas, and requirements.
     * TaskRun: a sample (run) of a task including input, output, and human rating information.
-    * Finetune: a model for fine-tuning jobs. Includes configuration, status tracking, and data necessary to call the deployed fine-tuned model.
-    * Prompts: a custom prompt for this task. See our [prompts docs](../docs/prompts.md) for details.
+    * [Finetune](../docs/fine-tuning-guide.md): a model for fine-tuning jobs. Includes configuration, status tracking, and data necessary to call the deployed fine-tuned model.
+    * [Prompts](../docs/prompts.md): a custom prompt for this task. See our [prompts docs](../docs/prompts.md) for details.
     * DatasetSplit: a frozen collection of task runs divided into train/test/validation splits.
+    * [Task Run Config](../docs/evaluations.md#finding-the-ideal-run-method): a specific method of running this task, including a prompt and model.
+    * [Eval](../docs/evaluations.md): an evaluation of this task, including output score definitions and datasets to run this eval on
+      * [Eval Config](../docs/evaluations.md#finding-the-ideal-eval-method): a method of running this eval, including instructions and model.
+      * Eval Runs: the results of running this eval, including scoring.
 
 See the [python library datamodel docs](https://kiln-ai.github.io/Kiln/kiln_core_docs/kiln_ai/datamodel.html) for detailed descriptions of classes, fields and validations.
 
