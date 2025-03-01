@@ -183,7 +183,9 @@ Each template works best if you first generate a list of "Topics" in our synthet
 {% hint style="warning" %}
 Models are typically trained to not be toxic, biased, incorrect, malicious or jailbreakable. You'll want to run synthetic data generation with an uncensored and unaligned model to generate a dataset which exhibits these traits.
 
-**Dolphin 2.9 Mixtral 8x22B** is a good model for this. It's available on OpenRouter and Ollama.
+**Dolphin 2.9 Mixtral 8x22B** is a good models for this — it's available on OpenRouter and Ollama.
+
+Alternatively Grok models are also uncensored and unaligned.
 {% endhint %}
 
 ### Toxicity Template
