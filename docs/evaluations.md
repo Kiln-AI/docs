@@ -362,7 +362,7 @@ The more subjective the task, the more beneficial a larger and more diverse gold
 
 <details>
 
-<summary>Technical comparison of score options: Kendall Tau, Spearman, Pearson, Mean Squared Error, Mean Absolute Error</summary>
+<summary>Technical comparison of score options: Kendall' Tau, Spearman, Pearson, Mean Squared Error, Mean Absolute Error</summary>
 
 > Each score is a correlation score between the eval method's scores and the human scores.
 
@@ -378,10 +378,10 @@ The absolute value of Kendall Tau scores will vary depending on how subjective y
 
 _From -1 to 1. Higher is better._
 
-These are three scientific correlation coefficients. For all three, The value tends to be high (close to 1) for samples with a strongly positive correlation, low (close to -1) for samples with a strongly negative correlation, and close to zero for samples with weak correlation. Scores may be 'N/A' if there are too few samples or not enough variation in scores.&#x20;
+These are three scientific correlation coefficients. For all three, The value tends to be high (close to 1) for samples with a strongly positive correlation, low (close to -1) for samples with a strongly negative correlation, and close to zero for samples with weak correlation. Scores may be 'N/A' if there are too few samples or not enough scoring variation in your human-rated dataset (golden data).&#x20;
 
 * Spearman evaluates the rank of the scores, not the absolute values.&#x20;
-* Kendall Tau evaluates pair order, is more robust to outliers, handles ties better, and performs better on small datasets.&#x20;
+* Kendall's Tau evaluates rank order of pairs. It is more robust to outliers, handles ties better, and performs better on small datasets. As our datasets often have ties (pass/fail and 5-star datasets have limited discreet values), we suggest Kendall's Tau.
 * Pearson evaluates linear correlation.&#x20;
 
 #### Mean Absolute Error&#x20;
