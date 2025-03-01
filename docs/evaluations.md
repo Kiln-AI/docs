@@ -6,7 +6,7 @@ description: Evaluate the quality of your models/tasks using state of the art ev
 # Evaluations
 
 {% hint style="warning" %}
-Evals are in beta, and have not been included in a release yet. If you want to preview evals, download a [daily build](https://github.com/Kiln-AI/Kiln/actions/runs/13552265493).
+Evals are in beta, and have not been included in a release yet. If you want to preview evals, download a [daily build](https://github.com/Kiln-AI/Kiln/actions/runs/13607908095).
 {% endhint %}
 
 ### Intro
