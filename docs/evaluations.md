@@ -413,6 +413,13 @@ Like mean squared error, but scores are normalized to the range 0-1. For example
 
 </details>
 
+#### Resolving "N/A" Correlation Scores
+
+If you see "N/A" scores in your correlation table, it means more data is needed. This can be one of two cases
+
+* _**Simply not enough data**_: if your eval method dataset if very small (<10 items) it can be impossible to produce confident correlation scores. Add more data to resolve this case.
+* _**Not enough variation of human ratings in the eval method dataset**_: if you have a larger dataset, but still get N/A, it's likely there isn't enough variation in your dataset for the given score. For example, if all of the golden samples of a score pass, the evaluator won't produce a confident correlation score, as it has no failing examples and everything is a tie. Add more content to your eval methods dataset, designing the content to fill out the missing score ranges. You can use synthetic data gen [human guidance](synthetic-data-generation.md#human-guidance) to generate examples that fail.
+
 #### Select a Default Eval Method
 
 Once you have a winner, click the "Set as default" button to make this eval-method the default for your eval.

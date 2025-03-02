@@ -58,6 +58,12 @@ Adding a short guidance prompt can quickly improve the quality of the generated 
 
 <figure><img src="../.gitbook/assets/Screenshot 2025-02-07 at 9.31.39 AM.png" alt="" width="152"><figcaption><p>Click "Add Guidance"</p></figcaption></figure>
 
+{% hint style="info" %}
+Often human guidance is used for producing adversarial content: poor quality or inappropriate content. This is done to ensure an [evaluation](evaluations.md) can detect and fail this sort of content.
+
+However, LLMs will often do their best to avoid producing poor or inappropriate content, even when asked for it. If you find that's the case, use an uncensored and unaligned model like Dolphin 8x22B or Grok. These models will follow instructions more closely, and do not attempt to censor their content.
+{% endhint %}
+
 #### Interactive Curation UX
 
 Kiln synthetic data generation is designed to be used in our interactive UI.
