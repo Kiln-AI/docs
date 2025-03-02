@@ -20,6 +20,7 @@ Kiln includes a complete platform for ensuring your tasks/models are of the high
 * Generate evaluators automatically. Using your task definition we'll create an evaluator for your task's overall score and task requirements
 * Utilize built-in eval templates for toxicity, bias, jailbreaking, and other common eval scenarios
 * Integrate evals with the rest of Kiln: use synthetic data generation to build eval sets, or use evals to evaluate fine-tunes
+* Optional: Python Library Usage
 
 ### Concepts Overview
 
@@ -440,10 +441,6 @@ These results are easy to interpret compared to the eval method comparisons. Eac
 
 Congrats! You've used systematic evals to find an optimal method for running your task!
 
-#### Python Library Usage \[optional]
-
-It's possible to create/evaluate task run methods in code as well. Just be aware task run methods are called TaskRunConfigs in our library. See the EvalRunner class for details.
-
 ### Iterate and Expand
 
 Congrats, you've found an optimal method of running your task!
@@ -463,3 +460,11 @@ Your understanding of your model/product usually gets better over time. Consider
 #### Add New Evals
 
 You can always add additional evals to your Kiln project/task. Try some of our built in templates like bias, toxicity, factual correctness, or jailbreak susceptibility — or create your own from scratch!
+
+### Optional: Python Library Usage
+
+For developers, it's also possible to use evals from our [python library](https://kiln-ai.github.io/Kiln/kiln_core_docs/kiln_ai.html).
+
+Be aware, in our library task run methods are called TaskRunConfigs and eval methods are called EvalConfigs.&#x20;
+
+See the EvalRunner, Eval, EvalConfig, EvalRun, and TaskRunConfig class for details.
