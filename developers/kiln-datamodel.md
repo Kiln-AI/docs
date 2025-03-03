@@ -39,6 +39,6 @@ If you want to access the data model via code, check out our [python library](py
 
 You can load Kiln project files using any tool which supports JSON, including polars and pandas. See the [example](https://kiln-ai.github.io/Kiln/kiln_core_docs/kiln_ai.html#using-kiln-dataset-in-pandas) in our library docs.
 
-{% hint style="info" %}
+{% hint style="warning" %}
 We highly recommend the Kiln python library for any writes to `.kiln` files. It will run validators which catch issues which could break your project.
 {% endhint %}
