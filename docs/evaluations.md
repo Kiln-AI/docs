@@ -5,6 +5,8 @@ description: Evaluate the quality of your models/tasks using state of the art ev
 
 # Evaluations
 
+<figure><img src="../.gitbook/assets/eval_header.png" alt=""><figcaption></figcaption></figure>
+
 ### Overview
 
 Kiln includes a complete platform for ensuring your tasks/models are of the highest possible quality. It includes:
