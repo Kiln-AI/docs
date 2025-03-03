@@ -73,6 +73,14 @@ Use the "Fine Tune" tab in the Kiln UI to kick off your fine-tunes. Simply selec
 
 We recommend setting aside a test and validation set when creating your dataset split. This will allow you to evaluate your fine-tunes after they are complete.
 
+{% hint style="info" %}
+**Training Reasoning/Thinkings Model**
+
+Kiln can train a reasoning model. See the guide on training reasoning models for d
+{% endhint %}
+
+
+
 {% embed url="https://files.gitbook.com/v0/b/gitbook-x-prod.appspot.com/o/spaces%2FEJ4b8A4QiEQlOGbYkXDX%2Fuploads%2F90AZYx6JVoCYFrhHCTUx%2FCreateTrainingJobs720.mp4?alt=media&token=c0e76a1b-0f55-4297-85b9-b1f9b6c4125f" %}
 Dispatching Training Jobs
 {% endembed %}
