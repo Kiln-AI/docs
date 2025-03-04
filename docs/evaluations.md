@@ -320,8 +320,8 @@ None of the generated topics, inputs, or outputs should specifically mention jai
 
 Once you've generated your data, open the "Dataset" tab in Kiln
 
-1. Filter your dataset to only the content you just generated (they will all be tagged with an auto-generated tag such as synthetic\_session\_12345).
-2. Use the "Select" UI to select a portion of your dataset for your eval-dataset. 80% is a good starting point. Add the tag for your eval dataset, which is "eval\_config" if you kept the default tag name.
+1. Filter your dataset to only the content you just generated (they will all be tagged with an automatic tag such as synthetic\_session\_12345).
+2. Use the "Select" UI to select a portion of your dataset for your eval-dataset. 80% is a good starting point. Add the tag for your eval dataset, which is "eval\_config" if you kept the default tag name. Note: if you you generated data using synthetic "topics", make sure to include a mix of each topic in each sub-dataset.
 3. Select only the remaining items, and add the tag for your eval method dataset, which is "golden" if you kept the default tag name.
 4. Filter the dataset to both tags (eval\_config and golden) to double check you didn't accidentally add any items to both datasets.
 
