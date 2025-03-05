@@ -9,7 +9,7 @@ Kiln includes a rating interface for rating dataset entries. This can be used to
 
 <figure><img src="../.gitbook/assets/Screenshot 2025-01-05 at 12.12.38 PM (1).png" alt="" width="341"><figcaption><p>Rating UI in Kiln Desktop</p></figcaption></figure>
 
-### Defining Rating Goals&#x20;
+### Defining Rating Goals
 
 Your rating requirements are defined as part of your task definition, in the requirements section. You can set them up when you initially create your task, or add/edit them in **Settings > Edit Task**.
 
@@ -36,3 +36,10 @@ Kiln uses ratings in a variety of ways:
 * **Pass/Fail**: A binary pass/fail rating.
 * **Pass/Fail/Critical**: A ternary pass/fail/critical rating. It can be useful to add the "critical" level when there are criteria where some failures are exceptionally important to avoid. For example, a customer service bot could have a "tone" criteria, where casual/slang language would be a failure, but profanity or insulting the user would be critical.
 * **Custom**: you can define a custom rating scale when using python library. However, you won't be able to use custom ratings in the Kiln UI.
+
+## Use Ratings to Improve your Quality
+
+Once you have ratings, Kiln offers a number of ways to use human ratings to improve task performance and quality:
+
+* [Create fine-tuned models](fine-tuning-guide.md), filtering the training set to only high quality training data
+* [Optimize an evaluator](evaluations.md#finding-the-ideal-eval-method) by finding the eval method with the highest correlation to human preferences. An optimized evaluator is necessary to find the optimal method of running your task.
