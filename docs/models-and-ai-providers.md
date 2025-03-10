@@ -28,6 +28,9 @@ Models come in several flavours, from very easy to use, to advanced methods for 
 * [Included Models - Recommended](models-and-ai-providers.md#included-models-recommended)
 * [Custom Ollama models](models-and-ai-providers.md#custom-ollama-models)
 * [Custom models from existing providers](models-and-ai-providers.md#custom-models-from-existing-providers)
+* Provider Specific Guidance
+  * [Azure OpenAI API](models-and-ai-providers.md#azure-openai-api)
+  * [Azure AI Foundry / Azure AI Studio](models-and-ai-providers.md#azure-ai-foundry-formerly-azure-ai-studio-microsoft-ai-for-enterprise-360-elite)
 * [Custom OpenAI compatible servers](models-and-ai-providers.md#custom-openai-compatible-servers)
   * [LiteLLM](models-and-ai-providers.md#litellm) - Anthropic, Huggingface, VertexAI, TogetherAI, and more.
 
@@ -99,6 +102,21 @@ If you want to use a model that is not in the list but is supported by one of ou
 To use a custom model, click "Add Model" in the "AI Providers & Models" section of Settings.
 
 These will appear in the "untested" section of the model dropdown.
+
+### Provider Specific Guidance
+
+#### Azure OpenAI API
+
+When using Azure OpenAI API, you need to deploy each model you want to use, manually through the Azure console. If you have not, you'll get deployment errors when trying to call a model.
+
+* **Suggested - Deploy with Default Names**: If you deploy with the default names, for example "gpt-4o"/"gpt-4o-mini", you can simply use the models using the dropdown in Kiln.
+* **Deployments with Custom Names**: If you have a non-standard depolyment name, you'll have to add each model as a [custom model](models-and-ai-providers.md#custom-models-from-existing-providers), using the deployment name as the model name.
+
+#### Azure AI Foundry (formerly Azure AI Studio, Microsoft AI for Enterprise 360 Elite)
+
+When using Azure AI Foundry, you need to deploy each model you want to use manually through the Azure console. If you have not, you'll get deployment errors when trying to call a model.
+
+After deploying a model, you must add it to Kiln as a a [custom model](models-and-ai-providers.md#custom-models-from-existing-providers), using the deployment name as the model name.
 
 ### Custom OpenAI Compatible Servers
 
