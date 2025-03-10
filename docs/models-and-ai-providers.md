@@ -8,8 +8,8 @@ description: GPT, Llama, and Qwen - oh my!
 Kiln can use essentially any LLM model from a number of providers:
 
 * Run locally with Ollama
-* Connect a cloud provider like OpenAI, Groq, OpenRouter, AWS, Fireworks and more. You provide your own API keys and we never have access to your dataset.
-* Connect to any OpenAI compatible server, like LiteLLM for vLLM
+* Connect a cloud provider like OpenAI, Groq, OpenRouter, AWS, Azure, Gemini API, Anthropic, Fireworks and more. You provide your own API keys and we never have access to your dataset.
+* Connect to any OpenAI compatible server, like LiteLLM or vLLM
 
 <figure><img src="../.gitbook/assets/Models (1).png" alt=""><figcaption></figcaption></figure>
 
