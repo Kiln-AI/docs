@@ -1,6 +1,6 @@
 ---
-icon: crystal-ball
 description: GPT, Llama, and Qwen - oh my!
+icon: crystal-ball
 ---
 
 # Models and AI Providers
@@ -117,6 +117,10 @@ When using Azure OpenAI API, you need to deploy each model you want to use, manu
 When using Azure AI Foundry, you need to deploy each model you want to use manually through the Azure console. If you have not, you'll get deployment errors when trying to call a model.
 
 After deploying a model, you must add it to Kiln as a a [custom model](models-and-ai-providers.md#custom-models-from-existing-providers), using the deployment name as the model name.
+
+#### Google Vertex AI
+
+When using Vertex, many models need to be manually enabled through the console before using them. If you see errors when trying to run a model, open the vertex AI console for your project, go to the model garden, and enable that model.
 
 ### Custom OpenAI Compatible Servers
 
