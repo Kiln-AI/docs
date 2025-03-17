@@ -120,7 +120,9 @@ After deploying a model, you must add it to Kiln as a a [custom model](models-an
 
 #### Google Vertex AI
 
-When using Vertex, many models need to be manually enabled through the console before using them. If you see errors when trying to run a model, open the vertex AI console for your project, go to the model garden, and enable that model.
+When using Vertex, many models need to be manually enabled through the console before using them (primarily Anthropic models). If you see errors when trying to run a model, open the vertex AI console for your project, go to the model garden, and enable that model.
+
+Similarly, if you see quota errors you may need to manage/request quota from the Vertex console. Quota is specific to the model + region. Ensure you request quota in the region you specified when you connected Vertex AI to Kiln.
 
 ### Custom OpenAI Compatible Servers
 
