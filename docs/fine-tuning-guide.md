@@ -1,6 +1,6 @@
 ---
-icon: bullseye-arrow
 description: Fine tuning 9 Models in 18 minutes
+icon: bullseye-arrow
 ---
 
 # Fine Tuning Guide
@@ -143,6 +143,12 @@ If it wasn't for GPT-4o, the whole project would have cost less than $6!
 
 Meanwhile our fastest fine-tune (Llama 3.2 1b) is about 10x faster and 150x cheaper than the models we used during synthetic data generation (source:OpenRouter perf stats & prices).
 
+### Track Training Metrics with Weights & Biases
+
+Kiln supports tracking training metrics with the tool [Weights & Biases](https://wandb.ai/site/) . Configure your W\&B API key in `Settings > AI Providers & Models > Weights & Biases`. before starting your fine-tuning job. Metrics will appear for any training jobs on Fireworks or Together. OpenAI doesn't support W\&B, but provides similar metrics in their own dashboard, linked from Kiln.
+
+<figure><img src="../.gitbook/assets/Screenshot 2025-03-19 at 7.27.16 PM.png" alt="" width="287"><figcaption><p>Weights and Biases Metrics</p></figcaption></figure>
+
 ### Next Steps
 
 What’s next after fine tuning?
@@ -151,9 +157,9 @@ What’s next after fine tuning?
 
 We now have 9 fine-tuned models, but which is best for our task? We should evaluate them for quality/speed/cost tradeoffs.
 
-We will be adding eval tools into Kiln soon to help with this process! In the meantime, you can used the reserved test/val splits to evaluate the fine tunes.
+Kiln has [powerful evaluation tools](evaluations.md) to help you though this process. Check out the [evaluation guide](evaluations.md) for details.
 
-If your task is deterministic (classification), Kiln AI will provide the validation set to OpenAI during tuning, and OpenAI will report val\_loss on their dashboard. For non-deterministic tasks (including generative tasks) you'll need to use human evaluation
+If your task is deterministic (classification), Kiln AI will provide the validation set to OpenAI or Together during tuning, and they will report val\_loss on their dashboard. For non-deterministic tasks (including generative tasks) you can use our [evaluation tools](evaluations.md) to evaluate quality.
 
 #### **Exporting Models**
 
