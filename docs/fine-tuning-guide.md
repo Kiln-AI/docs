@@ -19,7 +19,7 @@ A Demo Project:
 
 * \[2 mins]: [Define task, goals, and schema](fine-tuning-guide.md#step-1-define-your-task-and-goals)
 * \[9 mins]: [Synthetic data generation](synthetic-data-generation.md): create 920 high-quality examples for training
-* \[5 mins]: Dispatch 9 fine tuning jobs: [Fireworks](fine-tuning-guide.md#step-4-dispatch-training-jobs) (Llama 3.2 1b/3b/11b, Llama 3.1 8b/70b, Mixtral 8x7b), [OpenAI](fine-tuning-guide.md#step-4-dispatch-training-jobs) (GPT 4o, 4o-Mini), and [Unsloth](fine-tuning-guide.md#step-6-optional-training-on-your-own-infrastructure) (Llama 3.2 1b/3b)
+* \[5 mins]: Dispatch 9 fine tuning jobs: [Fireworks](fine-tuning-guide.md#step-4-dispatch-training-jobs) (Llama 3.2 1b/3b/11b, Llama 3.1 8b/70b, Mixtral 8x7b), [OpenAI](fine-tuning-guide.md#step-4-dispatch-training-jobs) (GPT 4o, 4o-Mini), and [Unsloth](fine-tuning-guide.md#step-6-optional-training-on-your-own-infrastructure) (Llama 3.2 1b/3b). Note: since this guide was written we've added fine-tuning on Together.ai, allowing tuning additional models like Qwen 2.5 14B/72B.
 * \[2 mins]: [Deploy your new models and test they work](fine-tuning-guide.md#step-5-deploy-and-run-your-models)
 
 Analysis:
@@ -59,13 +59,18 @@ Synthetic Data Generation
 
 Kiln supports a wide range of models from our UI, including:
 
-* OpenAI: GPT 4o and 4o-Mini
+* OpenAI:&#x20;
+  * GPT 4o
+  * GPT 4o-Mini
 * Meta:
   * Llama 3.1 8b/70b
   * Llama 3.2 1b/3b
-* Mistral: Mixtral 8x7b MoE
+* Together AI
+  * Llama 3.1 8b/70b
+  * Llama 3.2 1b/3b
+  * Qwen2.5 14b/72b
 
-In this demo, we'll use them all!
+For this demo we used all the models available at the time of writing.
 
 ### Step 4: Dispatch Training Jobs
 
@@ -76,10 +81,8 @@ We recommend setting aside a test and validation set when creating your dataset 
 {% hint style="info" %}
 **Training Reasoning/Thinkings Model**
 
-Kiln can train a reasoning model. See the guide on training reasoning models for d
+Kiln can train a reasoning model. See the guide on [training reasoning models](guide-train-a-reasoning-model.md).
 {% endhint %}
-
-
 
 {% embed url="https://files.gitbook.com/v0/b/gitbook-x-prod.appspot.com/o/spaces%2FEJ4b8A4QiEQlOGbYkXDX%2Fuploads%2F90AZYx6JVoCYFrhHCTUx%2FCreateTrainingJobs720.mp4?alt=media&token=c0e76a1b-0f55-4297-85b9-b1f9b6c4125f" %}
 Dispatching Training Jobs
@@ -89,7 +92,7 @@ Dispatching Training Jobs
 
 Kiln will automatically deploy your fine-tunes when they are complete. You can use them from the Kiln UI without any additional configuration. Simply select a fine-tune by name from the model dropdown in the "Run" tab.
 
-Both Fireworks and OpenAI tunes are deployed "serverless". You only pay by for usage (tokens), with no recurring costs.
+Together, Fireworks and OpenAI tunes are deployed "serverless". You only pay by for usage (tokens), with no recurring costs.
 
 You can use your models outside of Kiln by calling Fireworks or OpenAI APIs with the model ID from the "Fine Tune" tab.
 
@@ -102,8 +105,6 @@ Running some of our Fine Tuned Models (Llama 3.2 1b & GPT 4o-mini)
 {% hint style="info" %}
 If a Fireworks fine tune gives you the error \`Model not found, inaccessible, and/or not deployed\`, it means that model was un-deployed by Fireworks. Opening the model in the "Fine Tune" tab of Kiln will trigger a re-deploy.
 {% endhint %}
-
-
 
 ### Step 6 \[Optional]: Training on your own Infrastructure
 
@@ -145,7 +146,7 @@ Meanwhile our fastest fine-tune (Llama 3.2 1b) is about 10x faster and 150x chea
 
 ### Track Training Metrics with Weights & Biases
 
-Kiln supports tracking training metrics with the tool [Weights & Biases](https://wandb.ai/site/) . Configure your W\&B API key in `Settings > AI Providers & Models > Weights & Biases`. before starting your fine-tuning job. Metrics will appear for any training jobs on Fireworks or Together. OpenAI doesn't support W\&B, but provides similar metrics in their own dashboard, linked from Kiln.
+Kiln supports tracking training metrics with the tool [Weights & Biases](https://wandb.ai/site/) . Configure your W\&B API key in `Settings > AI Providers & Models > Weights & Biases` before starting your fine-tuning job. Metrics will appear for any training jobs on Fireworks or Together. OpenAI doesn't support W\&B, but provides similar metrics in their own dashboard, which is linked from the Kiln Fine Tune page.
 
 <figure><img src="../.gitbook/assets/Screenshot 2025-03-19 at 7.27.16 PM.png" alt="" width="287"><figcaption><p>Weights and Biases Metrics</p></figcaption></figure>
 
@@ -166,6 +167,7 @@ If your task is deterministic (classification), Kiln AI will provide the validat
 You can export your models for use on your machine, deployment to the cloud, or embedding in your product.
 
 * Fireworks: you can [download the weights](https://docs.fireworks.ai/fine-tuning/fine-tuning-models#downloading-model-weights) in Hugging Face PEFT format, and convert as needed.
+* Together: you can [download the weights](https://docs.together.ai/docs/finetuning#running-your-model-locally), run locally or convert as needed.
 * Unsloth: your fine-tunes can be directly export to GGUF or other formats which make these model easy to deploy. A GGUF can be [imported to Ollama](https://github.com/ollama/ollama/blob/main/docs/import.md) for local use. Once added to Ollama, the models will become available in Kiln UI as well.
 * OpenAI: sadly OpenAI won’t let you download their models.
 
@@ -173,17 +175,18 @@ You can export your models for use on your machine, deployment to the cloud, or 
 
 Models and products are rarely perfect on their first try. When you find bugs or have new goals, Kiln makes it easy to build new models. Some ways to iterate:
 
+* Experiment with different base-models
 * Experiment with fine-tuning hyperparameters (see the "Advanced Options" section of the UI)
 * Experiment with shorter training prompts, which can reduce costs
-* Add any bugs you encounter to your dataset, using Kiln to “repair” the issues. These get added to your training data for future iterations.
-* Rate your dataset using Kiln’s rating system, then build fine-tunes using only highly rated content.
-* Generate synthetic data targeting common bugs you see, so the model can learn to avoid those issues
+* For one-off bugs you encounter use Kiln to “[repair](repairing-responses.md)” the issues. These get added to your training data for future iterations.&#x20;
+* For recurring bugs/patterns, use [synthetic data generation](synthetic-data-generation.md) to generate many samples of common bugs, ensure they have correct responses with [human guidance](synthetic-data-generation.md#human-guidance), and add the results to the training set to prevent this class of issues in the future.
+* Rate your dataset using Kiln’s [rating system](reviewing-and-rating.md), then build fine-tunes using only highly rated content.
 * Regenerate fine-tunes as your dataset grows and evolves
 * Try new foundation models (directly and with fine tuning) when new state of the art models are released.
 
 #### **Integrate with Code**
 
-Kiln can be used entirely through the UI and doesn't require coding. However, if you'd like a code-based integration, our open-source [Python library](https://pypi.org/project/kiln-ai/) is available.
+Kiln can be used entirely through the UI and doesn't require coding. However, if you'd like a code-based integration, our open-source [Python library](https://pypi.org/project/kiln-ai/) is available. You can dispatch fine-tune jobs and call fine-tuned models through our library without the UI if you prefer.
 
 ### **Our "Ladder" Data Strategy**
 
