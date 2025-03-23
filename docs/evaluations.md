@@ -1,6 +1,6 @@
 ---
-icon: list-check
 description: Evaluate the quality of your models/tasks using state of the art evals
+icon: list-check
 ---
 
 # Evaluations
@@ -20,10 +20,10 @@ Kiln includes a complete platform for ensuring your tasks/models are of the high
 * Integrate evals with the rest of Kiln: use synthetic data generation to build eval sets, or use evals to evaluate fine-tunes
 * Optional: Python Library Usage
 
-### Video Walkthrough
+### Video Guide
 
-{% embed url="https://files.gitbook.com/v0/b/gitbook-x-prod.appspot.com/o/spaces%2FEJ4b8A4QiEQlOGbYkXDX%2Fuploads%2F3Gaqmle0KLNoNK2njR2D%2Ffinal_1080p_web_fast_start.mp4?alt=media&token=9271c842-ea19-4a6e-97aa-126577486b41" %}
-Video Tutorial for Evaluating AI Models
+{% embed url="https://vimeo.com/1067948856?share=copy" %}
+Video walkthrough of creating a LLM evaluator
 {% endembed %}
 
 ### Concepts Overview
