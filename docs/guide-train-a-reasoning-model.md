@@ -1,6 +1,6 @@
 ---
-icon: person-chalkboard
 description: Built a reasoning model, like o3 or R1, for your use case
+icon: person-chalkboard
 ---
 
 # Guide: Train a Reasoning Model
@@ -17,7 +17,9 @@ We already have a [detailed guide on fine-tuning models](fine-tuning-guide.md). 
 
 ### Training Demo Video
 
-{% embed url="https://files.gitbook.com/v0/b/gitbook-x-prod.appspot.com/o/spaces%2FEJ4b8A4QiEQlOGbYkXDX%2Fuploads%2Fmu70DOoxZr5BMnhd0uck%2Ffinal_1080.mp4?alt=media&token=0089a86c-d89c-4f06-8868-a8b6766f6718" %}
+{% embed url="https://vimeo.com/1067942685/f2fbe3e3de" %}
+Video walkthrough of creating a custom reasoning LLM
+{% endembed %}
 
 ### Ensure your training data includes "reasoning"
 
