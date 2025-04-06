@@ -81,14 +81,14 @@ You can request we add models [here](https://github.com/Kiln-AI/Kiln/issues/29).
 | Nemotron 70B                  | OpenRouter                                                            |                     |                     |                     |                   |
 | Llama 3.1 8B                  | Amazon Bedrock, Fireworks AI, Groq, Ollama, OpenRouter, Together AI   | ✅︎ (some providers) |                     | ✅︎ (some providers) | ✅︎                |
 | Llama 3.1 70B                 | Amazon Bedrock, Fireworks AI, Ollama, OpenRouter, Together AI         | ✅︎                  |                     | ✅︎ (some providers) | ✅︎                |
-| Llama 3.1 405B                | Amazon Bedrock, Fireworks AI, Ollama, OpenRouter, Together AI         | ✅︎                  |                     | ✅︎ (some providers) |                   |
+| Llama 3.1 405B                | Amazon Bedrock, Fireworks AI, Ollama, OpenRouter, Together AI         | ✅︎                  |                     | ✅︎ (some providers) | ✅︎                |
 | Mistral Nemo                  | OpenRouter                                                            | ✅︎                  |                     | ✅︎                  |                   |
 | Mistral Large                 | Amazon Bedrock, Ollama, OpenRouter                                    | ✅︎                  |                     | ✅︎                  |                   |
 | Llama 3.2 1B                  | Groq, Hugging Face, Ollama, OpenRouter, Together AI                   | ✅︎ (some providers) |                     | ✅︎ (some providers) | ✅︎                |
-| Llama 3.2 3B                  | Fireworks AI, Groq, Hugging Face, Ollama, OpenRouter, Together AI     | ✅︎ (some providers) |                     |                     | ✅︎                |
+| Llama 3.2 3B                  | Groq, Hugging Face, Ollama, OpenRouter, Together AI                   | ✅︎ (some providers) |                     |                     | ✅︎                |
 | Llama 3.2 11B                 | Fireworks AI, Groq, Hugging Face, Ollama, OpenRouter, Together AI     | ✅︎ (some providers) |                     | ✅︎ (some providers) |                   |
 | Llama 3.2 90B                 | Fireworks AI, Groq, Ollama, OpenRouter, Together AI                   | ✅︎ (some providers) |                     | ✅︎ (some providers) |                   |
-| Llama 3.3 70B                 | Fireworks AI, Google Vertex AI, Groq, Ollama, OpenRouter, Together AI | ✅︎ (some providers) |                     | ✅︎ (some providers) |                   |
+| Llama 3.3 70B                 | Fireworks AI, Google Vertex AI, Groq, Ollama, OpenRouter, Together AI | ✅︎ (some providers) |                     | ✅︎ (some providers) | ✅︎                |
 | Phi 3.5                       | Fireworks AI, Ollama, OpenRouter                                      |                     |                     |                     |                   |
 | Phi 4 - 14B                   | Ollama, OpenRouter                                                    | ✅︎                  |                     | ✅︎ (some providers) |                   |
 | Phi 4 - 5.6B                  | OpenRouter                                                            |                     |                     |                     |                   |
@@ -101,13 +101,13 @@ You can request we add models [here](https://github.com/Kiln-AI/Kiln/issues/29).
 | Gemma 3 12B                   | Ollama, OpenRouter                                                    | ✅︎                  |                     | ✅︎                  |                   |
 | Gemma 3 27B                   | Hugging Face, Ollama, OpenRouter                                      | ✅︎                  |                     | ✅︎                  |                   |
 | Mixtral 8x7B                  | Ollama, OpenRouter                                                    | ✅︎                  |                     | ✅︎ (some providers) |                   |
-| QwQ 32B (Qwen Reasoning)      | Fireworks AI, Groq, Ollama, OpenRouter, Together AI                   | ✅︎                  | ✅︎                  | ✅︎                  |                   |
+| QwQ 32B (Qwen Reasoning)      | Fireworks AI, Groq, Ollama, OpenRouter, Together AI                   | ✅︎                  | ✅︎                  | ✅︎                  | ✅︎                |
 | Qwen 2.5 7B                   | Ollama, OpenRouter                                                    | ✅︎                  |                     | ✅︎                  |                   |
 | Qwen 2.5 14B                  | Ollama, Together AI                                                   | ✅︎                  |                     | ✅︎ (some providers) | ✅︎                |
 | Qwen 2.5 72B                  | Fireworks AI, Ollama, OpenRouter, Together AI                         | ✅︎ (some providers) |                     | ✅︎ (some providers) | ✅︎                |
 | Mistral Small 3               | Ollama, OpenRouter                                                    | ✅︎                  |                     | ✅︎                  |                   |
-| DeepSeek V3                   | Fireworks AI, OpenRouter, Together AI                                 | ✅︎                  |                     | ✅︎ (some providers) |                   |
-| DeepSeek R1                   | Fireworks AI, Ollama, OpenRouter, Together AI                         | ✅︎                  | ✅︎                  | ✅︎                  |                   |
+| DeepSeek V3                   | Fireworks AI, OpenRouter, Together AI                                 | ✅︎                  |                     | ✅︎ (some providers) | ✅︎                |
+| DeepSeek R1                   | Fireworks AI, Ollama, OpenRouter, Together AI                         | ✅︎                  | ✅︎                  | ✅︎                  | ✅︎                |
 | DeepSeek R1 Distill Qwen 32B  | Ollama, OpenRouter, Together AI                                       | ✅︎                  | ✅︎                  | ✅︎                  |                   |
 | DeepSeek R1 Distill Llama 70B | Ollama, OpenRouter, Together AI                                       | ✅︎                  | ✅︎ (some providers) | ✅︎ (some providers) |                   |
 | DeepSeek R1 Distill Qwen 14B  | Ollama, OpenRouter, Together AI                                       | ✅︎                  | ✅︎ (some providers) | ✅︎ (some providers) |                   |
@@ -120,6 +120,86 @@ You can request we add models [here](https://github.com/Kiln-AI/Kiln/issues/29).
 {% hint style="info" %}
 For "`✅︎ (some providers)` ", see [the code on Github](https://github.com/Kiln-AI/Kiln/blob/main/libs/core/kiln_ai/adapters/ml_model_list.py) for details of which providers are supported.
 {% endhint %}
+
+### Additional Fine-Tuneable Models
+
+On top of the built in models listed above, the following models can be fine tuned using a Fireworks.ai API key:
+
+<details>
+
+<summary> Model List — 60+ models on Fireworks.ai</summary>
+
+* Code Llama 34B (code-llama-34b)
+
+- Code Llama 34B Instruct (code-llama-34b-instruct)
+- DeepSeek Coder V2 Instruct (deepseek-coder-v2-instruct)
+- DeepSeek Coder V2 Lite Base (deepseek-coder-v2-lite-base)
+- Deepseek Coder V2 Lite (deepseek-coder-v2-lite-instruct)
+- DeepSeek R1 (Fast) (deepseek-r1)
+- DeepSeek R1 (Basic) (deepseek-r1-basic)
+- deepseek-r1-distill-llama-70b
+- Deepseek R1 Distill Llama 8B (deepseek-r1-distill-llama-8b)
+- Deepseek R1 Distill Qwen 14B (deepseek-r1-distill-qwen-14b)
+- Deepseek R1 Distill Qwen 1.5B (deepseek-r1-distill-qwen-1p5b)
+- deepseek-r1-distill-qwen-32b
+- Deepseek R1 Distill Qwen 7B (deepseek-r1-distill-qwen-7b)
+- DeepSeek V2 Lite Chat (deepseek-v2-lite-chat)
+- DeepSeek V2.5 (deepseek-v2p5)
+- DeepSeek V3 (deepseek-v3)
+- Deepseek V3 03-24 (deepseek-v3-0324)
+- Dolphin 2.9.2 Qwen2 72B (dolphin-2-9-2-qwen2-72b)
+- FireFunction V2 (firefunction-v2)
+- Llama Guard v2 8B (llama-guard-2-8b)
+- Llama Guard v3 1B (llama-guard-3-1b)
+- llama-guard-3-8b
+- Llama 2 13B Chat (llama-v2-13b-chat)
+- Llama 2 70B Chat (llama-v2-70b-chat)
+- Llama 2 7B Chat (llama-v2-7b-chat)
+- Llama 3 70B Instruct (llama-v3-70b-instruct)
+- Llama 3 70B Instruct (HF version) (llama-v3-70b-instruct-hf)
+- Llama 3 8B Instruct (llama-v3-8b-instruct)
+- Llama 3 8B Instruct (HF version) (llama-v3-8b-instruct-hf)
+- Llama 3.1 405B Instruct (llama-v3p1-405b-instruct)
+- Llama 3.1 70B Instruct (llama-v3p1-70b-instruct)
+- Llama 3.1 8B Instruct (llama-v3p1-8b-instruct)
+- Llama 3.1 Nemotron 70B (llama-v3p1-nemotron-70b-instruct)
+- Llama 3.2 1B Instruct (llama-v3p2-1b-instruct)
+- Llama 3.2 3B Instruct (llama-v3p2-3b-instruct)
+- Llama 3.3 70B Instruct (llama-v3p3-70b-instruct)
+- Qwen1.5 72B Chat (qwen1p5-72b-chat)
+- Qwen2 72B Instruct (qwen2-72b-instruct)
+- Qwen2 7B Instruct (qwen2-7b-instruct)
+- Qwen2.5 0.5B Instruct (qwen2p5-0p5b-instruct)
+- Qwen2.5 14B (qwen2p5-14b)
+- Qwen2.5 14B Instruct (qwen2p5-14b-instruct)
+- Qwen2.5 32B (qwen2p5-32b)
+- Qwen2.5 32B Instruct (qwen2p5-32b-instruct)
+- Qwen2.5 72B (qwen2p5-72b)
+- Qwen2.5 72B Instruct (qwen2p5-72b-instruct)
+- Qwen2.5 7B (qwen2p5-7b)
+- Qwen2.5 7B Instruct (qwen2p5-7b-instruct)
+- Qwen2.5-Coder-0.5B (qwen2p5-coder-0p5b)
+- Qwen2.5-Coder-0.5B-Instruct (qwen2p5-coder-0p5b-instruct)
+- Qwen2.5-Coder-14B (qwen2p5-coder-14b)
+- Qwen2.5-Coder-14B-Instruct (qwen2p5-coder-14b-instruct)
+- Qwen2.5 Coder 1.5B (qwen2p5-coder-1p5b)
+- Qwen2.5 Coder 1.5B Instruct (qwen2p5-coder-1p5b-instruct)
+- Qwen2.5-Coder-32B (qwen2p5-coder-32b)
+- Qwen2.5-Coder-32B-Instruct (qwen2p5-coder-32b-instruct)
+- Qwen2.5-Coder-32B-Instruct (qwen2p5-coder-32b-instruct-128k)
+- Qwen2.5-Coder-32B-Instruct (qwen2p5-coder-32b-instruct-32k-rope)
+- Qwen2.5-Coder-32B-Instruct (qwen2p5-coder-32b-instruct-64k)
+- Qwen2.5-Coder-3B (qwen2p5-coder-3b)
+- Qwen2.5-Coder-3B-Instruct (qwen2p5-coder-3b-instruct)
+- Qwen2.5-Coder-7B (qwen2p5-coder-7b)
+- Qwen2.5-Coder-7B-Instruct (qwen2p5-coder-7b-instruct)
+- qwen2p5-math-72b-instruct
+- Qwen2.5 14B Instruct (qwen-v2p5-14b-instruct)
+- Qwen2.5 7B (qwen-v2p5-7b)
+- QwQ-32B (qwq-32b)
+- Yi 34B Chat (yi-34b-chat)
+
+</details>
 
 ### Custom Ollama Models
 
