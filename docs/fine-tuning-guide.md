@@ -19,7 +19,7 @@ A Demo Project:
 
 * \[2 mins]: [Define task, goals, and schema](fine-tuning-guide.md#step-1-define-your-task-and-goals)
 * \[9 mins]: [Synthetic data generation](synthetic-data-generation.md): create 920 high-quality examples for training
-* \[5 mins]: Dispatch 9 fine tuning jobs: [Fireworks](fine-tuning-guide.md#step-4-dispatch-training-jobs) (Llama 3.2 1b/3b/11b, Llama 3.1 8b/70b, Mixtral 8x7b), [OpenAI](fine-tuning-guide.md#step-4-dispatch-training-jobs) (GPT 4o, 4o-Mini), and [Unsloth](fine-tuning-guide.md#step-6-optional-training-on-your-own-infrastructure) (Llama 3.2 1b/3b). Note: since this guide was written we've added fine-tuning on Together.ai, allowing tuning additional models like Qwen 2.5 14B/72B.
+* \[5 mins]: Dispatch 9 fine tuning jobs: [Fireworks](fine-tuning-guide.md#step-4-dispatch-training-jobs) (Llama 3.2 1b/3b/11b, Llama 3.1 8b/70b, Mixtral 8x7b), [OpenAI](fine-tuning-guide.md#step-4-dispatch-training-jobs) (GPT 4o, 4o-Mini), and [Unsloth](fine-tuning-guide.md#step-6-optional-training-on-your-own-infrastructure) (Llama 3.2 1b/3b). Note: since this guide was written we've added over 60 new models for fine tuning!
 * \[2 mins]: [Deploy your new models and test they work](fine-tuning-guide.md#step-5-deploy-and-run-your-models)
 
 Analysis:
@@ -57,20 +57,13 @@ Synthetic Data Generation
 
 ### Step 3: Select Models to Fine Tune
 
-Kiln supports a wide range of models from our UI, including:
+Kiln supports over 60 fine-tuneable models using three different service based tuning providers:
 
-* OpenAI:&#x20;
-  * GPT 4o
-  * GPT 4o-Mini
-* Meta:
-  * Llama 3.1 8b/70b
-  * Llama 3.2 1b/3b
-* Together AI
-  * Llama 3.1 8b/70b
-  * Llama 3.2 1b/3b
-  * Qwen2.5 14b/72b
+* Open AI: GPT 4o and 4o-mini
+* Fireworks.ai: over 60 open weight models including Qwen 2.5, Llama 2/3.x, Deepseek V3/R1, QwQ, and more. See the [full list here](models-and-ai-providers.md#additional-fine-tuneable-models).
+* Together AI: Llama 3.1 8b/70b, Llama 3.2 1b/3b, Qwen2.5 14b/72b
 
-For this demo we used all the models available at the time of writing.
+For this experiment we choose 9 model to expriment with.
 
 ### Step 4: Dispatch Training Jobs
 
@@ -110,7 +103,7 @@ If a Fireworks fine tune gives you the error \`Model not found, inaccessible, an
 
 Kiln can also export your dataset to common formats for fine tuning on your own infrastructure. Simply select one of the "Download" options when creating your fine tune, and use the exported JSONL file to train with your own tools.
 
-We currently recommend [Unsloth](https://github.com/unslothai/unsloth) and Axolotl. These platforms let you train almost any open model, including Gemma, Mistral, Llama, Qwen, Smol, and many more.
+We currently recommend [Unsloth](https://github.com/unslothai/unsloth) and Axolotl. These platforms let you train almost any open model, including Gemma, Mistral, Llama, Qwen, Smol, and [many more](https://docs.unsloth.ai/get-started/all-our-models).&#x20;
 
 **Unsloth Example**
 
