@@ -123,11 +123,13 @@ For "`✅︎ (some providers)` ", see [the code on Github](https://github.com/Ki
 
 ### Additional Fine-Tuneable Models
 
-On top of the built in models listed above, the following models can be fine tuned using a Fireworks.ai API key:
+The following models can be fine tuned using a Fireworks.ai API key:
 
 <details>
 
 <summary> Model List — 60+ models on Fireworks.ai</summary>
+
+New models will automatically appear in Kiln as they are released by Fireworks. Here's a snapshot:
 
 * Code Llama 34B (code-llama-34b)
 
