@@ -62,11 +62,20 @@ You can request we add models [here](https://github.com/Kiln-AI/Kiln/issues/29).
 
 | Model Name                    | Providers                                                             | Structured Output   | Reasoning           | Synthetic Data      | API Fine-Tuneable |
 | ----------------------------- | --------------------------------------------------------------------- | ------------------- | ------------------- | ------------------- | ----------------- |
-| GPT 4o Mini                   | Azure OpenAI, OpenAI, OpenRouter                                      | ✅︎                  |                     | ✅︎                  | ✅︎                |
+| GPT 4.1                       | Azure OpenAI, OpenAI, OpenRouter                                      | ✅︎                  |                     | ✅︎                  | ✅︎                |
+| GPT 4.1 Mini                  | Azure OpenAI, OpenAI, OpenRouter                                      | ✅︎                  |                     | ✅︎                  | ✅︎                |
+| GPT 4.1 Nano                  | Azure OpenAI, OpenAI, OpenRouter                                      | ✅︎                  |                     | ✅︎                  |                   |
 | GPT 4o                        | Azure OpenAI, OpenAI, OpenRouter                                      | ✅︎                  |                     | ✅︎                  | ✅︎                |
+| GPT 4o Mini                   | Azure OpenAI, OpenAI, OpenRouter                                      | ✅︎                  |                     | ✅︎                  | ✅︎                |
+| GPT o4 Mini - Low             | Azure OpenAI, OpenAI                                                  | ✅︎                  |                     | ✅︎                  |                   |
+| GPT o4 Mini - Medium          | Azure OpenAI, OpenAI, OpenRouter                                      | ✅︎                  |                     | ✅︎                  |                   |
+| GPT o4 Mini - High            | Azure OpenAI, OpenAI, OpenRouter                                      | ✅︎                  |                     | ✅︎                  |                   |
 | GPT o3 Mini - Low             | Azure OpenAI, OpenAI                                                  | ✅︎                  |                     | ✅︎                  |                   |
 | GPT o3 Mini - Medium          | Azure OpenAI, OpenAI                                                  | ✅︎                  |                     | ✅︎                  |                   |
 | GPT o3 Mini - High            | Azure OpenAI, OpenAI                                                  | ✅︎                  |                     | ✅︎                  |                   |
+| GPT o3 - Low                  | Azure OpenAI, OpenAI                                                  | ✅︎                  |                     | ✅︎                  |                   |
+| GPT o3 - Medium               | Azure OpenAI, OpenAI                                                  | ✅︎                  |                     | ✅︎                  |                   |
+| GPT o3 - High                 | Azure OpenAI, OpenAI                                                  | ✅︎                  |                     | ✅︎                  |                   |
 | GPT o1 - Low                  | Azure OpenAI, OpenAI                                                  | ✅︎                  |                     | ✅︎                  |                   |
 | GPT o1 - Medium               | Azure OpenAI, OpenAI                                                  | ✅︎                  |                     | ✅︎                  |                   |
 | GPT o1 - High                 | Azure OpenAI, OpenAI                                                  | ✅︎                  |                     | ✅︎                  |                   |
@@ -74,10 +83,13 @@ You can request we add models [here](https://github.com/Kiln-AI/Kiln/issues/29).
 | Claude 3.5 Sonnet             | Anthropic, Google Vertex AI, OpenRouter                               | ✅︎                  |                     | ✅︎                  |                   |
 | Claude 3.7 Sonnet             | Anthropic, OpenRouter                                                 | ✅︎                  |                     | ✅︎                  |                   |
 | Claude 3.7 Sonnet Thinking    | Anthropic, OpenRouter                                                 | ✅︎                  | ✅︎                  | ✅︎                  |                   |
+| Gemini 2.5 Pro                | Gemini API, Google Vertex AI, OpenRouter                              | ✅︎                  |                     | ✅︎                  |                   |
+| Gemini 2.5 Flash              | Gemini API, Google Vertex AI, OpenRouter                              | ✅︎                  |                     | ✅︎                  |                   |
+| Gemini 2.0 Flash              | Gemini API, Google Vertex AI, OpenRouter                              | ✅︎                  |                     | ✅︎                  | ✅︎                |
+| Gemini 2.0 Flash Lite         | Gemini API, Google Vertex AI, OpenRouter                              | ✅︎                  |                     | ✅︎                  | ✅︎                |
 | Gemini 1.5 Pro                | Gemini API, Google Vertex AI, OpenRouter                              | ✅︎                  |                     | ✅︎                  |                   |
 | Gemini 1.5 Flash              | Gemini API, Google Vertex AI, OpenRouter                              | ✅︎                  |                     | ✅︎                  |                   |
 | Gemini 1.5 Flash 8B           | Gemini API, OpenRouter                                                | ✅︎                  |                     |                     |                   |
-| Gemini 2.0 Flash              | Gemini API, Google Vertex AI, OpenRouter                              | ✅︎                  |                     | ✅︎                  |                   |
 | Nemotron 70B                  | OpenRouter                                                            |                     |                     |                     |                   |
 | Llama 3.1 8B                  | Amazon Bedrock, Fireworks AI, Groq, Ollama, OpenRouter, Together AI   | ✅︎ (some providers) |                     | ✅︎ (some providers) | ✅︎                |
 | Llama 3.1 70B                 | Amazon Bedrock, Fireworks AI, Ollama, OpenRouter, Together AI         | ✅︎                  |                     | ✅︎ (some providers) | ✅︎                |
@@ -86,7 +98,7 @@ You can request we add models [here](https://github.com/Kiln-AI/Kiln/issues/29).
 | Mistral Large                 | Amazon Bedrock, Ollama, OpenRouter                                    | ✅︎                  |                     | ✅︎                  |                   |
 | Llama 3.2 1B                  | Groq, Hugging Face, Ollama, OpenRouter, Together AI                   | ✅︎ (some providers) |                     | ✅︎ (some providers) | ✅︎                |
 | Llama 3.2 3B                  | Groq, Hugging Face, Ollama, OpenRouter, Together AI                   | ✅︎ (some providers) |                     |                     | ✅︎                |
-| Llama 3.2 11B                 | Fireworks AI, Groq, Hugging Face, Ollama, OpenRouter, Together AI     | ✅︎ (some providers) |                     | ✅︎ (some providers) |                   |
+| Llama 3.2 11B                 | Fireworks AI, Hugging Face, Ollama, OpenRouter, Together AI           | ✅︎ (some providers) |                     | ✅︎ (some providers) |                   |
 | Llama 3.2 90B                 | Fireworks AI, Groq, Ollama, OpenRouter, Together AI                   | ✅︎ (some providers) |                     | ✅︎ (some providers) |                   |
 | Llama 3.3 70B                 | Fireworks AI, Google Vertex AI, Groq, Ollama, OpenRouter, Together AI | ✅︎ (some providers) |                     | ✅︎ (some providers) | ✅︎                |
 | Phi 3.5                       | Fireworks AI, Ollama, OpenRouter                                      |                     |                     |                     |                   |
@@ -127,79 +139,86 @@ The following models can be fine tuned using a Fireworks.ai API key:
 
 <details>
 
-<summary> Model List — 60+ models on Fireworks.ai</summary>
+<summary> 60+ Fine-Tuneable Models on Fireworks.ai</summary>
 
 New models will automatically appear in Kiln as they are released by Fireworks. Here's a snapshot:
 
-* Code Llama 34B (code-llama-34b)
 
-- Code Llama 34B Instruct (code-llama-34b-instruct)
-- DeepSeek Coder V2 Instruct (deepseek-coder-v2-instruct)
-- DeepSeek Coder V2 Lite Base (deepseek-coder-v2-lite-base)
-- Deepseek Coder V2 Lite (deepseek-coder-v2-lite-instruct)
-- DeepSeek R1 (Fast) (deepseek-r1)
-- DeepSeek R1 (Basic) (deepseek-r1-basic)
-- deepseek-r1-distill-llama-70b
-- Deepseek R1 Distill Llama 8B (deepseek-r1-distill-llama-8b)
-- Deepseek R1 Distill Qwen 14B (deepseek-r1-distill-qwen-14b)
-- Deepseek R1 Distill Qwen 1.5B (deepseek-r1-distill-qwen-1p5b)
-- deepseek-r1-distill-qwen-32b
-- Deepseek R1 Distill Qwen 7B (deepseek-r1-distill-qwen-7b)
-- DeepSeek V2 Lite Chat (deepseek-v2-lite-chat)
-- DeepSeek V2.5 (deepseek-v2p5)
-- DeepSeek V3 (deepseek-v3)
-- Deepseek V3 03-24 (deepseek-v3-0324)
-- Dolphin 2.9.2 Qwen2 72B (dolphin-2-9-2-qwen2-72b)
-- FireFunction V2 (firefunction-v2)
-- Llama Guard v2 8B (llama-guard-2-8b)
-- Llama Guard v3 1B (llama-guard-3-1b)
-- llama-guard-3-8b
-- Llama 2 13B Chat (llama-v2-13b-chat)
-- Llama 2 70B Chat (llama-v2-70b-chat)
-- Llama 2 7B Chat (llama-v2-7b-chat)
-- Llama 3 70B Instruct (llama-v3-70b-instruct)
-- Llama 3 70B Instruct (HF version) (llama-v3-70b-instruct-hf)
-- Llama 3 8B Instruct (llama-v3-8b-instruct)
-- Llama 3 8B Instruct (HF version) (llama-v3-8b-instruct-hf)
-- Llama 3.1 405B Instruct (llama-v3p1-405b-instruct)
-- Llama 3.1 70B Instruct (llama-v3p1-70b-instruct)
-- Llama 3.1 8B Instruct (llama-v3p1-8b-instruct)
-- Llama 3.1 Nemotron 70B (llama-v3p1-nemotron-70b-instruct)
-- Llama 3.2 1B Instruct (llama-v3p2-1b-instruct)
-- Llama 3.2 3B Instruct (llama-v3p2-3b-instruct)
-- Llama 3.3 70B Instruct (llama-v3p3-70b-instruct)
-- Qwen1.5 72B Chat (qwen1p5-72b-chat)
-- Qwen2 72B Instruct (qwen2-72b-instruct)
-- Qwen2 7B Instruct (qwen2-7b-instruct)
-- Qwen2.5 0.5B Instruct (qwen2p5-0p5b-instruct)
-- Qwen2.5 14B (qwen2p5-14b)
-- Qwen2.5 14B Instruct (qwen2p5-14b-instruct)
-- Qwen2.5 32B (qwen2p5-32b)
-- Qwen2.5 32B Instruct (qwen2p5-32b-instruct)
-- Qwen2.5 72B (qwen2p5-72b)
-- Qwen2.5 72B Instruct (qwen2p5-72b-instruct)
-- Qwen2.5 7B (qwen2p5-7b)
-- Qwen2.5 7B Instruct (qwen2p5-7b-instruct)
-- Qwen2.5-Coder-0.5B (qwen2p5-coder-0p5b)
-- Qwen2.5-Coder-0.5B-Instruct (qwen2p5-coder-0p5b-instruct)
-- Qwen2.5-Coder-14B (qwen2p5-coder-14b)
-- Qwen2.5-Coder-14B-Instruct (qwen2p5-coder-14b-instruct)
-- Qwen2.5 Coder 1.5B (qwen2p5-coder-1p5b)
-- Qwen2.5 Coder 1.5B Instruct (qwen2p5-coder-1p5b-instruct)
-- Qwen2.5-Coder-32B (qwen2p5-coder-32b)
-- Qwen2.5-Coder-32B-Instruct (qwen2p5-coder-32b-instruct)
-- Qwen2.5-Coder-32B-Instruct (qwen2p5-coder-32b-instruct-128k)
-- Qwen2.5-Coder-32B-Instruct (qwen2p5-coder-32b-instruct-32k-rope)
-- Qwen2.5-Coder-32B-Instruct (qwen2p5-coder-32b-instruct-64k)
-- Qwen2.5-Coder-3B (qwen2p5-coder-3b)
-- Qwen2.5-Coder-3B-Instruct (qwen2p5-coder-3b-instruct)
-- Qwen2.5-Coder-7B (qwen2p5-coder-7b)
-- Qwen2.5-Coder-7B-Instruct (qwen2p5-coder-7b-instruct)
-- qwen2p5-math-72b-instruct
-- Qwen2.5 14B Instruct (qwen-v2p5-14b-instruct)
-- Qwen2.5 7B (qwen-v2p5-7b)
-- QwQ-32B (qwq-32b)
-- Yi 34B Chat (yi-34b-chat)
+
+* Code Llama 34B (code-llama-34b)
+* Code Llama 34B Instruct (code-llama-34b-instruct)
+* Cogito v1 preview - 3B (cogito-v1-preview-llama-3b)
+* Cogito v1 preview - 70B (cogito-v1-preview-llama-70b)
+* Cogito v1 preview - 8B (cogito-v1-preview-llama-8b)
+* Cogito v1 preview - 14B (cogito-v1-preview-qwen-14b)
+* Cogito v1 preview - 32B (cogito-v1-preview-qwen-32b)
+* DeepSeek Coder V2 Instruct (deepseek-coder-v2-instruct)
+* DeepSeek Coder V2 Lite Base (deepseek-coder-v2-lite-base)
+* Deepseek Coder V2 Lite (deepseek-coder-v2-lite-instruct)
+* DeepSeek R1 (Fast) (deepseek-r1)
+* DeepSeek R1 (Basic) (deepseek-r1-basic)
+* deepseek-r1-distill-llama-70b
+* Deepseek R1 Distill Llama 8B (deepseek-r1-distill-llama-8b)
+* Deepseek R1 Distill Qwen 14B (deepseek-r1-distill-qwen-14b)
+* Deepseek R1 Distill Qwen 1.5B (deepseek-r1-distill-qwen-1p5b)
+* deepseek-r1-distill-qwen-32b
+* Deepseek R1 Distill Qwen 7B (deepseek-r1-distill-qwen-7b)
+* DeepSeek V2 Lite Chat (deepseek-v2-lite-chat)
+* DeepSeek V2.5 (deepseek-v2p5)
+* DeepSeek V3 (deepseek-v3)
+* Deepseek V3 03-24 (deepseek-v3-0324)
+* Dolphin 2.9.2 Qwen2 72B (dolphin-2-9-2-qwen2-72b)
+* FireFunction V2 (firefunction-v2)
+* Gemma 3 27B Instruct (gemma-3-27b-it)
+* Llama Guard v2 8B (llama-guard-2-8b)
+* Llama Guard v3 1B (llama-guard-3-1b)
+* llama-guard-3-8b
+* Llama 2 13B Chat (llama-v2-13b-chat)
+* Llama 2 70B Chat (llama-v2-70b-chat)
+* Llama 2 7B Chat (llama-v2-7b-chat)
+* Llama 3 70B Instruct (llama-v3-70b-instruct)
+* Llama 3 70B Instruct (HF version) (llama-v3-70b-instruct-hf)
+* Llama 3 8B Instruct (llama-v3-8b-instruct)
+* Llama 3 8B Instruct (HF version) (llama-v3-8b-instruct-hf)
+* Llama 3.1 405B Instruct (llama-v3p1-405b-instruct)
+* Llama 3.1 70B Instruct (llama-v3p1-70b-instruct)
+* Llama 3.1 8B Instruct (llama-v3p1-8b-instruct)
+* Llama 3.1 Nemotron 70B (llama-v3p1-nemotron-70b-instruct)
+* Llama 3.2 1B Instruct (llama-v3p2-1b-instruct)
+* Llama 3.2 3B Instruct (llama-v3p2-3b-instruct)
+* Llama 3.3 70B Instruct (llama-v3p3-70b-instruct)
+* Qwen1.5 72B Chat (qwen1p5-72b-chat)
+* Qwen2 72B Instruct (qwen2-72b-instruct)
+* Qwen2 7B Instruct (qwen2-7b-instruct)
+* Qwen2.5 0.5B Instruct (qwen2p5-0p5b-instruct)
+* Qwen2.5 14B (qwen2p5-14b)
+* Qwen2.5 14B Instruct (qwen2p5-14b-instruct)
+* Qwen2.5 32B (qwen2p5-32b)
+* Qwen2.5 32B Instruct (qwen2p5-32b-instruct)
+* Qwen2.5 72B (qwen2p5-72b)
+* Qwen2.5 72B Instruct (qwen2p5-72b-instruct)
+* Qwen2.5 7B (qwen2p5-7b)
+* Qwen2.5 7B Instruct (qwen2p5-7b-instruct)
+* Qwen2.5-Coder-0.5B (qwen2p5-coder-0p5b)
+* Qwen2.5-Coder-0.5B-Instruct (qwen2p5-coder-0p5b-instruct)
+* Qwen2.5-Coder-14B (qwen2p5-coder-14b)
+* Qwen2.5-Coder-14B-Instruct (qwen2p5-coder-14b-instruct)
+* Qwen2.5 Coder 1.5B (qwen2p5-coder-1p5b)
+* Qwen2.5 Coder 1.5B Instruct (qwen2p5-coder-1p5b-instruct)
+* Qwen2.5-Coder-32B (qwen2p5-coder-32b)
+* Qwen2.5-Coder-32B-Instruct (qwen2p5-coder-32b-instruct)
+* Qwen2.5-Coder-32B-Instruct (qwen2p5-coder-32b-instruct-128k)
+* Qwen2.5-Coder-32B-Instruct (qwen2p5-coder-32b-instruct-32k-rope)
+* Qwen2.5-Coder-32B-Instruct (qwen2p5-coder-32b-instruct-64k)
+* Qwen2.5-Coder-3B (qwen2p5-coder-3b)
+* Qwen2.5-Coder-3B-Instruct (qwen2p5-coder-3b-instruct)
+* Qwen2.5-Coder-7B (qwen2p5-coder-7b)
+* Qwen2.5-Coder-7B-Instruct (qwen2p5-coder-7b-instruct)
+* qwen2p5-math-72b-instruct
+* Qwen2.5 14B Instruct (qwen-v2p5-14b-instruct)
+* Qwen2.5 7B (qwen-v2p5-7b)
+* QwQ-32B (qwq-32b)
+* Yi 34B Chat (yi-34b-chat)
 
 </details>
 
