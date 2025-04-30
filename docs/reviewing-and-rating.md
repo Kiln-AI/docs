@@ -11,7 +11,7 @@ Kiln includes a rating interface for rating dataset entries. This can be used to
 
 ### Requirements: Defining Rating Options
 
-Your rating requirements are defined as part of your task definition, in the requirements section. You can set them up when you initially create your task, or add/edit them in **Settings > Edit Task**.
+Your rating requirements are defined as part of your task definition, in the requirements section. You can  add or edit requirements in **Settings > Edit Task**.&#x20;
 
 * Name: the name of the requirement, which will appear in the rating UI. Limited in length to fit in the UI, but you can add more content in the instructions field below.
 * Instructions: more details about the requirement. These will be available to reviewers in the UI (under the ![](<../.gitbook/assets/Screenshot 2025-01-05 at 12.18.52 PM (1).png>) icon).
