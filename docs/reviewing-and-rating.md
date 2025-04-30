@@ -1,6 +1,6 @@
 ---
-icon: star
 description: Ratings help multi-shot prompting, fine-tuning, evals, and more
+icon: star
 ---
 
 # Reviewing and Rating
@@ -9,7 +9,7 @@ Kiln includes a rating interface for rating dataset entries. This can be used to
 
 <figure><img src="../.gitbook/assets/Screenshot 2025-01-05 at 12.12.38 PM (1).png" alt="" width="341"><figcaption><p>Rating UI in Kiln Desktop</p></figcaption></figure>
 
-### Defining Rating Goals
+### Requirements: Defining Rating Options
 
 Your rating requirements are defined as part of your task definition, in the requirements section. You can set them up when you initially create your task, or add/edit them in **Settings > Edit Task**.
 
