@@ -45,7 +45,7 @@ Create a task to fine-tune for
 
 To fine tune, you’ll need a dataset to learn from.
 
-Kiln offers a interactive UI for quickly and easily building synthetic datasets. In the video below we use it to generate 920 training examples in 9 minutes of hands-on work. See our [data gen guide](synthetic-data-generation.md) for more details.
+Kiln offers an interactive UI for quickly and easily building synthetic datasets. In the video below we use it to generate 920 training examples in 9 minutes of hands-on work. See our [data gen guide](synthetic-data-generation.md) for more details.
 
 Kiln includes topic trees to generate diverse content, a range of models/prompting strategies, interactive guidance and interactive UI for curation/correction.
 
@@ -63,7 +63,7 @@ Kiln supports over 60 fine-tuneable models using three different service based t
 * Fireworks.ai: over 60 open weight models including Qwen 2.5, Llama 2/3.x, Deepseek V3/R1, QwQ, and more. See the [full list here](models-and-ai-providers.md#additional-fine-tuneable-models).
 * Together AI: Llama 3.1 8b/70b, Llama 3.2 1b/3b, Qwen2.5 14b/72b
 
-For this experiment we choose 9 model to expriment with.
+For this experiment we choose 9 models to experiment with.
 
 ### Step 4: Dispatch Training Jobs
 
@@ -72,7 +72,7 @@ Use the "Fine Tune" tab in the Kiln UI to kick off your fine-tunes. Simply selec
 We recommend setting aside a test and validation set when creating your dataset split. This will allow you to evaluate your fine-tunes after they are complete.
 
 {% hint style="info" %}
-**Training Reasoning/Thinkings Model**
+**Training Reasoning/Thinking Model**
 
 Kiln can train a reasoning model. See the guide on [training reasoning models](guide-train-a-reasoning-model.md).
 {% endhint %}
@@ -85,7 +85,7 @@ Dispatching Training Jobs
 
 Kiln will automatically deploy your fine-tunes when they are complete. You can use them from the Kiln UI without any additional configuration. Simply select a fine-tune by name from the model dropdown in the "Run" tab.
 
-Together, Fireworks and OpenAI tunes are deployed "serverless". You only pay by for usage (tokens), with no recurring costs.
+Together, Fireworks and OpenAI tunes are deployed "serverless". You only pay for usage (tokens), with no recurring costs.
 
 You can use your models outside of Kiln by calling Fireworks or OpenAI APIs with the model ID from the "Fine Tune" tab.
 
@@ -115,11 +115,11 @@ Export your dataset using the "Hugging Face chat template (JSONL)" option for co
 Unsloth Demo
 {% endembed %}
 
-#### Google Gemini on Vertext AI
+#### Google Gemini on Vertex AI
 
-Kiln can generate the training format needed by Google's Vertext AI to fine tune Gemini models.
+Kiln can generate the training format needed by Google's Vertex AI to fine tune Gemini models.
 
-Select the Vertex AI/Gemini option in the dropdown, to download training/validation files in the appriopiate format. Then follow the Google's fine-tuning [guide](https://cloud.google.com/vertex-ai/generative-ai/docs/models/tune-models), using the files from Kiln as you training/validation sets.
+Select the Vertex AI/Gemini option in the dropdown, to download training/validation files in the appropriate format. Then follow the Google's fine-tuning [guide](https://cloud.google.com/vertex-ai/generative-ai/docs/models/tune-models), using the files from Kiln as your training/validation sets.
 
 ### Cost Breakdown
 
@@ -161,7 +161,7 @@ You can export your models for use on your machine, deployment to the cloud, or 
 
 * Fireworks: you can [download the weights](https://docs.fireworks.ai/fine-tuning/fine-tuning-models#downloading-model-weights) in Hugging Face PEFT format, and convert as needed.
 * Together: you can [download the weights](https://docs.together.ai/docs/finetuning#running-your-model-locally), run locally or convert as needed.
-* Unsloth: your fine-tunes can be directly export to GGUF or other formats which make these model easy to deploy. A GGUF can be [imported to Ollama](https://github.com/ollama/ollama/blob/main/docs/import.md) for local use. Once added to Ollama, the models will become available in Kiln UI as well.
+* Unsloth: your fine-tunes can be directly exported to GGUF or other formats which make these model easy to deploy. A GGUF can be [imported to Ollama](https://github.com/ollama/ollama/blob/main/docs/import.md) for local use. Once added to Ollama, the models will become available in Kiln UI as well.
 * OpenAI: sadly OpenAI won’t let you download their models.
 
 #### **Iterate to Improve Quality**
@@ -183,7 +183,7 @@ Kiln can be used entirely through the UI and doesn't require coding. However, if
 
 ### **Our "Ladder" Data Strategy**
 
-Kiln enables a "Ladder" data strategy: the steps start from from small quantity and high effort, and progress to high quantity and low effort. Each step builds on the prior:
+Kiln enables a "Ladder" data strategy: the steps start from small quantity and high effort, and progress to high quantity and low effort. Each step builds on the prior:
 
 * \~10 manual high quality examples.
 * \~30 LLM generated examples using the prior examples for multi-shot prompting. Use expensive models, detailed prompts, and token-heavy techniques (chain of thought). Manually review each ensuring low quality examples are not used as samples.

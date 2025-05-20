@@ -120,7 +120,7 @@ If you start editing the eval's steps, here are some advanced tactics/guidance t
 * If your eval has multiple output scores, include at least 1 step for each score.
 * Consider order of your steps: start with the more independent considerations, before moving to holistic considerations. For example, instructions for generating a final "overall score" should come after all other thinking steps.
 * Consider short-circuit exits and limits: for example "If this step results in a failure, always return a 1-star overall score." or "If this step fails, the maximum overall score you should return is 3-stars".
-* Consider weighting guidance for overall scores: if you have many steps producing an overalls score, tell the LLM which steps matter the most.
+* Consider weighting guidance for overall scores: if you have many steps producing an overall score, tell the LLM which steps matter the most.
 
 </details>
 
@@ -150,7 +150,7 @@ Don't worry if your dataset is empty when creating your eval, we can add data af
 By default, Kiln will suggest appropriate tags and we suggest keeping the defaults. For example, the overall-score template will use the tags "eval\_set" and "golden", while the toxicity template will use the tags "toxicity\_eval\_set" and "toxicity\_golden".
 
 {% hint style="info" %}
-"Golden" is a term often used in data science, to describe a "gold standard" dataset, used to compared different methods/approaches.
+"Golden" is a term often used in data science, to describe a "gold standard" dataset, used to compare different methods/approaches.
 {% endhint %}
 
 {% hint style="info" %}
@@ -321,7 +321,7 @@ None of the generated topics, inputs, or outputs should specifically mention jai
 Once you've generated your data, open the "Dataset" tab in Kiln.
 
 1. Filter your dataset to only the content you just generated (they will all be tagged with an automatic tag such as synthetic\_session\_12345).
-2. Use the "Select" UI to select a portion of your dataset for your eval-dataset. 80% is a good starting point. Add the tag for your eval dataset, which is "eval\_config" if you kept the default tag name. Note: if you you generated data using synthetic "topics", make sure to include a mix of each topic in each sub-dataset.
+2. Use the "Select" UI to select a portion of your dataset for your eval-dataset. 80% is a good starting point. Add the tag for your eval dataset, which is "eval\_config" if you kept the default tag name. Note: if you generated data using synthetic "topics", make sure to include a mix of each topic in each sub-dataset.
 3. Select only the remaining items, and add the tag for your eval method dataset, which is "golden" if you kept the default tag name (or something like "toxicity\_golden" if you used a different template than the default).
 4. Filter the dataset to both tags (eval\_config and golden) to double check you didn't accidentally add any items to both datasets.
 
@@ -415,7 +415,7 @@ Like mean absolute error, but scores are normalized to the range 0-1. For exampl
 
 _Lower is better_&#x20;
 
-Example: If a human scores an item a 3, and the eval scores it a 5, the squared error would be 4 \[(3-5)^2]. The overall score is the mean of all squared errors. This imporoves over absolute error as it penalizes larger errors more.&#x20;
+Example: If a human scores an item a 3, and the eval scores it a 5, the squared error would be 4 \[(3-5)^2]. The overall score is the mean of all squared errors. This improves over absolute error as it penalizes larger errors more.&#x20;
 
 #### Normalized Mean Squared Error&#x20;
 

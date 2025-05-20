@@ -46,14 +46,14 @@ Kiln's data structure was designed with collaboration in mind:
 ### We don't recommend deploying as a service
 
 {% hint style="info" %}
-This section is for engineers/developers attempting custom deployments. If you're a normal app users who launches Kiln as an app, you can skip this!
+This section is for engineers/developers attempting custom deployments. If you're a normal app user who launches Kiln as an app, you can skip this!
 {% endhint %}
 
 Kiln's desktop app is designed as an app. Even though internally it uses web tech (HTML), it's still an app designed to be run locally on each user's machine, not a hosted service.&#x20;
 
 We don't recommend or support trying to host it as a service and access it over the network. There are several downsides/risks if you do:
 
-* Security: there's no web-based logins or access controls, so anyone who can access the service can edit data and send requests. That's okay when running as an app locally behind your machine login, but brings risk when opening the service up to anyone on over a network.
+* Security: there's no web-based logins or access controls, so anyone who can access the service can edit data and send requests. That's okay when running as an app locally behind your machine login, but brings risk when opening the service up to anyone over a network.
 * Collaboration: If multiple users are sharing an instance of Kiln, all the created\_by tags in your dataset will all have the machine name of your VM/host, not the individuals.&#x20;
 * Data backup and history: if you run as suggested above, Git and/or the shared drive will provide data sync, backup and history. If you run on a single server, there's a higher risk of data loss if that server drive is lost/damaged.
 

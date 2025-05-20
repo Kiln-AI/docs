@@ -38,7 +38,7 @@ Errors in the schema will likely result in bugs when running your task.
 
 ### Troubleshooting Structured Data Issues
 
-LLMs aren't always great at producing valid JSON output. Kiln does it's best to use a variety of techniques to get the correct output, but it's never guaranteed.
+LLMs aren't always great at producing valid JSON output. Kiln does its best to use a variety of techniques to get the correct output, but it's never guaranteed.
 
 You may see errors in the UI if the model produces invalid JSON, or JSON that doesn't match the output schema of your task.
 

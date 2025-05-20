@@ -67,7 +67,7 @@ Reasoning and COT doesn't necessarily mean slower or more costly requests. Somet
 
 ### Supported Reasoning Models
 
-Currently we support Deepseek R1 and it's official distillations. We expect to see many more open reasoning models emerge over the next few months. See the [model capability list in our docs](models-and-ai-providers.md#included-models-recommended) for the latest .
+Currently we support Deepseek R1 and its official distillations. We expect to see many more open reasoning models emerge over the next few months. See the [model capability list in our docs](models-and-ai-providers.md#included-models-recommended) for the latest .
 
 {% hint style="info" %}
 While you can call OpenAI's reasoning models (o1, o3) from Kiln, they behave like normal models. OpenAI hides the reasoning tokens from users, only returning the final answer.

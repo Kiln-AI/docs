@@ -5,7 +5,7 @@ description: How to use our prompt generators, or create your own prompt
 
 # Prompts
 
-There are two style of prompts in Kiln:
+There are two styles of prompts in Kiln:
 
 * [Prompt Generators](prompts.md#prompt-generators): Kiln can automatically generate many popular prompt styles from your task and dataset (few-shot, many-shot, chain of thought, chain of thought multi-shot, and more). The more you use your task, and rate the results, the richer your prompts become.
 * [Custom Prompts](prompts.md#custom-prompts): create, save and share any custom prompts
@@ -19,7 +19,7 @@ There are two style of prompts in Kiln:
 When you create a Kiln task you specify several fields which are used when generating prompts:
 
 * Instructions: The core of your prompt. Describe the task as you would in a standard LLM prompt.
-* Requirements: A list of requirements you want the LLM to adhere to (e.g. "Use professional tone"). These are used in 2 places: 1) they are included in the prompt text sent to the LLM, and 2) they available as rating criteria on any run response.
+* Requirements: A list of requirements you want the LLM to adhere to (e.g. "Use professional tone"). These are used in 2 places: 1) they are included in the prompt text sent to the LLM, and 2) they are available as rating criteria on any run response.
 * Thinking Instructions: This field allows you to specify a portion of the prompt, which is only used when you select a "chain of thought" prompt template. If omitted, the default is "Think step by step, explaining your reasoning.".&#x20;
 
 These can be edited in  `Settings > Edit Task > Task Instructions` .
@@ -43,10 +43,10 @@ Responses with a 3-star or worse rating are never used, unless they have been [r
 Once you've setup your task and added some example content, you'll have a number of prompt generators to choose from:
 
 * **Basic (Zero Shot)**: a prompt template that will only use your task definition (instructions and requirements). This prompt is deterministic, and won't change unless you edit your task.
-* **Few Shot**: a mult-shot prompt that will include the 4 best examples from your dataset, on top of the basic prompt.
-* **Many Shot**: a mult-shot prompt that will include the 25 best examples from your dataset, on top of the basic prompt.
-* **Repair Multi Shot**:  a mult-shot prompt that will include the 25 best examples from your dataset, on top of the basic prompt. This [prompt will use repaired examples](repairing-responses.md) to show 1) the generated content which had issues, 2) the human feedback about what was incorrect, 3) the corrected 5-star content. This gives the LLM examples of common errors to avoid.
-* **Basic Chain of Though**: a [chain of thought](reasoning-and-chain-of-thought.md) prompt template that will only use your task definition (instructions, requirements, and thinking instructions). Kiln will return the response in 2 stages, 1) thinking stage, 2) response stage. Both are stored in the dataset, but typically only stage 2 is used in the app/product. For structured tasks, the final answer must conform to the schema, but the thinking stage is plain test. This prompt is deterministic, and won't change unless you edit your task.
+* **Few Shot**: a multi-shot prompt that will include the 4 best examples from your dataset, on top of the basic prompt.
+* **Many Shot**: a multi-shot prompt that will include the 25 best examples from your dataset, on top of the basic prompt.
+* **Repair Multi Shot**:  a multi-shot prompt that will include the 25 best examples from your dataset, on top of the basic prompt. This [prompt will use repaired examples](repairing-responses.md) to show 1) the generated content which had issues, 2) the human feedback about what was incorrect, 3) the corrected 5-star content. This gives the LLM examples of common errors to avoid.
+* **Basic Chain of Thought**: a [chain of thought](reasoning-and-chain-of-thought.md) prompt template that will only use your task definition (instructions, requirements, and thinking instructions). Kiln will return the response in 2 stages, 1) thinking stage, 2) response stage. Both are stored in the dataset, but typically only stage 2 is used in the app/product. For structured tasks, the final answer must conform to the schema, but the thinking stage is plain text. This prompt is deterministic, and won't change unless you edit your task.
 * **Chain of Thought - Few Shot**: a prompt that applies both the few shot template (4 examples), and chain-of-thought thinking instructions.
 * **Chain of Thought - Many Shot**: a prompt that applies both the many shot template (25 examples), and chain-of-thought thinking instructions.
 
@@ -56,9 +56,9 @@ You can also create and share custom prompts inside Kiln. Simply open the "Promp
 
 Custom prompts include several fields:
 
-* Name: a name for you and your team to idenify this prompt. Not used by the model.
+* Name: a name for you and your team to identify this prompt. Not used by the model.
 * Prompt (aka System Message): The core of your prompt. Will be passed to the model as a system message before any user data is sent.
-* Chain of thought instructions: if provided, using this prompt will add an extra "thinking"/reasoning phase it's it's execution. These instructions guide how the model should "think" about the problem before answering. See [COT docs](reasoning-and-chain-of-thought.md#chain-of-thought-call-flow-non-reasoning-model) for details.&#x20;
+* Chain of thought instructions: if provided, using this prompt will add an extra "thinking"/reasoning phase to its execution. These instructions guide how the model should "think" about the problem before answering. See [COT docs](reasoning-and-chain-of-thought.md#chain-of-thought-call-flow-non-reasoning-model) for details.&#x20;
 
 ## Viewing Prompts
 
