@@ -36,7 +36,7 @@ We currently support the following AI providers:&#x20;
 If you want to add or remove providers after initial setup, open `Settings > AI Providers & Models`.
 
 {% hint style="success" %}
-Don't see you provider listed? Most providers offer an OpenAI compatible API that Kiln can connect to. This includes common open source projects like LiteLLM and vLLM. Search their docs, and connect via the "Custom API" option in Kiln.
+Don't see your provider listed? Most providers offer an OpenAI compatible API that Kiln can connect to. This includes common open source projects like LiteLLM and vLLM. Search their docs, and connect via the "Custom API" option in Kiln.
 {% endhint %}
 
 ## Understanding and Adding Models
@@ -243,13 +243,13 @@ These will appear in the "untested" section of the model dropdown.
 When using Azure OpenAI API, you need to deploy each model you want to use, manually through the Azure console. If you have not, you'll get deployment errors when trying to call a model.
 
 * **Suggested - Deploy with Default Names**: If you deploy with the default names, for example "gpt-4o"/"gpt-4o-mini", you can simply use the models using the dropdown in Kiln.
-* **Deployments with Custom Names**: If you have a non-standard depolyment name, you'll have to add each model as a [custom model](models-and-ai-providers.md#custom-models-from-existing-providers), using the deployment name as the model name.
+* **Deployments with Custom Names**: If you have a non-standard deployment name, you'll have to add each model as a [custom model](models-and-ai-providers.md#custom-models-from-existing-providers), using the deployment name as the model name.
 
 #### Azure AI Foundry (formerly Azure AI Studio, Microsoft AI for Enterprise 360 Elite)
 
 When using Azure AI Foundry, you need to deploy each model you want to use manually through the Azure console. If you have not, you'll get deployment errors when trying to call a model.
 
-After deploying a model, you must add it to Kiln as a a [custom model](models-and-ai-providers.md#custom-models-from-existing-providers), using the deployment name as the model name.
+After deploying a model, you must add it to Kiln as a [custom model](models-and-ai-providers.md#custom-models-from-existing-providers), using the deployment name as the model name.
 
 #### Google Vertex AI
 
@@ -261,7 +261,7 @@ Similarly, if you see quota errors you may need to manage/request quota from the
 
 Hugging face has thousands of models. We've included a few of these common models in the Kiln built-in model list, but you can add any hugging face model via the [custom model](models-and-ai-providers.md#custom-models-from-existing-providers) option.
 
-Hugging face errors are not always descriptive - if you get 400 errors, it's likely the model you've selected requires a Hugging Face Pro subscription. Try the same model in their UI for a more helpful error messages.
+Hugging face errors are not always descriptive - if you get 400 errors, it's likely the model you've selected requires a Hugging Face Pro subscription. Try the same model in their UI for a more helpful error message.
 
 ### Custom OpenAI Compatible Servers
 

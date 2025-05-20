@@ -21,7 +21,7 @@ The [REST API docs](https://kiln-ai.github.io/Kiln/kiln_server_openapi_docs/inde
 
 ### Client Side Libraries
 
-The REST API supports OpenAPI, which means you can generate a typed client libraries for almost any language using code generators:
+The REST API supports OpenAPI, which means you can generate typed client libraries for almost any language using code generators:
 
 * [OpenAPI Generator List](https://openapi-generator.tech/docs/generators/)
 * [Swagger Codegen](https://github.com/swagger-api/swagger-codegen)

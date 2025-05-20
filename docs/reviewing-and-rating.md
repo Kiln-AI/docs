@@ -14,7 +14,7 @@ Kiln includes a rating interface for rating dataset entries. This can be used to
 There are two methods of defining rating options:
 
 * Adding requirements to your task definition in  **Settings > Edit Task** will add a rating option to every sample in your dataset
-* After creating an [Eval](evaluations.md), each output score will be available as a rating option for every sample in it's evaluation method dataset (golden dataset).
+* After creating an [Eval](evaluations.md), each output score will be available as a rating option for every sample in its evaluation method dataset (golden dataset).
 
 ### Rating Option Parameters
 

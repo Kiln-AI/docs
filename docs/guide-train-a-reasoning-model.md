@@ -5,7 +5,7 @@ icon: person-chalkboard
 
 # Guide: Train a Reasoning Model
 
-Kiln is a platform that makes building task-specific AI models easy and fast. By creating a fine-tuned model targeted to your use case, you can produce a model that's higher quality, faster and cheaper that standard foundation models.
+Kiln is a platform that makes building task-specific AI models easy and fast. By creating a fine-tuned model targeted to your use case, you can produce a model that's higher quality, faster and cheaper than standard foundation models.
 
 In this guide, we'll walk through how to build a reasoning model, like OpenAI o3 or Deepseek R1, for your specific use case. The whole process can be completed in as little as 30 minutes, and does not require coding.
 
@@ -41,7 +41,7 @@ When creating your training dataset, be sure to filter it to samples with reason
 
 ### Choose the correct training strategy
 
-To train your own reasoning mode, you must select the `Final Responses and Intermediate Reasoning` training strategy. This will include the reasoning data in the fine-tune data.
+To train your own reasoning model, you must select the `Final Responses and Intermediate Reasoning` training strategy. This will include the reasoning data in the fine-tune data.
 
 <figure><img src="../.gitbook/assets/Screenshot 2025-02-05 at 9.34.47 AM.png" alt="" width="348"><figcaption><p>Select this on the "Create Fine Tune" screen</p></figcaption></figure>
 
@@ -73,15 +73,15 @@ Both approaches can build great task specific models. Which to choose depends on
 
 * **Distill a Reasoning Model**: Reasoning models have learned reasoning skills across a range of domains. If large reasoning models like Deepseek R1 perform well on your task, but are too expensive or slow, it can be a good choice to fine-tune a smaller model from R1 outputs (this is called distilling a model). The smaller model will learn task-specific reasoning patterns from R1 samples, and be faster and cheaper to run.
 * **Chain of thought with default prompt**: Sometimes a simple "think step by step" prompt is all you need for chain of thought to greatly improve your quality of output. If large models work great with a simple prompt but smaller models fail to produce the same quality, you can build a fine-tune with task-specific examples so the smaller model can distill the thinking patterns from the larger model.
-* **Chain of thought with a custom thinking prompt**: When building a model for a specific task, it's very possible you or your team understand the nuance of the task better than a generalized model like Deekseek R1. If you can create a "thinking instructions" prompt that works will with large models like Sonnet or GPT-4o, you can use that to build a synthetic training set, create a fine-tune, and reproduce that quality on a much smaller and faster model.&#x20;
+* **Chain of thought with a custom thinking prompt**: When building a model for a specific task, it's very possible you or your team understand the nuance of the task better than a generalized model like Deekseek R1. If you can create a "thinking instructions" prompt that works well with large models like Sonnet or GPT-4o, you can use that to build a synthetic training set, create a fine-tune, and reproduce that quality on a much smaller and faster model.&#x20;
 
 In each case, you're building a model that will be focused on the use-case samples it is trained on. This can produce a model that's faster, cheaper and higher quality than the original model, within the domain of your task.
 
 {% hint style="info" %}
-For the example in the demo video, I actually found custom chain-of-thought on Sonnet 3.5 to product better content than Deepseek R1. It's worth experimenting with different models and prompts to find the best pair suited for your task, before jumping to building a synthetic dataset.
+For the example in the demo video, I actually found custom chain-of-thought on Sonnet 3.5 to produce better content than Deepseek R1. It's worth experimenting with different models and prompts to find the best pair suited for your task, before jumping to building a synthetic dataset.
 {% endhint %}
 
-### Improving qualtiy with human curation and feedback
+### Improving quality with human curation and feedback
 
 Human curation feedback can add the nuance that makes a truly great model/product. Kiln offers a number of tools to make this easy:
 
@@ -89,5 +89,5 @@ Human curation feedback can add the nuance that makes a truly great model/produc
 * Have subject matter experts [repair poorly rated outputs](repairing-responses.md), giving the model important examples of places it likely would have failed without fine-tuning.
 * Use human-led chain of thought prompts as described [here](guide-train-a-reasoning-model.md#choosing-between-reasoning-and-chain-of-thought), to generate [large synthetic data sets](synthetic-data-generation.md) for fine-tuning.
 * When you find a pattern of bugs, use [synthetic data generation with human guidance](synthetic-data-generation.md) to create samples of correct input/output pairs. Add these to your training set to fix the behaviour the next time you train.
-* Use Kiln's [collaboration system](collaboration.md) to anyone on your team to contribute to model quality with feedback, data generation and quality. Our UI is designed for anyone, and does not require command line or coding skills.
+* Use Kiln's [collaboration system](collaboration.md) to allow anyone on your team to contribute to model quality with feedback, data generation and quality. Our UI is designed for anyone, and does not require command line or coding skills.
 
