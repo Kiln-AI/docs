@@ -20,6 +20,7 @@
 * [Privacy](docs/privacy.md)
 * [Repairing Responses](docs/repairing-responses.md)
 * [Troubleshooting & Logs](docs/troubleshooting-and-logs.md)
+* [Productionizing Kiln](docs/productionizing-kiln.md)
 * [Contact Us](docs/contact-us.md)
 
 ## Developers

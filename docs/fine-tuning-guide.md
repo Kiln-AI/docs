@@ -31,9 +31,9 @@ Analysis:
 If you want to tune a reasoning model, see our [guide for training reasoning models](guide-train-a-reasoning-model.md). It includes notes about each step of this guide which are necessary to produce a reasoning model.
 {% endhint %}
 
-### Step 1: Define your Task and Goals
+### Step 1: Define your Task
 
-First, we’ll need to define what the models should do. In Kiln we call this a “task definition”. Create a new task in the Kiln UI to get started, including a initial prompt, requirements, and input/output schema.
+First, we’ll need to define what the models should do. In Kiln we call this a “task definition”. Create a new task in the Kiln UI to get started, including a initial prompt and input/output schema.
 
 For this demo we'll make a task that generates news article headlines of various styles, given a summary of a news topic.
 
@@ -47,6 +47,14 @@ To fine tune, you’ll need a dataset to learn from.
 
 Kiln offers an interactive UI for quickly and easily building synthetic datasets. In the video below we use it to generate 920 training examples in 9 minutes of hands-on work. See our [data gen guide](synthetic-data-generation.md) for more details.
 
+{% hint style="info" %}
+All fine tuning data must be tagged with a [tag](organizing-datasets.md#using-tags-to-organize-your-dataset) starting with `fine_tune` (e.g. fine\_tune, fune\_tune\_thinking, fine\_tune\_experiment\_42).
+
+If you launch synthetic data gen from within the "Create a New Fine Tune" screen, the tag `fine_tune` will automatically be added to all generated samples.&#x20;
+
+If you already created tuning data, use the dataset tab to add the `fine_tune` tag to the samples you want to use for tuning.
+{% endhint %}
+
 Kiln includes topic trees to generate diverse content, a range of models/prompting strategies, interactive guidance and interactive UI for curation/correction.
 
 When generating synthetic data you want to generate the best quality content possible. Don’t worry about cost and performance at this stage. Use large high quality models, detailed prompts with multi-shot prompting, chain of thought, and anything else that improves quality. You’ll be able to address performance and costs in later steps with fine tuning.
@@ -59,17 +67,20 @@ Synthetic Data Generation
 
 Kiln supports over 60 fine-tuneable models using three different service based tuning providers:
 
-* Open AI: GPT 4o and 4o-mini
+* Open AI: GPT 4.1, 4o, 4.1-mini and 4o-mini
+* Google Gemini: Gemini 2.0 flash and Gemini 2.0 Pro
 * Fireworks.ai: over 60 open weight models including Qwen 2.5, Llama 2/3.x, Deepseek V3/R1, QwQ, and more. See the [full list here](models-and-ai-providers.md#additional-fine-tuneable-models).
 * Together AI: Llama 3.1 8b/70b, Llama 3.2 1b/3b, Qwen2.5 14b/72b
 
-For this experiment we choose 9 models to experiment with.
+{% hint style="success" %}
+Connect additional providers in settings to see more options on the "Creaet Fine Tune" screen.
+{% endhint %}
+
+For this demo we choose 9 models to experiment with.
 
 ### Step 4: Dispatch Training Jobs
 
 Use the "Fine Tune" tab in the Kiln UI to kick off your fine-tunes. Simply select the models you want to train, select a dataset, and add any training parameters.
-
-We recommend setting aside a test and validation set when creating your dataset split. This will allow you to evaluate your fine-tunes after they are complete.
 
 {% hint style="info" %}
 **Training Reasoning/Thinking Model**
@@ -78,7 +89,7 @@ Kiln can train a reasoning model. See the guide on [training reasoning models](g
 {% endhint %}
 
 {% embed url="https://files.gitbook.com/v0/b/gitbook-x-prod.appspot.com/o/spaces%2FEJ4b8A4QiEQlOGbYkXDX%2Fuploads%2F90AZYx6JVoCYFrhHCTUx%2FCreateTrainingJobs720.mp4?alt=media&token=c0e76a1b-0f55-4297-85b9-b1f9b6c4125f" %}
-Dispatching Training Jobs
+Dispatching Training Jobs. Note: video does not match current UI
 {% endembed %}
 
 ### Step 5: Deploy and Run Your Models
@@ -103,7 +114,7 @@ If a Fireworks fine tune gives you the error \`Model not found, inaccessible, an
 
 Kiln can also export your dataset to common formats for fine tuning on your own infrastructure. Simply select one of the "Download" options when creating your fine tune, and use the exported JSONL file to train with your own tools.
 
-We currently recommend [Unsloth](https://github.com/unslothai/unsloth) and Axolotl. These platforms let you train almost any open model, including Gemma, Mistral, Llama, Qwen, Smol, and [many more](https://docs.unsloth.ai/get-started/all-our-models).&#x20;
+We currently recommend [Unsloth](https://github.com/unslothai/unsloth) and Axolotl. These platforms let you train almost any open model, including Gemma, Mistral, Llama, Qwen, Smol, and [many more](https://docs.unsloth.ai/get-started/all-our-models).
 
 **Unsloth Example**
 
@@ -125,13 +136,13 @@ Select the Vertex AI/Gemini option in the dropdown, to download training/validat
 
 Our demo use case was quite reasonably priced.
 
-| Task                                   | Platform                   | Cost (USD) |
-| -------------------------------------- | -------------------------- | ---------- |
-| Training Data Generation               | OpenRouter                 | $2.06      |
-| Fine-tuning 5x Llama models + Mixtral  | Fireworks                  | $1.47      |
-| Fine-tuning GPT-4o Mini                | OpenAI                     | $2.03      |
-| Fine-tuning GPT-4o                     | OpenAI                     | $16.91     |
-| Fine-tuning Llama 3.2 (1b & 3b)        | Unsloth on Google Colab T4 | $0.00      |
+| Task                                  | Platform                   | Cost (USD) |
+| ------------------------------------- | -------------------------- | ---------- |
+| Training Data Generation              | OpenRouter                 | $2.06      |
+| Fine-tuning 5x Llama models + Mixtral | Fireworks                  | $1.47      |
+| Fine-tuning GPT-4o Mini               | OpenAI                     | $2.03      |
+| Fine-tuning GPT-4o                    | OpenAI                     | $16.91     |
+| Fine-tuning Llama 3.2 (1b & 3b)       | Unsloth on Google Colab T4 | $0.00      |
 
 If it wasn't for GPT-4o, the whole project would have cost less than $6!
 
@@ -171,7 +182,7 @@ Models and products are rarely perfect on their first try. When you find bugs or
 * Experiment with different base-models
 * Experiment with fine-tuning hyperparameters (see the "Advanced Options" section of the UI)
 * Experiment with shorter training prompts, which can reduce costs
-* For one-off bugs you encounter use Kiln to “[repair](repairing-responses.md)” the issues. These get added to your training data for future iterations.&#x20;
+* For one-off bugs you encounter use Kiln to “[repair](repairing-responses.md)” the issues. These get added to your training data for future iterations.
 * For recurring bugs/patterns, use [synthetic data generation](synthetic-data-generation.md) to generate many samples of common bugs, ensure they have correct responses with [human guidance](synthetic-data-generation.md#human-guidance), and add the results to the training set to prevent this class of issues in the future.
 * Rate your dataset using Kiln’s [rating system](reviewing-and-rating.md), then build fine-tunes using only highly rated content.
 * Regenerate fine-tunes as your dataset grows and evolves

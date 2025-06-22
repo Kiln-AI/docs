@@ -1,6 +1,6 @@
 ---
-icon: robot
 description: Generate synthetic data for fine-tuning or evaluation
+icon: robot
 ---
 
 # Synthetic Data Generation
@@ -9,7 +9,7 @@ Kiln offers a powerful interactive synthetic data generation tool.
 
 ### Video Walkthrough
 
-{% embed url="https://vimeo.com/1044098339?_loop=1&autoplay=1" %}
+{% embed url="https://vimeo.com/1088940292" %}
 Synthetic Data Generation Walkthrough
 {% endembed %}
 
@@ -39,12 +39,9 @@ You can use automatic topic generation, or manually add topics to your topic tre
 
 #### Recommended Models
 
-While you can try any model for synthetic data generation, we recommend starting with one of the following models for best results:
+While you can try any model for synthetic data generation, we recommend using a state of the art model for synthetic data. Large models tend to perform better and handle the complex structure required by synthetic data.&#x20;
 
-* Claude: Sonnet 3.5 and Haiku 3.5
-* OpenAI: GPT 4o and GPT 4o mini
-* Gemini Flash 2.0
-* Mistral Large
+In the synthetic data UI, suggested models will be highlighed.
 
 #### Human Guidance
 

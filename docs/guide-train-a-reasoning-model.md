@@ -35,21 +35,21 @@ If you're using multi-shot prompting, also ensure your prompt examples have appr
 
 ### Create a training dataset filtered to samples with reasoning
 
-When creating your training dataset, be sure to filter it to samples with reasoning/thinking as shown here:
+When creating your fine-tuning dataset, be sure to filter it to samples with reasoning/thinking checking "Filter to Reasoning Samples" as shown here:
 
-<figure><img src="../.gitbook/assets/Screenshot 2025-02-05 at 9.29.09 AM (1).png" alt="" width="188"><figcaption><p>Filtering your training dataset</p></figcaption></figure>
+<figure><img src="../.gitbook/assets/filter to reasoning.png" alt="" width="375"><figcaption><p>Filtering your training dataset</p></figcaption></figure>
 
 ### Choose the correct training strategy
 
-To train your own reasoning model, you must select the `Final Responses and Intermediate Reasoning` training strategy. This will include the reasoning data in the fine-tune data.
+To train your own reasoning model, you must select the `Thinking - Learn both thinking and final response` in the `Reasoning` dropdown of Step 3. This will include the reasoning data when fine-tuning.
 
-<figure><img src="../.gitbook/assets/Screenshot 2025-02-05 at 9.34.47 AM.png" alt="" width="348"><figcaption><p>Select this on the "Create Fine Tune" screen</p></figcaption></figure>
+<figure><img src="../.gitbook/assets/Screenshot 2025-05-26 at 9.18.25 PM.png" alt="" width="375"><figcaption><p>Select this on the "Create Fine Tune" screen</p></figcaption></figure>
 
-If you select `Final only` the fine-tune will only learn from the final result, not the reasoning. This is still a valid approach and could produce a viable model for your task. However, it won't produce a model with learned reasoning skills.
+If you select `Disabled` the fine-tune will only learn from the final result, not the reasoning. This is still a valid approach and could produce a viable model for your task. However, it won't produce a model with learned reasoning skills.
 
-### Call your fine-tuned model with the appropriate prompt&#x20;
+### Call your fine-tuned model with the appropriate prompt
 
-When you call any fine-tune, we always recommend calling it with the same prompt used in training.&#x20;
+When you call any fine-tune, we always recommend calling it with the same prompt used in training.
 
 <figure><img src="../.gitbook/assets/Screenshot 2025-02-05 at 9.56.17 AM.png" alt="" width="341"><figcaption><p>Kiln's Inference UI Options</p></figcaption></figure>
 
@@ -63,7 +63,7 @@ To do this select "Custom Prompt" when creating the fine-tune, and set your prom
 
 ### Choosing between Reasoning and Chain of Thought
 
-The fine-tuning approach described in this article is a general approach that trains for an intermediate "thinking" output. This can be used for both reasoning models and chain of thought.&#x20;
+The fine-tuning approach described in this article is a general approach that trains for an intermediate "thinking" output. This can be used for both reasoning models and chain of thought.
 
 {% hint style="info" %}
 Read about [the difference between reasoning models and chain of thought](reasoning-and-chain-of-thought.md#what-are-reasoning-models-and-chain-of-thought).
@@ -73,7 +73,7 @@ Both approaches can build great task specific models. Which to choose depends on
 
 * **Distill a Reasoning Model**: Reasoning models have learned reasoning skills across a range of domains. If large reasoning models like Deepseek R1 perform well on your task, but are too expensive or slow, it can be a good choice to fine-tune a smaller model from R1 outputs (this is called distilling a model). The smaller model will learn task-specific reasoning patterns from R1 samples, and be faster and cheaper to run.
 * **Chain of thought with default prompt**: Sometimes a simple "think step by step" prompt is all you need for chain of thought to greatly improve your quality of output. If large models work great with a simple prompt but smaller models fail to produce the same quality, you can build a fine-tune with task-specific examples so the smaller model can distill the thinking patterns from the larger model.
-* **Chain of thought with a custom thinking prompt**: When building a model for a specific task, it's very possible you or your team understand the nuance of the task better than a generalized model like Deekseek R1. If you can create a "thinking instructions" prompt that works well with large models like Sonnet or GPT-4o, you can use that to build a synthetic training set, create a fine-tune, and reproduce that quality on a much smaller and faster model.&#x20;
+* **Chain of thought with a custom thinking prompt**: When building a model for a specific task, it's very possible you or your team understand the nuance of the task better than a generalized model like Deekseek R1. If you can create a "thinking instructions" prompt that works well with large models like Sonnet or GPT-4o, you can use that to build a synthetic training set, create a fine-tune, and reproduce that quality on a much smaller and faster model.
 
 In each case, you're building a model that will be focused on the use-case samples it is trained on. This can produce a model that's faster, cheaper and higher quality than the original model, within the domain of your task.
 
@@ -90,4 +90,3 @@ Human curation feedback can add the nuance that makes a truly great model/produc
 * Use human-led chain of thought prompts as described [here](guide-train-a-reasoning-model.md#choosing-between-reasoning-and-chain-of-thought), to generate [large synthetic data sets](synthetic-data-generation.md) for fine-tuning.
 * When you find a pattern of bugs, use [synthetic data generation with human guidance](synthetic-data-generation.md) to create samples of correct input/output pairs. Add these to your training set to fix the behaviour the next time you train.
 * Use Kiln's [collaboration system](collaboration.md) to allow anyone on your team to contribute to model quality with feedback, data generation and quality. Our UI is designed for anyone, and does not require command line or coding skills.
-

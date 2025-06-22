@@ -19,6 +19,4 @@ If you use Kiln with API keys (for example, OpenAI or OpenRouter), requests are 
 We collect anonymous usage metrics via [Posthog analytics](https://github.com/PostHog/posthog).
 
 This analytics data never includes dataset content, API keys, or your identity.
-
-You can block Posthog analytics with an ad-blocker/tracker-blocker in your browser.
 {% endhint %}
