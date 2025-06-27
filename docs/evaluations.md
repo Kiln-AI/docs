@@ -386,9 +386,17 @@ The `Rate Golden Dataset` button in the eval screen will take you to the dataset
 
 ### Finding the Ideal Eval Method
 
+{% hint style="info" %}
+**Who Judges the Judge?**
+
+While it is relatively easy to create a LLM-as-Judge eval, an important question remains — does it actually work?
+
+In this section we use a human judge's ratings to ensure our LLM-as-Judge aligns to human ratings, so we have trust in our system.
+{% endhint %}
+
 You added an "eval method" to your eval above. However, we don't actually know how well this eval method works. Kiln includes tools to compare multiple eval methods, and find which one is the closest to a real human evaluator.
 
-It may seem strange, but yes… one of the first steps of building an eval to evaluate evaluation methods. It sounds complicated, but Kiln makes it easy.
+It may seem strange, but yes… one of the first steps of building an eval to evaluate evaluation methods (not a typo). It sounds complicated, but Kiln makes it easy.
 
 #### Run Evals on your Golden Set
 
@@ -468,16 +476,22 @@ Like mean squared error, but scores are normalized to the range 0-1. For example
 
 </details>
 
-#### Resolving "N/A" Correlation Scores
+<details>
+
+<summary>Resolving "N/A" Correlation Scores</summary>
 
 If you see "N/A" scores in your correlation table, it means more data is needed. This can be one of two cases
 
 * _**Simply not enough data**_: if your eval method dataset if very small (<10 items) it can be impossible to produce confident correlation scores. Add more data to resolve this case.
 * _**Not enough variation of human ratings in the eval method dataset**_: if you have a larger dataset, but still get N/A, it's likely there isn't enough variation in your dataset for the given score. For example, if all of the golden samples of a score pass, the evaluator won't produce a confident correlation score, as it has no failing examples and everything is a tie. Add more content to your eval methods dataset, designing the content to fill out the missing score ranges. You can use synthetic data gen [human guidance](synthetic-data-generation.md#human-guidance) to generate examples that fail.
 
-#### Select a Default Eval Method
+</details>
+
+#### Select the Winning Eval Method
 
 Once you have a winner, click the "Set as default" button to make this eval-method the default for your eval.
+
+<figure><img src="../.gitbook/assets/Screenshot 2025-06-27 at 11.20.02 AM.png" alt="" width="179"><figcaption><p>Select the default eval method</p></figcaption></figure>
 
 ### Finding the Ideal Run Method
 
