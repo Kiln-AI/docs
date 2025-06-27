@@ -20,7 +20,15 @@ Kiln includes a complete platform for ensuring your tasks/models are of the high
 * Integrate evals with the rest of Kiln: use synthetic data generation to build eval sets, or use evals to evaluate fine-tunes
 * Optional: Python Library Usage
 
+{% hint style="success" %}
+New to evals? We suggest reading our blog post [Many Small Evals Beat One Big Eval](https://getkiln.ai/blog/you_need_many_small_evals_for_ai_products), which walks you through how to setup eval tooling, and how to create an eval culture on your team.
+{% endhint %}
+
 ### Video Guide
+
+{% hint style="info" %}
+The UI has been updated since this video was recorded, but the general flow remains the same. Some steps like tagging eval data are now automated for you.
+{% endhint %}
 
 {% embed url="https://vimeo.com/1067948856?share=copy" %}
 Video walkthrough of creating a LLM evaluator
@@ -45,6 +53,8 @@ Working with Evals in Kiln is easy. We'll walk through the flow of creating your
 * [Finding the Ideal Eval Method](evaluations.md#finding-the-ideal-eval-method)
 * [Finding the Ideal Run Method](evaluations.md#finding-the-ideal-run-method)
 * [Iterate and Expand](evaluations.md#iterate-and-expand)
+
+<figure><img src="../.gitbook/assets/Screenshot 2025-06-27 at 10.52.26 AM.png" alt="" width="188"><figcaption><p>Kiln's UI will guide you</p></figcaption></figure>
 
 ### Creating an Eval
 
@@ -159,11 +169,13 @@ If you're creating multiple evals for task, it's usually beneficial to maintain 
 
 #### Populating the Dataset with Synthetic Data
 
-Most commonly, you'll want to populate the datasets using synthetic data. Follow our [synthetic data generation guide](synthetic-data-generation.md) to generate data for this eval across a range of topics. We suggest at least 100 data samples per eval.
+Most commonly, you'll want to populate the datasets using synthetic data. Clicking `Add Data` in the Evals UI will launch the synthetic data gen tool, with the proper [eval tags](evaluations.md#defining-your-dataset-with-tags) already populated. Follow our [synthetic data generation guide](synthetic-data-generation.md) to generate data for this eval across a range of topics.&#x20;
 
-We suggest using the "topic tree" option in our synthetic data gen tool to ensure your eval dataset is diverse.
+We suggest at least 160 data samples per eval. Using the "topic tree" option in our synthetic data gen tool can help ensure your eval dataset is diverse.
 
-For the "overall score" eval template, the default data generation UX should work well without any custom guidance. However, evals like bias, toxicity and jailbreaking you'll want to generate data with specific guidance that ensures the dataset includes the necessary content (toxic data, biased data, maliciousness, etc). The following templates can be added to the "Human Guidance" option in synthetic data gen UI, to help generate (in)appropriate content.
+**Using Human Guidance for focused evals**: When generating an eval targeted at a specific issue (for example: toxicity, maliciousness, or a product specific issue), you'll want to add [human guidance](synthetic-data-generation.md#human-guidance) to the synthetic data gen tool, which asks it to generate data matching the targeted use case.
+
+The following templates can be added to the "Human Guidance" option in synthetic data gen UI, to help generate the needed data.
 
 {% hint style="info" %}
 Golden eval datasets work best if they have a range of ratings (some pass, some fail, some of each star-score).
@@ -192,6 +204,21 @@ Models are typically trained to not be toxic, biased, incorrect, malicious or ja
 
 Alternatively Grok models are also uncensored and unaligned.
 {% endhint %}
+
+#### Product Issue Template
+
+```
+We are building a dataset for an AI eval, to monitor a specific issue we've noticed in our product.
+
+The issue is: [INSERT ISSUE DESCRIPTION]
+
+Your role is to generate data likely to hit this issue, which we'll use to detect if the issue continues to occur.
+
+None of the generated topics, inputs, or outputs should specifically mention the issue.
+
+Here's an example input and output of the issue occuring:
+[INSERT 1 OR MORE EXAMPLES]
+```
 
 #### Toxicity Template
 
@@ -316,14 +343,26 @@ None of the generated topics, inputs, or outputs should specifically mention jai
 
 </details>
 
-#### Splitting the Dataset
+#### Tagging the Eval Datasets
 
-Once you've generated your data, open the "Dataset" tab in Kiln.
+If you've launched the synthetic data generator from the evals UI, it will know to assign the needed tags in the apppriopiate ratio. There's no need to manually tag dataset items.
 
-1. Filter your dataset to only the content you just generated (they will all be tagged with an automatic tag such as synthetic\_session\_12345).
-2. Use the "Select" UI to select a portion of your dataset for your eval-dataset. 80% is a good starting point. Add the tag for your eval dataset, which is "eval\_config" if you kept the default tag name. Note: if you generated data using synthetic "topics", make sure to include a mix of each topic in each sub-dataset.
-3. Select only the remaining items, and add the tag for your eval method dataset, which is "golden" if you kept the default tag name (or something like "toxicity\_golden" if you used a different template than the default).
-4. Filter the dataset to both tags (eval\_config and golden) to double check you didn't accidentally add any items to both datasets.
+<figure><img src="../.gitbook/assets/Screenshot 2025-06-27 at 11.06.03 AM.png" alt="" width="375"><figcaption><p>Data gen tool aware of the target tags when launched from Evals</p></figcaption></figure>
+
+<details>
+
+<summary>Adding tags manually</summary>
+
+If your dataset items weren't automatically tagged for any reason, you can also add tags manually:
+
+1. Add your data to Kiln using one of the import options ([CSV import](organizing-datasets.md#importing-data-into-your-dataset), [python library import](../developers/python-library-quickstart.md))
+2. Open the "Dataset" tab in kiln
+3. Filter your dataset to only the content you want to tag. For example, synthetic data is tagged with an automatic tag such as synthetic\_session\_12345, CSV imports have similar tags.
+4. Use the "Select" UI to select a portion of your dataset for your eval-dataset. 80% is a good starting point. Add the tag for your eval dataset, which is "eval\_config" if you kept the default tag name. Note: if you generated data using synthetic "topics", make sure to include a mix of each topic in each sub-dataset.
+5. Select only the remaining items, and add the tag for your eval method dataset, which is "golden" if you kept the default tag name (or something like "toxicity\_golden" if you used a different template than the default).
+6. Filter the dataset to both tags (eval\_config and golden) to double check you didn't accidentally add any items to both datasets.
+
+</details>
 
 {% hint style="info" %}
 **Validation Set**
@@ -335,11 +374,15 @@ You can create this set now, or generate it later.
 
 #### Add Human Ratings
 
-Next we'll add human ratings, so we can measure how well our evaluator performs compared to a human. If you have a subject matter expert for your task, get them to perform this step. See our collaboration guide for how to work together on a Kiln project.
+Next we'll add human ratings, so we can measure how well our evaluator performs compared to a human. If you have a subject matter expert for your task, get them to perform this step. See our [collaboration guide](collaboration.md) for how to work together on a Kiln project.
 
-Assuming you're working on the "overall score" template: filter your Dataset view to the "golden" tag, click the first item, add ratings, and repeat until all items in your golden dataset are rated. You can use the left/right keyboard keys to quickly move between items. Only the golden dataset needs ratings, not the eval\_set.
+The `Rate Golden Dataset` button in the eval screen will take you to the dataset view filtered to your golden dataset (the items which need ratings). Once fully rated, this will get a checkmark and you can proceed to the next step
 
-If you're working on another template (toxicity, bias, etc) or a custom eval, you need to add each eval-score to your task, or else the rating UI for it won't appear. Open Settings > Edit Task, then add a task requirement with a matching name and type for each of the output scores in your eval. Then proceed with the instructions above (substituting the correct tags).
+<figure><img src="../.gitbook/assets/Screenshot 2025-06-27 at 11.13.51 AM.png" alt="" width="375"><figcaption></figcaption></figure>
+
+{% hint style="success" %}
+&#x20;You can use the left/right keyboard keys to quickly move between items. Only the golden dataset needs ratings, not the eval\_set.
+{% endhint %}
 
 ### Finding the Ideal Eval Method
 
