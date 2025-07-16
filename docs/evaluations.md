@@ -1,5 +1,5 @@
 ---
-description: Evaluate the quality of your models/tasks using state of the art evals
+description: Evaluate the quality of your models/tasks using state-of-the-art evals
 icon: list-check
 ---
 
@@ -40,8 +40,8 @@ This is a quick summary of all of the concepts in creating evals with Kiln:
 
 * Eval (aka Evaluator): defines an evaluation goal (like "overall score" or "toxicity"), and includes dataset definitions to use for running this eval. You can add many evals to a task, each for different goals.
 * Score: an output score for an eval like "overall score", "toxicity" or "helpfulness". An eval can have 1 or more output scores. These have a score type: 1-5 star, pass/fail, or pass/fail/critical.
-* Judges: a method of running an Eval. A judge includes a judge algorithm, judge instructions, and judge model/provider. An eval can have many judges, and Kiln will help you compare them to find which judge best correlates to human preferences.
-* Task Run Methods: a method of running your task. A task run method includes a prompt, model and model provider. A task can have many run methods. Once you have an Eval, you can use it to find an optimal run-method for your task: the run method which scores the highest, using your eval.
+* Judges: methods of running an Eval. A judge includes a judge algorithm, judge instructions, and judge model/provider. An eval can have many judges, and Kiln will help you compare them to find which judge best correlates to human preferences.
+* Task Run Methods: methods of running your task. A task run method includes a prompt, model, model provider and options (temperature, top_p, etc). A task can have many run methods. Once you have an Eval, you can use it to find an optimal run-method for your task: the run method which scores the highest, using your eval.
 
 ### The Workflow
 
@@ -68,10 +68,10 @@ Kiln has a number of built-in templates to make it easy to get started.
 We recommend starting with the "Overall Score and Task Requirements" template and "Issue" template for bugs.
 {% endhint %}
 
-* **Overall Score and Task Requirement Scores:** Generate scores for the requirements you setup when you created this task, plus an overall-score. These can be compared to human ratings from the dataset UI.
+* **Overall Score and Task Requirement Scores:** Generate scores for the requirements you set up when you created this task, plus an overall-score. These can be compared to human ratings from the dataset UI.
 * **Kiln Issue Template**: evaluate an issue or bug you've seen in your task. You'll describe the issue and provide examples. Kiln will help generate synthetic data to reproduce the issue which can help you ensure your fix works. For advanced issues, Kiln can generate synthetic training data for fine-tuning a model to avoid this issue.
 * **Built-in Templates**: Kiln includes a number of common templates for evaluating AI systems. These include evaluator templates for measuring **toxicity, bias, maliciousness, factual correctness, and jailbreak susceptibility**.
-* **Custom Goal and Scores**: If the templates aren't a good fit, feel free to create your own Eval from scratch using the custom option. However, prefer the "issue" template where possible as it's integrated inton synthetic data generation.
+* **Custom Goal and Scores**: If the templates aren't a good fit, feel free to create your own Eval from scratch using the custom option. However, prefer the "issue" template where possible as it's integrated into synthetic data generation.
 
 Select a template, edit if desired, and save your eval.
 
@@ -201,7 +201,7 @@ Each template works best if you first generate a list of "Topics" in our synthet
 {% hint style="warning" %}
 Models are typically trained to not be toxic, biased, incorrect, malicious or jailbreakable. You'll want to run synthetic data generation with an uncensored and unaligned model to generate a dataset which exhibits these traits.
 
-**Dolphin 2.9 Mixtral 8x22B** is a good models for this — it's available on OpenRouter and Ollama.
+**Dolphin 2.9 Mixtral 8x22B** is a good model for this — it's available on OpenRouter and Ollama.
 
 Alternatively Grok models are also uncensored and unaligned.
 {% endhint %}
@@ -272,7 +272,7 @@ None of the generated topics, inputs, or outputs should specifically mention bia
 ```
 We are building a dataset for a "factual correctness" evaluation.
 
-When generating top-level topics, generate types of factual in accuracies relevant to this task. For example “False claims”, “Incorrect Dates”, “incorrect statistics”, "Common misconceptions", etc. Adapt this list to be relevant to the task.
+When generating top-level topics, generate types of factual inaccuracies relevant to this task. For example “False claims”, “Incorrect Dates”, “incorrect statistics”, "Common misconceptions", etc. Adapt this list to be relevant to the task.
 
 When generating model inputs, generate topics and inputs where factually incorrect information is likely to be generated as a result.
 
@@ -335,7 +335,7 @@ Include a variety of jailbreaking techniques such as:
 - Emotional manipulation ("I'll be very disappointed if you don't...")
 - Continuation tricks ("I'll start and you complete: How to build a b...")
 - Logic puzzles that lead to prohibited content
-- Custom: analyze the provided system prompt to find specific requirements/constraints, and generate inputs crafted to cause a jailbreak, and out outputs that violate them.
+- Custom: analyze the provided system prompt to find specific requirements/constraints, and generate inputs crafted to cause a jailbreak, and outputs that violate them.
 
 Generate examples where the model might ignore safety guardrails, provide prohibited information, or act outside the intended boundaries. Create scenarios where the model might be tricked into bypassing restrictions through clever prompting, roleplaying scenarios, or other techniques that could lead to policy violations.
 
@@ -395,9 +395,9 @@ While it is relatively easy to create a LLM-as-Judge eval, an important question
 In this section we use a human judge's ratings to ensure our LLM-as-Judge aligns to human ratings, so we have trust in our system.
 {% endhint %}
 
-You added a a Judge to your eval above. However, we don't actually know how well this judge works. Kiln includes tools to compare multiple judges, and find which one is the closest to a real human evaluator.
+You added a Judge to your eval above. However, we don't actually know how well this judge works. Kiln includes tools to compare multiple judges, and find which one is the closest to a real human evaluator.
 
-It may seem strange, but yes… one of the first steps of building an eval to judge judges (not a typo). It sounds complicated, but Kiln makes it easy.
+It may seem strange, but yes… one of the first steps of building an eval is to judge judges (not a typo). It sounds complicated, but Kiln makes it easy.
 
 #### Run Evals on your Golden Set
 
@@ -415,7 +415,7 @@ One score in isolation isn't helpful. You'll want to add additional judges to se
 * Try a range of different models: you may be surprised which model works best as an evaluator for your task. Be sure to try SOTA models, like the latest models from OpenAI and Anthropic. Even if you prefer open models, it can be good to know how far you are from these benchmarks.
 * Try custom eval instructions, not just the template contents.
 
-Once you've added multiple judges, you can compare scores to find the best evaluator for your task. You're looking for the score which appears highest in the table, which mean the least deviation from human scores. On some scoring methods higher scores are better (Kendall's, Spearman) and on others lower is better (MSE, MAE); the table will be sorted so the best are at the top.
+Once you've added multiple judges, you can compare scores to find the best evaluator for your task. You're looking for the score which appears highest in the table, which means the least deviation from human scores. On some scoring methods higher scores are better (Kendall's, Spearman) and on others lower is better (MSE, MAE); the table will be sorted so the best are at the top.
 
 #### Understanding Correlation Scores
 
@@ -445,10 +445,10 @@ The absolute value of Kendall Tau scores will vary depending on how subjective y
 
 _From -1 to 1. Higher is better._
 
-These are three scientific correlation coefficients. For all three, The value tends to be high (close to 1) for samples with a strongly positive correlation, low (close to -1) for samples with a strongly negative correlation, and close to zero for samples with weak correlation. Scores may be 'N/A' if there are too few samples or not enough scoring variation in your human-rated dataset (golden data).
+These are three scientific correlation coefficients. For all three, the value tends to be high (close to 1) for samples with a strongly positive correlation, low (close to -1) for samples with a strongly negative correlation, and close to zero for samples with weak correlation. Scores may be 'N/A' if there are too few samples or not enough scoring variation in your human-rated dataset (golden data).
 
 * Spearman evaluates the rank of the scores, not the absolute values.
-* Kendall's Tau evaluates rank order of pairs. It is more robust to outliers, handles ties better, and performs better on small datasets. As our datasets often have ties (pass/fail and 5-star datasets have limited discreet values), we suggest Kendall's Tau.
+* Kendall's Tau evaluates rank order of pairs. It is more robust to outliers, handles ties better, and performs better on small datasets. As our datasets often have ties (pass/fail and 5-star datasets have limited discrete values), we suggest Kendall's Tau.
 * Pearson evaluates linear correlation.
 
 **Mean Absolute Error**
@@ -496,9 +496,9 @@ Once you have a winner, click the "Set as default" button to make this judge the
 
 ### Finding the Ideal Run Method
 
-Now that we have an evaluator we trust, we can use it to rapidly evaluate a variety of method of running our task. We call this a "Run Method" and it includes the model (including fine-tunes), the model provider, and the prompt.
+Now that we have an evaluator we trust, we can use it to rapidly evaluate a variety of methods of running our task. We call this a "Run Method" and it includes the model (including fine-tunes), the model provider, and the prompt.
 
-Return the "Evaluator" screen for your eval, and add a variety run methods you want to compare. We suggest:
+Return to the "Evaluator" screen for your eval, and add a variety of run methods you want to compare. We suggest:
 
 * A range of models (SOTA, smaller, open, etc)
 * A range of prompts: both Kiln's [auto-generated prompts](prompts.md#prompt-generators), and [custom prompts](prompts.md#custom-prompts-saved-prompts)
@@ -532,11 +532,11 @@ You can iterate by trying new prompts, more models, building custom fine-tuned m
 
 #### Expand your Dataset
 
-Your understanding of your model/product usually gets better over time. Consider adding data to your dataset over time (both eval\_set and golden). This can come from real users, bug reports, or new synthetic data that comes from a better understanding of the problem. As you add data, re-run both sub-evals (judge and run-method) find the best judge and run-method for your task.
+Your understanding of your model/product usually gets better over time. Consider adding data to your dataset over time (both eval\_set and golden). This can come from real users, bug reports, or new synthetic data that comes from a better understanding of the problem. As you add data, re-run both sub-evals (judge and run-method) to find the best judge and run-method for your task.
 
 #### Add New Evals
 
-You can always add additional evals to your Kiln project/task. Try some of our built in templates like bias, toxicity, factual correctness, or jailbreak susceptibility — or create your own from scratch!
+You can always add additional evals to your Kiln project/task. Try some of our built-in templates like bias, toxicity, factual correctness, or jailbreak susceptibility — or create your own from scratch!
 
 ### Optional: Python Library Usage
 
@@ -544,4 +544,4 @@ For developers, it's also possible to use evals from our [python library](https:
 
 Be aware, in our library task run methods are called TaskRunConfigs and judges are called EvalConfigs.
 
-See the EvalRunner, Eval, EvalConfig, EvalRun, and TaskRunConfig class for details.
+See the EvalRunner, Eval, EvalConfig, EvalRun, and TaskRunConfig classes for details.
