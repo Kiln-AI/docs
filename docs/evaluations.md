@@ -11,8 +11,8 @@ icon: list-check
 
 Kiln includes a complete platform for ensuring your tasks/models are of the highest possible quality. It includes:
 
-* Access multiple SOTA evaluation methods (G-Eval, LLM as Judge)
-* Compare and benchmark your eval methods against human evals to find the best possible evaluator for your use case
+* Access multiple SOTA evaluation algorithms (G-Eval, LLM as Judge)
+* Compare and benchmark your judges against human evals to find the best possible evaluator for your use case
 * Test a variety of different methods of running your task (prompts, models, fine-tunes) to find which perform best
 * Easily manage datasets for eval sets, golden sets, human ratings through our intuitive UI
 * Generate evaluators automatically. Using your task definition we'll create an evaluator for your task's overall score and task requirements
@@ -40,7 +40,7 @@ This is a quick summary of all of the concepts in creating evals with Kiln:
 
 * Eval (aka Evaluator): defines an evaluation goal (like "overall score" or "toxicity"), and includes dataset definitions to use for running this eval. You can add many evals to a task, each for different goals.
 * Score: an output score for an eval like "overall score", "toxicity" or "helpfulness". An eval can have 1 or more output scores. These have a score type: 1-5 star, pass/fail, or pass/fail/critical.
-* Evaluation Methods: a method of running an Eval. An eval method includes an eval algorithm, eval instructions, eval model, and model provider. An eval can have many eval-methods, and Kiln will help you compare them to find which eval-method best correlates to human preferences.
+* Judges: a method of running an Eval. A judge includes a judge algorithm, judge instructions, and judge model/provider. An eval can have many judges, and Kiln will help you compare them to find which judge best correlates to human preferences.
 * Task Run Methods: a method of running your task. A task run method includes a prompt, model and model provider. A task can have many run methods. Once you have an Eval, you can use it to find an optimal run-method for your task: the run method which scores the highest, using your eval.
 
 ### The Workflow
@@ -48,9 +48,9 @@ This is a quick summary of all of the concepts in creating evals with Kiln:
 Working with Evals in Kiln is easy. We'll walk through the flow of creating your first evaluator end to end:
 
 * [Creating an Evaluator](evaluations.md#creating-an-eval)
-* [Add an Evaluation Method to your Eval](evaluations.md#add-an-evaluation-method-to-your-eval)
+* [Add a Judge to your Eval](evaluations.md#add-a-judge-to-your-eval)
 * [Create your Eval Datasets](evaluations.md#create-your-eval-datasets)
-* [Finding the Ideal Eval Method](evaluations.md#finding-the-ideal-eval-method)
+* [Finding the Ideal Judge](evaluations.md#finding-the-ideal-judge)
 * [Finding the Ideal Run Method](evaluations.md#finding-the-ideal-run-method)
 * [Iterate and Expand](evaluations.md#iterate-and-expand)
 
@@ -135,20 +135,20 @@ If you start editing the eval's steps, here are some advanced tactics/guidance t
 
 </details>
 
-#### Select an eval method model & provider
+#### Select a judge model & provider
 
-Finally, select the model you want the eval method to use (including which AI provider it should be run on).
+Finally, select the model you want the judge to use (including which AI provider it should be run on).
 
 #### Python Library Usage \[optional]
 
-It's possible to create evals in code as well. Just be aware eval methods are called EvalConfigs in our library.
+It's possible to create evals in code as well. Just be aware judges are called EvalConfigs in our library.
 
 ### Create your Eval Datasets
 
 An eval in Kiln includes two datasets:
 
 * **Eval dataset**: specifies which part of your dataset is used when evaluating different methods of running your task.
-* **Golden dataset**: specifies which part of your dataset is used when trying to find the best evaluation method for this task. This dataset will have human ratings, so we can compare judges to human preference.
+* **Golden dataset**: specifies which part of your dataset is used when trying to find the best judge for this task. This dataset will have human ratings, so we can compare judges to human preference.
 
 This section will walk you through populating both of your eval datasets.
 
@@ -360,7 +360,7 @@ If your dataset items weren't automatically tagged for any reason, you can also 
 2. Open the "Dataset" tab in kiln
 3. Filter your dataset to only the content you want to tag. For example, synthetic data is tagged with an automatic tag such as synthetic\_session\_12345, CSV imports have similar tags.
 4. Use the "Select" UI to select a portion of your dataset for your eval-dataset. 80% is a good starting point. Add the tag for your eval dataset, which is "eval\_config" if you kept the default tag name. Note: if you generated data using synthetic "topics", make sure to include a mix of each topic in each sub-dataset.
-5. Select only the remaining items, and add the tag for your eval method dataset, which is "golden" if you kept the default tag name (or something like "toxicity\_golden" if you used a different template than the default).
+5. Select only the remaining items, and add the tag for your golden dataset, which is "golden" if you kept the default tag name (or something like "toxicity\_golden" if you used a different template than the default).
 6. Filter the dataset to both tags (eval\_config and golden) to double check you didn't accidentally add any items to both datasets.
 
 </details>
@@ -395,35 +395,35 @@ While it is relatively easy to create a LLM-as-Judge eval, an important question
 In this section we use a human judge's ratings to ensure our LLM-as-Judge aligns to human ratings, so we have trust in our system.
 {% endhint %}
 
-You added a a Judge to your eval above. However, we don't actually know how well this judge works. Kiln includes tools to compare multiple eval methods, and find which one is the closest to a real human evaluator.
+You added a a Judge to your eval above. However, we don't actually know how well this judge works. Kiln includes tools to compare multiple judges, and find which one is the closest to a real human evaluator.
 
-It may seem strange, but yes… one of the first steps of building an eval to evaluate evaluation methods (not a typo). It sounds complicated, but Kiln makes it easy.
+It may seem strange, but yes… one of the first steps of building an eval to judge judges (not a typo). It sounds complicated, but Kiln makes it easy.
 
 #### Run Evals on your Golden Set
 
-Open your eval from the "Evals" tab, then click the "Compare Evaluation Methods" button. From the "Compare Evaluation Methods" screen, click the "Run Eval" button.
+Open your eval from the "Evals" tab, then click the "Compare Judges" button. From the "Compare Judges" screen, click the "Run Eval" button.
 
-This will run your evaluator on the golden dataset, once with each eval method.
+This will run your eval on the golden dataset, once with each judge.
 
-Once complete, you'll have a set of metrics about how well the eval method's scoring matched human scores.
+Once complete, you'll have a set of metrics about how well the judge's scoring matched human scores.
 
 #### Add Judges and Compare to Find the Best
 
-One score in isolation isn't helpful. You'll want to add additional eval methods to see which one performs best. Kiln makes it easy to compare eval-methods. We suggest trying a range of options:
+One score in isolation isn't helpful. You'll want to add additional judges to see which one performs best. Kiln makes it easy to compare judges. We suggest trying a range of options:
 
-* Try both eval methods: G-Eval and LLM as Judge
+* Try both judge types: G-Eval and LLM as Judge
 * Try a range of different models: you may be surprised which model works best as an evaluator for your task. Be sure to try SOTA models, like the latest models from OpenAI and Anthropic. Even if you prefer open models, it can be good to know how far you are from these benchmarks.
 * Try custom eval instructions, not just the template contents.
 
-Once you've added multiple eval methods, you can compare scores to find the best evaluator for your task. On this screen you're looking for the **lowest** scores, which mean the least deviation from human scores.
+Once you've added multiple judges, you can compare scores to find the best evaluator for your task. You're looking for the score which appears highest in the table, which mean the least deviation from human scores. On some scoring methods higher scores are better (Kendall's, Spearman) and on others lower is better (MSE, MAE); the table will be sorted so the best are at the top.
 
 #### Understanding Correlation Scores
 
-There's no benchmark good/bad score for an evaluator; it all depends on your task.
+There's no benchmark good/bad score for an evaluator; it all depends on your task difficulty.
 
-For an easy and highly deterministic task, you might be able to find many eval-methods which achieve near perfect scores, even with small eval models and default prompts.
+For an easy and highly deterministic task, you might be able to find many judges which achieve near perfect scores, even with small eval models and default prompts.
 
-For a highly subjective task, it's likely no evaluator will perfectly match the human scores, even with SOTA models and custom prompts. It's often the case that two humans can't match each other on subjective tasks. Try a range of eval methods, and pick the one with the best score (which is the highest score if using the default Kendall Tau comparison).
+For a highly subjective task, it's likely no evaluator will perfectly match the human scores, even with SOTA models and custom prompts. It's often the case that two humans can't match each other on subjective tasks. Try a range of judges, and pick the one with the best score.
 
 The more subjective the task, the more beneficial a larger and more diverse golden dataset becomes.
 
@@ -431,15 +431,15 @@ The more subjective the task, the more beneficial a larger and more diverse gold
 
 <summary>Technical comparison of score options: Kendall' Tau, Spearman, Pearson, Mean Squared Error, Mean Absolute Error</summary>
 
-> Each score is a correlation score between the eval method's scores and the human scores.
+> Each score is a correlation score between the judge's scores and the human scores.
 
 **TL;DR**
 
 We suggest you use Kendall Tau correlation scores to compare results.
 
-Kendall Tau scores range from -1.0 to 1, with higher values being higher correlation between the human ratings and the automated eval method's scores.
+Kendall Tau scores range from -1.0 to 1, with higher values being higher correlation between the human ratings and the automated judge's scores.
 
-The absolute value of Kendall Tau scores will vary depending on how subjective your task is. Find the highest score for your task, and select it as your default eval method.
+The absolute value of Kendall Tau scores will vary depending on how subjective your task is. Find the highest score for your task, and select it as your default judge.
 
 **Spearman, Kendall Tau, and Pearson Correlation**
 
@@ -483,8 +483,8 @@ Like mean squared error, but scores are normalized to the range 0-1. For example
 
 If you see "N/A" scores in your correlation table, it means more data is needed. This can be one of two cases
 
-* _**Simply not enough data**_: if your eval method dataset if very small (<10 items) it can be impossible to produce confident correlation scores. Add more data to resolve this case.
-* _**Not enough variation of human ratings in the eval method dataset**_: if you have a larger dataset, but still get N/A, it's likely there isn't enough variation in your dataset for the given score. For example, if all of the golden samples of a score pass, the evaluator won't produce a confident correlation score, as it has no failing examples and everything is a tie. Add more content to your eval methods dataset, designing the content to fill out the missing score ranges. You can use synthetic data gen [human guidance](synthetic-data-generation.md#human-guidance) to generate examples that fail.
+* _**Simply not enough data**_: if your golden dataset is very small (<10 items) it can be impossible to produce confident correlation scores. Add more data to resolve this case.
+* _**Not enough variation of human ratings in the golden dataset**_: if you have a larger dataset, but still get N/A, it's likely there isn't enough variation in your dataset for the given score. For example, if all of the golden samples of a score pass, the evaluator won't produce a confident correlation score, as it has no failing examples and everything is a tie. Add more content to your golden dataset, designing the content to fill out the missing score ranges. You can use synthetic data gen [human guidance](synthetic-data-generation.md#human-guidance) to generate examples that fail.
 
 </details>
 
@@ -514,7 +514,7 @@ Once you've defined a set of run methods, click "Run Eval" to kick off the eval.
 
 Once done, you'll have results for how each run method performed on the eval.
 
-These results are easy to interpret compared to the eval method comparisons. Each score is simply the average score from that run method. Assuming we want to find the run method that produces the best content, simply find the highest average score.
+These results are easy to interpret compared to the judge comparisons. Each score is simply the average score from that run method. Assuming we want to find the run method that produces the best content, simply find the highest average score.
 
 Congrats! You've used systematic evals to find an optimal method for running your task!
 
@@ -526,13 +526,13 @@ However there's always room to improve.
 
 #### Iterate on Methods
 
-You can repeat the processes above to try new eval-methods or run-methods. Through more searching, you may be able to find a better method and improve overall performance.
+You can repeat the processes above to try new judges or run-methods. Through more searching, you may be able to find a better method and improve overall performance.
 
 You can iterate by trying new prompts, more models, building custom fine-tuned models, or trying new state of the art models as they are released.
 
 #### Expand your Dataset
 
-Your understanding of your model/product usually gets better over time. Consider adding data to your dataset over time (both eval\_set and golden). This can come from real users, bug reports, or new synthetic data that comes from a better understanding of the problem. As you add data, re-run both sub-evals (eval-method and run-method) find the best eval-method and run-method for your task.
+Your understanding of your model/product usually gets better over time. Consider adding data to your dataset over time (both eval\_set and golden). This can come from real users, bug reports, or new synthetic data that comes from a better understanding of the problem. As you add data, re-run both sub-evals (judge and run-method) find the best judge and run-method for your task.
 
 #### Add New Evals
 
@@ -542,6 +542,6 @@ You can always add additional evals to your Kiln project/task. Try some of our b
 
 For developers, it's also possible to use evals from our [python library](https://kiln-ai.github.io/Kiln/kiln_core_docs/kiln_ai.html).
 
-Be aware, in our library task run methods are called TaskRunConfigs and eval methods are called EvalConfigs.
+Be aware, in our library task run methods are called TaskRunConfigs and judges are called EvalConfigs.
 
 See the EvalRunner, Eval, EvalConfig, EvalRun, and TaskRunConfig class for details.

@@ -14,7 +14,7 @@ Kiln includes a rating interface for rating dataset entries. This can be used to
 There are two methods of defining rating options:
 
 * Adding requirements to your task definition in  **Settings > Edit Task** will add a rating option to every sample in your dataset
-* After creating an [Eval](evaluations.md), each output score will be available as a rating option for every sample in its evaluation method dataset (golden dataset).
+* After creating an [Eval](evaluations.md), each output score will be available as a rating option for every sample in its golden dataset.
 
 ### Rating Option Parameters
 
@@ -40,7 +40,7 @@ An "Overall" rating is always available, even if your task has zero requirements
 
 Kiln uses ratings in a variety of ways:
 
-* In evals, ratings of your eval method dataset (golden dataset) are used to benchmark and compare methods of evaluating your task. This helps you find the [ideal evaluation method](evaluations.md#finding-the-ideal-eval-method).
+* In evals, ratings of your golden dataset are used to benchmark and compare judges for evaluating your task. This helps you find the [ideal judge](evaluations.md#finding-the-ideal-judge).
 * Kiln's [automatic prompt generators](prompts.md#prompt-generators) may incorporate highly rated samples into a prompt. For example, multi-shot or few-shot prompts will automatically incorporate highly rated samples. These filters to examples 4+ stars, and prefers 5-star ratings if available.
 * When creating a [fine-tuning dataset](fine-tuning-guide.md), you may optionally filter the training data to highly rated content.
 * When using the [python library](../developers/python-library-quickstart.md), you can access ratings.
