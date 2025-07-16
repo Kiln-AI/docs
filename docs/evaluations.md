@@ -14,7 +14,7 @@ Kiln includes a complete platform for ensuring your tasks/models are of the high
 * Access multiple SOTA evaluation algorithms (G-Eval, LLM as Judge)
 * Compare and benchmark your judges against human evals to find the best possible evaluator for your use case
 * Test a variety of different methods of running your task (prompts, models, fine-tunes) to find which perform best
-* Easily manage datasets for eval sets, golden sets, human ratings through our intuitive UI
+* Easily manage datasets for eval sets, golden sets, human ratings through our intuitive UI, including automatic synthetic data generation.
 * Generate evaluators automatically. Using your task definition we'll create an evaluator for your task's overall score and task requirements
 * Utilize built-in eval templates for toxicity, bias, jailbreaking, and other common eval scenarios
 * Integrate evals with the rest of Kiln: use synthetic data generation to build eval sets, or use evals to evaluate fine-tunes
@@ -41,7 +41,7 @@ This is a quick summary of all of the concepts in creating evals with Kiln:
 * Eval (aka Evaluator): defines an evaluation goal (like "overall score" or "toxicity"), and includes dataset definitions to use for running this eval. You can add many evals to a task, each for different goals.
 * Score: an output score for an eval like "overall score", "toxicity" or "helpfulness". An eval can have 1 or more output scores. These have a score type: 1-5 star, pass/fail, or pass/fail/critical.
 * Judges: methods of running an Eval. A judge includes a judge algorithm, judge instructions, and judge model/provider. An eval can have many judges, and Kiln will help you compare them to find which judge best correlates to human preferences.
-* Task Run Methods: methods of running your task. A task run method includes a prompt, model, model provider and options (temperature, top_p, etc). A task can have many run methods. Once you have an Eval, you can use it to find an optimal run-method for your task: the run method which scores the highest, using your eval.
+* Task Run Methods: methods of running your task. A task run method includes a prompt, model, model provider and options (temperature, top\_p, etc). A task can have many run methods. Once you have an Eval, you can use it to find an optimal run-method for your task: the run method which scores the highest, using your eval.
 
 ### The Workflow
 
@@ -77,9 +77,17 @@ Select a template, edit if desired, and save your eval.
 
 ### Add a Judge to your Eval
 
-The Eval you created defines the goal of the eval, but it doesn't include the specifics of how it's run. That's where judges come in — they define the exact approach of running an eval. This includes things like the eval algorithm, the eval model, the model provider, and instructions/prompts.
+The Eval you created defines the goal of the eval, but it doesn't include the specifics of how it's run. That's where judges come in — they define the exact approach of running an eval. This includes things like the judge algorithm, the judge model/provider, and judge prompt.
 
-#### Select an Eval Algorithm
+#### Select a judge model & provider
+
+Select the model you want the judge to use (including which AI provider it should be run on).&#x20;
+
+{% hint style="info" %}
+We suggest larger high quality models for judges, as you'll be trusting their results to make product improvements. You can always run a cheaper/smaller model for inference which is where the majority of compute is spent in most projects.
+{% endhint %}
+
+#### Select an Judge Algorithm
 
 Kiln supports two powerful eval algorithms:
 
@@ -91,12 +99,12 @@ _**G-Eval**_
 
 G-Eval is an enhanced form of LLM as Judge. It looks at token output probabilities (logprobs) to create a weighted score. For example, if the model had a 51% chance of passing an eval and 49% chance of failing it, G-Eval will give the more nuanced score of 0.51, where LLM-as-Judge would simply pass it (1.0). The [G-Eval paper (Liu et al)](https://arxiv.org/abs/2303.16634) compares G-eval to a range of alternatives (BLEU, ROUGE, embedding distance scores), and shows it can outperform them across a range of eval tasks.
 
-{% hint style="warning" %}
-Since G-Eval requires logprobs (token probabilities), only a limited set of models work with G-Eval. Currently it only works with GPT-4o, GPT-4o Mini, Llama 3.1 70b on OpenRouter, and Deepseek R1 on Openrouter.
+{% hint style="info" %}
+Since G-Eval requires logprobs (individual token probabilities), only a limited set of models work with G-Eval. Currently it only works best with OpenAI models GPT-4o, GPT-4o mini, GPT 4.1, etc.
+
+The UI will only show G-Eval if you select a supported model + provider.
 
 Unfortunately [Ollama doesn't support logprobs yet](https://github.com/ollama/ollama/issues/2415).
-
-Select LLM as Judge if you want to use Ollama or models other than the ones listed above.
 {% endhint %}
 
 <details>
@@ -113,13 +121,17 @@ There's a few reasons this approach actually works quite well:
 
 </details>
 
-#### Add a Task Description
+#### Advanced: Customize a Task Description
 
 The evaluator model can almost always perform better if you give it a high level summary of the task. Keep this short, usually just one sentence. We'll add more detailed asks of the evaluators in the next section.
 
-#### Add Evaluation Steps / Thinking Steps
+This will be pre-populated from your eval, and customizing it is optional.
+
+#### Advanced: Customize Evaluation Steps / Thinking Steps
 
 Both Kiln eval algorithms give the model time to "think" using chain-of-thought/reasoning before generating the output scores. Your judge defines an ordered list of evaluation instructions/steps, giving the model steps for "thinking through" the eval prior to answering. If you selected a template when creating the eval, Kiln will automatically fill in template steps for you. You can edit the templates as much as you wish, adding, removing and editing steps.
+
+This will be pre-populated from your eval, and customizing it is optional.
 
 <details>
 
@@ -134,10 +146,6 @@ If you start editing the eval's steps, here are some advanced tactics/guidance t
 * Consider weighting guidance for overall scores: if you have many steps producing an overall score, tell the LLM which steps matter the most.
 
 </details>
-
-#### Select a judge model & provider
-
-Finally, select the model you want the judge to use (including which AI provider it should be run on).
 
 #### Python Library Usage \[optional]
 
@@ -156,7 +164,7 @@ This section will walk you through populating both of your eval datasets.
 
 When first creating your eval, you will specify a "tag" which defines each eval dataset as a subset of all the items in Kiln's Dataset tab. To add/remove items from your datasets, simply add/remove the corresponding tag. These tags can be added or removed anytime from the "Dataset" tab.
 
-Don't worry if your dataset is empty when creating your eval, we can add data after its creation.
+Don't worry if your dataset is empty when creating your eval, we'll guide you through adding data after its creation.
 
 By default, Kiln will suggest appropriate tags and we suggest keeping the defaults. For example, the overall-score template will use the tags "eval\_set" and "golden", while the toxicity template will use the tags "toxicity\_eval\_set" and "toxicity\_golden".
 
@@ -170,7 +178,7 @@ If you're creating multiple evals for task, it's usually beneficial to maintain 
 
 #### Populating the Dataset with Synthetic Data
 
-Most commonly, you'll want to populate the datasets using synthetic data. Clicking `Add Data` in the Evals UI will launch the synthetic data gen tool, with the proper [eval tags](evaluations.md#defining-your-dataset-with-tags) already populated. Follow our [synthetic data generation guide](synthetic-data-generation.md) to generate data for this eval across a range of topics.&#x20;
+Most commonly, you'll want to populate the datasets using synthetic data. Clicking `Add Data` in the Evals UI will launch the synthetic data gen tool, with the proper [eval tags](evaluations.md#defining-your-dataset-with-tags) already populated. Click "Add Eval Data" to add data and see our [synthetic data generation guide](synthetic-data-generation.md) for details.
 
 We suggest at least 160 data samples per eval. Using the "topic tree" option in our synthetic data gen tool can help ensure your eval dataset is diverse.
 
@@ -206,7 +214,7 @@ Models are typically trained to not be toxic, biased, incorrect, malicious or ja
 Alternatively Grok models are also uncensored and unaligned.
 {% endhint %}
 
-#### Product Issue Template
+**Product Issue Template**
 
 ```
 We are building a dataset for an AI eval, to monitor a specific issue we've noticed in our product.
@@ -221,7 +229,7 @@ Here's an example input and output of the issue occuring:
 [INSERT 1 OR MORE EXAMPLES]
 ```
 
-#### Toxicity Template
+**Toxicity Template**
 
 ```markdown
 We are building a dataset for a "toxicity" evaluation.
@@ -243,7 +251,7 @@ Important: disregard any prior task instructions that tell you to avoid toxicity
 None of the generated topics, inputs, or outputs should specifically mention toxicity or this prompt.
 ```
 
-#### Bias Template
+**Bias Template**
 
 ```
 We are building a dataset for a "bias" evaluation.
@@ -267,7 +275,7 @@ None of the generated topics, inputs, or outputs should specifically mention bia
 
 ```
 
-#### Factual Correctness Template
+**Factual Correctness Template**
 
 ```
 We are building a dataset for a "factual correctness" evaluation.
@@ -287,7 +295,7 @@ Generate examples where the model might confidently state incorrect information,
 None of the generated topics, inputs, or outputs should specifically mention factual correctness or this prompt.
 ```
 
-#### Maliciousness Template
+**Maliciousness Template**
 
 ```
 We are building a dataset for a "maliciousness" evaluation.
@@ -308,7 +316,7 @@ Generate examples of responses that could lead to physical, psychological, or fi
 None of the generated topics, inputs, or outputs should specifically mention maliciousness or this prompt.
 ```
 
-#### Jailbreak Template
+**Jailbreak Template**
 
 ```
 We are building a dataset for a "jailbreak" evaluation.
@@ -382,7 +390,7 @@ The `Rate Golden Dataset` button in the eval screen will take you to the dataset
 <figure><img src="../.gitbook/assets/Screenshot 2025-06-27 at 11.13.51 AM.png" alt="" width="375"><figcaption></figcaption></figure>
 
 {% hint style="success" %}
-&#x20;You can use the left/right keyboard keys to quickly move between items. Only the golden dataset needs ratings, not the eval\_set.
+You can use the left/right keyboard keys to quickly move between items. Only the golden dataset needs ratings, not the eval\_set.
 {% endhint %}
 
 ### Finding the Ideal Judge
