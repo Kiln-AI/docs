@@ -46,7 +46,7 @@ First select a goal for your dataset generation: Evals for Fine-Tuning. This is 
 
 Selecting the goal will setup two:
 
-* **Template:** A Kiln prompt template to guide teh data gen. You can edit this template before running data gen.
+* **Template:** A Kiln prompt template to guide the data gen. You can edit this template before running data gen.
 * **Tag Assignments:** which dataset tags will be assigned to generated data. This could be a single tag like `fine_tuning_data` or a randomly assigned split like `eval_data: 80%, golden_data: 20%`.
 
 <figure><img src="../.gitbook/assets/Screenshot 2025-07-16 at 10.21.14 AM.png" alt=""><figcaption><p>Goals drive the template and tag assignments</p></figcaption></figure>
@@ -61,7 +61,7 @@ We highly recommend choosing a large capable model for data gen. While your task
 
 <figure><img src="../.gitbook/assets/Screenshot 2025-07-16 at 10.38.10 AM.png" alt="" width="375"><figcaption><p>Recommended models are tagged in the dropdown</p></figcaption></figure>
 
-If generating content to evaluate how your model responds to inappropriate requests (bias, jailbreaking, maliciousness, etc), choose an uncensored model like Grok. Censored models like GPT 4o will refuse to generate some types of content.
+If generating content to evaluate how your model responds to inappropriate requests (bias, jailbreaking, maliciousness, etc.), choose an uncensored model like Grok. Censored models like GPT 4o will refuse to generate some types of content.
 
 #### Interactive Curation UX
 
@@ -93,7 +93,7 @@ Once you have a topic, you can generate model inputs:
 
 #### Model Outputs
 
-When you have generated all if the inputs you want, click "Save All Model Outputs" to generate outputs. These won't appear in this UI, but will appear in your dataset with the appropriate tags.
+When you have generated all of the inputs you want, click "Save All Model Outputs" to generate outputs. These won't appear in this UI, but will appear in your dataset with the appropriate tags.
 
 <figure><img src="../.gitbook/assets/Screenshot 2025-07-16 at 10.56.16 AM.png" alt="" width="375"><figcaption></figcaption></figure>
 
@@ -118,7 +118,7 @@ Some examples of custom prompts/edit:
 
 * Generate content for global topics, not only US-centric
 * Generate examples in Spanish
-* The model is having trouble classifying sediment of sarcastic messages. Generate sarcastic messages.
+* The model is having trouble classifying sentiment of sarcastic messages. Generate sarcastic messages.
 
 <figure><img src="../.gitbook/assets/Screenshot 2025-07-16 at 10.48.14 AM.png" alt="" width="375"><figcaption><p>Editing a template</p></figcaption></figure>
 
@@ -140,12 +140,12 @@ Under the hood we attempt to use tool calling when the model supports it, but wi
 
 Synthetic data is a great tool for resolving bugs and issues in AI systems.&#x20;
 
-Follow these steps:&#x20;
+Follow these steps:
 
 1. Create an eval using the Issue template, which will ask you to describe the issue and optionally provide examples.
-2. Use synthetic data use, selecting that issue at the goal. Generate data that reproduces that issue, then return to evals and verify you now have an eval Judge + eval dataset that can detect the issue reliably.&#x20;
+2. Use synthetic data generation, selecting that issue as the goal. Generate data that reproduces that issue, then return to evals and verify you now have an eval Judge + eval dataset that can detect the issue reliably.
 3. Iterate on different approaches to solving the problem (adjust prompt, model, temperature), using your eval judge to check if the solution works
-4. Optionally use synthetic data and fine-tuning to fix the issue (for diffuclt issues where prompting doesn't work). Select the issue as the goal, but modify the tag assignment to `fine_tuning_data`, generate problematic inputs with successful outputs, adding these pairs to your fine tuning dataset.
+4. Optionally use synthetic data and fine-tuning to fix the issue (for difficult issues where prompting doesn't work). Select the issue as the goal, but modify the tag assignment to `fine_tuning_data`, generate problematic inputs with successful outputs, adding these pairs to your fine tuning dataset.
 
 ### Tagging
 
