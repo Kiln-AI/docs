@@ -24,8 +24,8 @@ Synthetic data is helpful for many reasons:
 * **Evals:** Generate data for custom evals of your task performance
 * **Fine-tuning:** Generate fine-tuning datasets
 * **Built-in Templates:** Using our built in data-gen templates like 'Jailbreaking' or 'Bias' to check your system for common issues (curated evals)
-* **Addressing Bugs / Issues:** generate targeted data to reproduce a bug/issue, which can be used for training a fix, evaluating a fix, and backtesting&#x20;
-* **Prompting:** Generate examples to be used for few-shot or multi-shot prompting&#x20;
+* **Addressing Bugs / Issues:** generate targeted data to reproduce a bug/issue, which can be used for training a fix, evaluating a fix, and backtesting
+* **Prompting:** Generate examples to be used for few-shot or multi-shot prompting
 
 ### How It Works
 
@@ -49,7 +49,7 @@ Selecting the goal will setup two:
 * **Template:** A Kiln prompt template to guide the data gen. You can edit this template before running data gen.
 * **Tag Assignments:** which dataset tags will be assigned to generated data. This could be a single tag like `fine_tuning_data` or a randomly assigned split like `eval_data: 80%, golden_data: 20%`.
 
-<figure><img src="../.gitbook/assets/Screenshot 2025-07-16 at 10.21.14 AM.png" alt=""><figcaption><p>Goals drive the template and tag assignments</p></figcaption></figure>
+<figure><img src="../.gitbook/assets/Screenshot 2025-07-16 at 10.21.14 AM.png" alt="" width="375"><figcaption><p>Goals drive the template and tag assignments</p></figcaption></figure>
 
 #### Choose A Data Gen Model
 
@@ -65,7 +65,7 @@ If generating content to evaluate how your model responds to inappropriate reque
 
 #### Interactive Curation UX
 
-Kiln synthetic data generation is designed to be interactive! As you work, be critical of the generated data and use the interactive UI to make great quality data. You can delete topics or examples that don't match your goals, add custom topics manually, update prompts to guide content, and iterate until you're happy with the results.&#x20;
+Kiln synthetic data generation is designed to be interactive! As you work, be critical of the generated data and use the interactive UI to make great quality data. You can delete topics or examples that don't match your goals, add custom topics manually, update prompts to guide content, and iterate until you're happy with the results.
 
 #### 3 Levels of Data Gen: Topics, Inputs, Outputs
 
@@ -138,7 +138,7 @@ Under the hood we attempt to use tool calling when the model supports it, but wi
 
 ### Resolving Bugs & Issues with Synthetic Data
 
-Synthetic data is a great tool for resolving bugs and issues in AI systems.&#x20;
+Synthetic data is a great tool for resolving bugs and issues in AI systems.
 
 Follow these steps:
 
