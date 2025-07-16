@@ -65,18 +65,19 @@ From the "Eval" tab in Kiln's UI, you can easily create a new evaluator.
 Kiln has a number of built-in templates to make it easy to get started.
 
 {% hint style="info" %}
-We recommend starting with the "Overall Score and Task Requirements" template.
+We recommend starting with the "Overall Score and Task Requirements" template and "Issue" template for bugs.
 {% endhint %}
 
 * **Overall Score and Task Requirement Scores:** Generate scores for the requirements you setup when you created this task, plus an overall-score. These can be compared to human ratings from the dataset UI.
-* **Generalized Templates**: Kiln includes a number of common templates for evaluating AI systems. These include evaluator templates for measuring **toxicity, bias, maliciousness, factual correctness, and jailbreak susceptibility**.
-* **Custom Goal and Scores**: If the templates aren't a good fit, feel free to create your own Eval from scratch using the custom option.
+* **Kiln Issue Template**: evaluate an issue or bug you've seen in your task. You'll describe the issue and provide examples. Kiln will help generate synthetic data to reproduce the issue which can help you ensure your fix works. For advanced issues, Kiln can generate synthetic training data for fine-tuning a model to avoid this issue.
+* **Built-in Templates**: Kiln includes a number of common templates for evaluating AI systems. These include evaluator templates for measuring **toxicity, bias, maliciousness, factual correctness, and jailbreak susceptibility**.
+* **Custom Goal and Scores**: If the templates aren't a good fit, feel free to create your own Eval from scratch using the custom option. However, prefer the "issue" template where possible as it's integrated inton synthetic data generation.
 
 Select a template, edit if desired, and save your eval.
 
-### Add an Evaluation Method to your Eval
+### Add a Judge to your Eval
 
-The Eval you created defines the goal of the eval, but it doesn't include the specifics of how it's run. That's where eval-methods come in — they define the exact approach of running an eval. This includes things like the eval algorithm, the eval model, the model provider, and instructions/prompts.
+The Eval you created defines the goal of the eval, but it doesn't include the specifics of how it's run. That's where judges come in — they define the exact approach of running an eval. This includes things like the eval algorithm, the eval model, the model provider, and instructions/prompts.
 
 #### Select an Eval Algorithm
 
@@ -116,9 +117,9 @@ There's a few reasons this approach actually works quite well:
 
 The evaluator model can almost always perform better if you give it a high level summary of the task. Keep this short, usually just one sentence. We'll add more detailed asks of the evaluators in the next section.
 
-#### Add Evaluation Steps
+#### Add Evaluation Steps / Thinking Steps
 
-Both Kiln eval algorithms give the model time to "think" using chain-of-thought/reasoning before generating the output scores. Your eval method defines an ordered list of evaluation instructions/steps, giving the model steps for "thinking through" the eval prior to answering. If you selected a template when creating the eval, Kiln will automatically fill in template steps for you. You can edit the templates as much as you wish, adding, removing and editing steps.
+Both Kiln eval algorithms give the model time to "think" using chain-of-thought/reasoning before generating the output scores. Your judge defines an ordered list of evaluation instructions/steps, giving the model steps for "thinking through" the eval prior to answering. If you selected a template when creating the eval, Kiln will automatically fill in template steps for you. You can edit the templates as much as you wish, adding, removing and editing steps.
 
 <details>
 
@@ -147,7 +148,7 @@ It's possible to create evals in code as well. Just be aware eval methods are ca
 An eval in Kiln includes two datasets:
 
 * **Eval dataset**: specifies which part of your dataset is used when evaluating different methods of running your task.
-* **Eval Method dataset**: specifies which part of your dataset is used when trying to find the best evaluation method for this task.
+* **Golden dataset**: specifies which part of your dataset is used when trying to find the best evaluation method for this task. This dataset will have human ratings, so we can compare judges to human preference.
 
 This section will walk you through populating both of your eval datasets.
 
@@ -384,7 +385,7 @@ The `Rate Golden Dataset` button in the eval screen will take you to the dataset
 &#x20;You can use the left/right keyboard keys to quickly move between items. Only the golden dataset needs ratings, not the eval\_set.
 {% endhint %}
 
-### Finding the Ideal Eval Method
+### Finding the Ideal Judge
 
 {% hint style="info" %}
 **Who Judges the Judge?**
@@ -394,7 +395,7 @@ While it is relatively easy to create a LLM-as-Judge eval, an important question
 In this section we use a human judge's ratings to ensure our LLM-as-Judge aligns to human ratings, so we have trust in our system.
 {% endhint %}
 
-You added an "eval method" to your eval above. However, we don't actually know how well this eval method works. Kiln includes tools to compare multiple eval methods, and find which one is the closest to a real human evaluator.
+You added a a Judge to your eval above. However, we don't actually know how well this judge works. Kiln includes tools to compare multiple eval methods, and find which one is the closest to a real human evaluator.
 
 It may seem strange, but yes… one of the first steps of building an eval to evaluate evaluation methods (not a typo). It sounds complicated, but Kiln makes it easy.
 
@@ -406,7 +407,7 @@ This will run your evaluator on the golden dataset, once with each eval method.
 
 Once complete, you'll have a set of metrics about how well the eval method's scoring matched human scores.
 
-#### Add Eval Methods and Compare to Find the Best
+#### Add Judges and Compare to Find the Best
 
 One score in isolation isn't helpful. You'll want to add additional eval methods to see which one performs best. Kiln makes it easy to compare eval-methods. We suggest trying a range of options:
 
@@ -487,11 +488,11 @@ If you see "N/A" scores in your correlation table, it means more data is needed.
 
 </details>
 
-#### Select the Winning Eval Method
+#### Select the Winning Judge
 
-Once you have a winner, click the "Set as default" button to make this eval-method the default for your eval.
+Once you have a winner, click the "Set as default" button to make this judge the default for your eval.
 
-<figure><img src="../.gitbook/assets/Screenshot 2025-06-27 at 11.20.02 AM.png" alt="" width="179"><figcaption><p>Select the default eval method</p></figcaption></figure>
+<figure><img src="../.gitbook/assets/Screenshot 2025-06-27 at 11.20.02 AM.png" alt="" width="179"><figcaption><p>Select the default judge</p></figcaption></figure>
 
 ### Finding the Ideal Run Method
 
