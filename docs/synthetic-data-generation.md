@@ -51,7 +51,7 @@ Selecting the goal will setup two:
 * **Template:** A Kiln prompt template to guide the data gen. You can edit this template before running data gen.
 * **Tag Assignments:** which dataset tags will be assigned to generated data. This could be a single tag like `fine_tuning_data` or a randomly assigned split like `eval_data: 80%, golden_data: 20%`.
 
-<figure><img src="../.gitbook/assets/Screenshot 2025-07-16 at 10.21.14 AM.png" alt="" width="375"><figcaption><p>Goals drive the template and tag assignments</p></figcaption></figure>
+<figure><img src="../.gitbook/assets/Screenshot 2025-07-16 at 10.21.14 AM (1).png" alt="" width="375"><figcaption><p>Goals drive the template and tag assignments</p></figcaption></figure>
 
 #### Choose A Data Gen Model
 
