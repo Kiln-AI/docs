@@ -33,6 +33,8 @@ Synthetic data is helpful for many reasons:
 
 Kiln doesn't require you to write complex custom synthetic data gen prompts. Since you've already defined a goal when setting up your task, Kiln can do this for you. It will infer the type of data needed from the system prompt, adapt it to your data-gen goal, and create synthetic data gen prompts without any manual prompting.
 
+[Learn more below](synthetic-data-generation.md#automatic-templates-and-custom-prompting)
+
 ### Walkthrough
 
 #### Choose A Goal To Focus Data Gen
@@ -72,8 +74,8 @@ Kiln synthetic data generation is designed to be interactive! As you work, be cr
 Kiln generates synthetic data in 3 stages:
 
 * [**Topics**](synthetic-data-generation.md#topic-tree-data-generation-for-content-breadth): generate a tree of topics, which allows for breadth
-* Model Inputs: generate synthetic model inputs (the user message). Optionally targeting a specific topic. Within each topic, we aim for a range of relevant inputs which are not too similar to each other.
-* Model Outputs: generate synthetic model outputs from one of the inputs.
+* [**Model Inputs**](synthetic-data-generation.md#model-input): generate synthetic model inputs (the user message). Optionally targeting a specific topic. Within each topic, we aim for a range of relevant inputs which are not too similar to each other.
+* [**Model Outputs**](synthetic-data-generation.md#model-outputs): generate synthetic model outputs from one of the inputs.
 
 #### Topic-Tree Data Generation For Content Breadth
 
@@ -85,11 +87,11 @@ You can use automatic topic generation, or manually add topics to your topic tre
 
 <figure><img src="../.gitbook/assets/Screenshot 2025-01-05 at 12.06.43 PM.png" alt="" width="302"><figcaption><p>Example Topic Tree</p></figcaption></figure>
 
-#### Model Outputs
+#### Model Inputs
 
 Once you have a topic, you can generate model inputs:
 
-<figure><img src="../.gitbook/assets/Screenshot 2025-07-16 at 10.54.50 AM.png" alt="" width="375"><figcaption><p>Generated model inputs</p></figcaption></figure>
+<figure><img src="../.gitbook/assets/Screenshot 2025-07-16 at 10.54.50 AM.png" alt="" width="375"><figcaption><p>Generated model inputs under a topic</p></figcaption></figure>
 
 #### Model Outputs
 
@@ -97,7 +99,7 @@ When you have generated all of the inputs you want, click "Save All Model Output
 
 <figure><img src="../.gitbook/assets/Screenshot 2025-07-16 at 10.56.16 AM.png" alt="" width="375"><figcaption></figcaption></figure>
 
-#### Templates and Custom Prompts
+### Automatic Templates and Custom Prompting
 
 When you select a goal, we'll select the corresponding prompt template. These are built into Kiln and help guide data generation for a variety of tasks.
 
