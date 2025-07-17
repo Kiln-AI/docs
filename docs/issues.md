@@ -10,7 +10,7 @@ Software teams have tools like Github Issues and JIRA for tracking issues. What 
 Kiln Issues are an AI-native issue tracker for AI teams. It doesn’t just collect bug reports, but keeps the structured data needed to reproduce, evaluate and fix AI system issues.
 
 {% hint style="info" %}
-**Under Development**: Kiln Issues are a new feature. Expect lots of improvements over the comming months!
+**Under Development**: Kiln Issues are a new feature. Expect lots of improvements over the coming months!
 {% endhint %}
 
 ### How are Kiln Issues Different than Github Issues, JIRA, etc?
@@ -19,11 +19,11 @@ Kiln issues are a way for teams to track known problems, just like Github Issues
 
 * **AI Data Native**: Kiln Issues include the input/output data, model, provider, hyperparams, and other data you need to diagnose and reproduce an issue
 * **Evals Integration**: Issues include an eval can measure if the issue is fixed or not
-* **Synthetic Data Integration:** Kiln Issues can use data samples to generate syntheic data to reproduce the issue
+* **Synthetic Data Integration:** Kiln Issues can use data samples to generate synthetic data to reproduce the issue
 * **Prompts:** Issues include prompts, not just freeform text discussions.
-* **Longer lived:** Software bugs are ususally closed once fixed. AI issues keep measuring over time, watcing for regressions.
+* **Longer lived:** Software bugs are usually closed once fixed. AI issues keep measuring over time, watching for regressions.
 
-### Creating An Issues
+### Creating An Issue
 
 To create an issue, select the Issue template when creating an Eval on the Eval tab. Include the following data:
 
@@ -35,7 +35,7 @@ To create an issue, select the Issue template when creating an Eval on the Eval 
 
 ### Evaluating An Issue
 
-Issues are evals in the Kiln UI, but they go beyond a basic eval. Issue Evals have custom synthetic data gen templates, understanding that we want to generate inputs that repoduces a specific issue. It will help you easily create data samples from a single description (and optional examples).
+Issues are evals in the Kiln UI, but they go beyond a basic eval. Issue Evals have custom synthetic data gen templates, understanding that we want to generate inputs that reproduce a specific issue. It will help you easily create data samples from a single description (and optional examples).
 
 Once you're done setting up your Issue Eval you can use it to:
 
