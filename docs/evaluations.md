@@ -367,7 +367,34 @@ These results are easy to interpret compared to the judge comparisons. Each scor
 
 Congrats! You've used systematic evals to find an optimal method for running your task!
 
-### Iterate and Expand
+### Comparing Run Methods Over Many Evals
+
+In the last step, you found the ideal run method for a specifc eval. However, over time your team will generate many evals.&#x20;
+
+When you want to try a new model or prompt, you'll want to make sure the new method is better, not just on a single eval, but across all prior evals.
+
+Kiln's compare view makes it easy to compare run methods across many evals. It also lets you compare the cost difference of each method:
+
+<figure><img src="../.gitbook/assets/Screenshot 2025-07-17 at 1.39.06 PM (1).png" alt="" width="375"><figcaption><p>Comparing several run methods across all evals</p></figcaption></figure>
+
+Click "Compare" in the evals tab to launch this feature:
+
+<figure><img src="../.gitbook/assets/Screenshot 2025-07-17 at 2.16.51 PM.png" alt="" width="375"><figcaption></figcaption></figure>
+
+### Philosophy: AI Product Evals work Best with Many Small Evals <a href="#setup-team-evals" id="setup-team-evals"></a>
+
+At Kiln we believe if creating an eval takes less than 10 minutes, your team will create them when they spot issues or fix bugs.
+
+When evals become a habit instead of a chore, your AI system becomes dramatically more robust and your team moves faster.
+
+Read our ~~manifesto~~ [guide on how to setup evals for your team](https://getkiln.ai/blog/you_need_many_small_evals_for_ai_products#setup-team-evals). It covers:
+
+* Many Small Evals Beat One Big Eval, Every Time
+* The Benefits of Many Small Evals
+* Evals vs Unit Testing
+* 3 Steps to Set Up Your Team for Evals and Iteration
+
+### Next Steps: Iterate and Expand
 
 Congrats, you've found an optimal method of running your task!
 
@@ -385,9 +412,9 @@ Your understanding of your model/product usually gets better over time. Consider
 
 #### Add New Evals
 
-You can always add additional evals to your Kiln project/task. Try some of our built-in templates like bias, toxicity, factual correctness, or jailbreak susceptibility — or create your own from scratch!
+You can always add additional evals to your Kiln project/task. Try some of our built-in templates like [issue evals](issues.md), bias, toxicity, factual correctness, or jailbreak susceptibility — or create your own from scratch!
 
-Most commonly, you'll collect a list of "Issue" evals over time. This set of evals helps you work with confidence that new changes aren't regressing old issues.
+Most commonly, you'll collect a list of ["Issue" evals](issues.md) over time. This set of evals helps you work with confidence that new changes aren't regressing old issues.
 
 Read out blog [Many Small Evals Beat One Big Eval, Every Time](https://getkiln.ai/blog/you_need_many_small_evals_for_ai_products) for a quality strategy that scales as your product and team grow.
 
