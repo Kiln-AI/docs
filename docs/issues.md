@@ -15,9 +15,11 @@ Kiln Issues are an AI-native issue tracker for AI teams. It doesn’t just colle
 
 ### How are Kiln Issues Different than Github Issues, JIRA, etc?
 
-Kiln issues are a way for teams to track known problems, just like Github Issues, JIRA, and countless other bug trackers. Here's what makes Kiln Issues different:
+Kiln issues are a way for teams to track known problems, just like Github Issues, JIRA, and countless other bug trackers.&#x20;
 
-* **AI Data Native**: Kiln Issues include the input/output data, model, provider, hyperparams, and other data you need to diagnose and reproduce an issue
+Here's what makes Kiln Issues different than standard software bug trackers:
+
+* **AI-Data Native**: Kiln Issues include the input/output data, model, provider, hyperparams, and other data you need to diagnose and reproduce an issue
 * **Evals Integration**: Issues include an eval can measure if the issue is fixed or not
 * **Synthetic Data Integration:** Kiln Issues can use data samples to generate synthetic data to reproduce the issue
 * **Prompts:** Issues include prompts, not just freeform text discussions.
@@ -58,4 +60,3 @@ Read our ~~manifesto~~ [guide on how to setup evals for your team](https://getki
 * The Benefits of Many Small Evals
 * Evals vs Unit Testing
 * 3 Steps to Set Up Your Team for Evals and Iteration
-
