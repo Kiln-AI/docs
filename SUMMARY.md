@@ -9,6 +9,7 @@
 * [Synthetic Data Generation](docs/synthetic-data-generation.md)
 * [Fine Tuning Guide](docs/fine-tuning-guide.md)
 * [Evaluations](docs/evaluations.md)
+* [Issues](docs/issues.md)
 * [Guide: Train a Reasoning Model](docs/guide-train-a-reasoning-model.md)
 * [Reasoning & Chain of Thought](docs/reasoning-and-chain-of-thought.md)
 * [Prompts](docs/prompts.md)
