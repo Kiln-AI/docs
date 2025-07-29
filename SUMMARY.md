@@ -6,6 +6,7 @@
 
 * [Quickstart](docs/quickstart.md)
 * [Models and AI Providers](docs/models-and-ai-providers.md)
+* [End to End Project Demo](docs/end-to-end-project-demo.md)
 * [Synthetic Data Generation](docs/synthetic-data-generation.md)
 * [Fine Tuning Guide](docs/fine-tuning-guide.md)
 * [Evaluations](docs/evaluations.md)

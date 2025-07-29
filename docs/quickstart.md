@@ -1,6 +1,6 @@
 ---
-icon: person-running-fast
 description: Download our app for MacOS, Windows or Linux
+icon: person-running-fast
 ---
 
 # Quickstart
@@ -36,19 +36,27 @@ If you have any issues installing on Windows, check the solutions below:
 
 </details>
 
-### Step 3: Launch the App
+### Step 3: Launch the App & Try Sample Task
 
 Launch the app and get started!
 
-The app will guide you through creating a project, creating a task, and connecting to AI providers like Ollama, OpenAI, OpenRouter and more.
+The app will guide you through creating a project, creating a task, and connecting to AI providers like Ollama and OpenAI.&#x20;
 
 Try our sample task for a quick exploration, or define your own custom task for your project.
 
-Check out some more of our guides to learn about the capabilities of Kiln:
+### Next: Video Guides and Docs
 
-* [Reviewing and Rating](reviewing-and-rating.md)
+Our end to end demo walks you through all the major features of Kiln in a 20 minute video:
+
+<p align="center"><a href="end-to-end-project-demo.md"><img src="../.gitbook/assets/Screenshot 2025-07-28 at 11.26.08 AM.png" alt="Download button"></a></p>
+
+Our documents explain each feature, and how to use it:
+
+* [Evaluations](evaluations.md)
 * [Synthetic Data Generation](synthetic-data-generation.md)
 * [Fine Tuning Guide](fine-tuning-guide.md)
-* [Evaluations](evaluations.md)
 * [Collaboration](collaboration.md)
+* [Reviewing and Rating](reviewing-and-rating.md)
 * [Organizing Datasets](organizing-datasets.md)
+* See all docs in the navigation bar
+
