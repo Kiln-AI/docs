@@ -1,11 +1,13 @@
 ---
-description: Walk through creating tasks, evals, fine-tuning, synthetic data gen, and more!
+description: >-
+  Video walkthrough of creating tasks, evals, fine-tuning, synthetic data gen,
+  and more!
 icon: youtube
 ---
 
 # End to End Project Demo
 
-This demo video walks you through  every step of creating a project in Kiln. It's a great place to start if you prefer video walk throughs.
+The demo video below walks you through  every step of creating a project in Kiln. It's a great place to start if you prefer video walk throughs.
 
 {% hint style="info" %}
 See the relevant docs pages for more comprehensive documentation and demo videos of each feature. This video is a quick high level walkthrough.
