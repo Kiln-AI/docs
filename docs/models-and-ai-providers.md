@@ -1,17 +1,21 @@
 ---
-description: GPT, Llama, and Qwen - oh my!
+description: >-
+  Connect to Ollama, OpenAI, OpenRouter, AWS, Azure, Vertex, Together,
+  Fireworks, and more
 icon: crystal-ball
 ---
 
 # Models and AI Providers
 
-Kiln can use essentially any LLM model from a number of providers:
-
-* Run locally with Ollama
-* Connect a cloud provider like OpenAI, Groq, OpenRouter, AWS, Azure, Gemini API, Anthropic, Fireworks and much more. You provide your own API keys and we never have access to your dataset.
-* Connect to any OpenAI compatible server, like LiteLLM or vLLM
-
 <figure><img src="../.gitbook/assets/Models (1).png" alt=""><figcaption></figcaption></figure>
+
+## Skip the Guesswork: Kiln Suggests Models
+
+Picking a model for a specific task can be hard. Each has different capabilities such as supported JSON modes, reasoning support, API features (logprobs, temperature) and censorship levels. Some work great for synthetic data and evals, others no so much.
+
+We have written over 2000 test cases testing each popular model, on each AI provider, for each important feature. The tests are updated weekly, and we publish these capabilities in our model library. With this knowledge, the  Kiln app automatically suggests appropriate models and model settings for each task. It will even warn you if you select a model that's unlikely to work. Read more on our blog: [I wrote 2000 LLM test cases so you don't have to](https://getkiln.ai/blog/i_wrote_2000_llm_test_cases_so_you_dont_have_to).
+
+<figure><img src="../.gitbook/assets/beware-2.png" alt="" width="375"><figcaption><p>Kiln's model selector is task aware</p></figcaption></figure>
 
 ## Connecting AI Providers
 
@@ -31,7 +35,7 @@ We currently support the following AI providers:
 * Google Vertex AI
 * Azure OpenAI
 * HuggingFace
-* Any OpenAI compatible API
+* Any OpenAI compatible API, like LiteLLM or vLLM
 
 If you want to add or remove providers after initial setup, open `Settings > AI Providers & Models`.
 
