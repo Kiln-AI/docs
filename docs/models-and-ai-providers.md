@@ -28,6 +28,7 @@ We currently support the following AI providers:
 * OpenAI
 * Groq
 * Fireworks.ai
+* Cerbras
 * Together.ai
 * AWS Bedrock
 * Anthropic
@@ -35,7 +36,8 @@ We currently support the following AI providers:
 * Google Vertex AI
 * Azure OpenAI
 * HuggingFace
-* Any OpenAI compatible API, like LiteLLM or vLLM
+* SiliconFlow.cn (for users in China)
+* Any OpenAI compatible API like LiteLLM or vLLM
 
 If you want to add or remove providers after initial setup, open `Settings > AI Providers & Models`.
 
