@@ -64,7 +64,9 @@ Included models are models that have been tested to work with Kiln's various fea
 
 To use these models simply connect any AI provider from the Settings page. Once connected, you can select these model from the model dropdown on the Run screen. The dropdown will warn if you attempt to use a model that doesn't support a feature (like structured output or synthetic data generation).
 
-View all available models and our [model library](https://getkiln.ai/model_library) or the models tab in app. We update this list as new models come out.
+View all available models in our [model library on our webpage](https://getkiln.ai/model_library) or the models tab in app. We update this list as new models come out.
+
+<figure><img src="../.gitbook/assets/model_library.png" alt="Kiln Model Library" width="350"><figcaption><p>The Kiln Model Library</p></figcaption></figure>
 
 You can request we add models on our [Discord](https://getkiln.ai/discord).
 
