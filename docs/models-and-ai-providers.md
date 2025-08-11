@@ -37,7 +37,7 @@ We currently support the following AI providers:
 * Azure OpenAI
 * HuggingFace
 * SiliconFlow.cn (for users in China)
-* Any OpenAI compatible API like LiteLLM or vLLM
+* Any OpenAI compatible API like LiteLLM, vLLM, LMStudio, llama.cpp server, and many more
 
 If you want to add or remove providers after initial setup, open `Settings > AI Providers & Models`.
 
