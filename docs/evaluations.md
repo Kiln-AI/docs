@@ -21,7 +21,7 @@ Kiln includes a complete platform for ensuring your tasks/models are of the high
 * Optional: Python Library Usage
 
 {% hint style="success" %}
-New to evals? We suggest reading our blog post [Many Small Evals Beat One Big Eval](https://getkiln.ai/blog/you_need_many_small_evals_for_ai_products), which walks you through how to setup eval tooling, and how to create an eval culture on your team.
+New to evals? We suggest reading our blog post [Many Small Evals Beat One Big Eval](https://kiln.tech/blog/you_need_many_small_evals_for_ai_products), which walks you through how to setup eval tooling, and how to create an eval culture on your team.
 {% endhint %}
 
 ### Video Guide
@@ -387,7 +387,7 @@ At Kiln we believe if creating an eval takes less than 10 minutes, your team wil
 
 When evals become a habit instead of a chore, your AI system becomes dramatically more robust and your team moves faster.
 
-Read our ~~manifesto~~ [guide on how to setup evals for your team](https://getkiln.ai/blog/you_need_many_small_evals_for_ai_products#setup-team-evals). It covers:
+Read our ~~manifesto~~ [guide on how to setup evals for your team](https://kiln.tech/blog/you_need_many_small_evals_for_ai_products#setup-team-evals). It covers:
 
 * Many Small Evals Beat One Big Eval, Every Time
 * The Benefits of Many Small Evals
@@ -416,7 +416,7 @@ You can always add additional evals to your Kiln project/task. Try some of our b
 
 Most commonly, you'll collect a list of ["Issue" evals](issues.md) over time. This set of evals helps you work with confidence that new changes aren't regressing old issues.
 
-Read out blog [Many Small Evals Beat One Big Eval, Every Time](https://getkiln.ai/blog/you_need_many_small_evals_for_ai_products) for a quality strategy that scales as your product and team grow.
+Read out blog [Many Small Evals Beat One Big Eval, Every Time](https://kiln.tech/blog/you_need_many_small_evals_for_ai_products) for a quality strategy that scales as your product and team grow.
 
 ### Optional: Python Library Usage
 

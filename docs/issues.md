@@ -54,7 +54,7 @@ At Kiln we believe if creating an eval takes less than 10 minutes, your team wil
 
 When evals become a habit instead of a chore, your AI system becomes dramatically more robust and your team moves faster.
 
-Read our ~~manifesto~~ [guide on how to setup evals for your team](https://getkiln.ai/blog/you_need_many_small_evals_for_ai_products#setup-team-evals). It covers:
+Read our ~~manifesto~~ [guide on how to setup evals for your team](https://kiln.tech/blog/you_need_many_small_evals_for_ai_products#setup-team-evals). It covers:
 
 * Many Small Evals Beat One Big Eval, Every Time
 * The Benefits of Many Small Evals
