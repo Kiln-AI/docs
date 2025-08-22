@@ -11,19 +11,33 @@ icon: person-running-fast
 * 🧑‍💻 **Intuitive UI**: Our UI is designed for anyone, from AI novices to experts.
 * 🚀 **One Click Setup**: No docker, terminal or dependencies required.
 
-### Step 1: Download App
+### Step 1: Download and Install
 
-Download the [latest release](https://github.com/Kiln-AI/Kiln/releases/latest). Be sure to download the correct version (Windows, Linux, Mac for Apple Silicon, Mac for Intel).
+MacOS and Windows: download the [latest release](https://github.com/Kiln-AI/Kiln/releases/latest). Be sure to download the correct version (Windows, Mac for Apple Silicon, Mac for Intel).
 
 [![Download button](https://github.com/user-attachments/assets/a5d51b8b-b30a-4a16-a902-ab6ef1d58dc0)](https://github.com/Kiln-AI/Kiln/releases/latest)
 
-### Step 2: Install the App
-
-After downloading, install the app:
+Next, install the app:
 
 * macOS: open the .dmg file, and drag the app to your Applications directory
 * Windows: double click the installer, and follow the guide to install
-* Linux: save the app and launch it from terminal
+* Linux: we suggest the installation command below.
+
+<details>
+
+<summary>Linux Installation Command</summary>
+
+Run the following command in terminal to install Kiln:
+
+{% code overflow="wrap" %}
+```bash
+curl -fsSL https://raw.githubusercontent.com/Kiln-AI/Kiln/refs/heads/main/app/desktop/linux_installer.sh | bash
+```
+{% endcode %}
+
+You can download and review the install script before running. It will download the latest release from Github releases, install it to your path, and create an entry in your app launcher with a Kiln icon.
+
+</details>
 
 <details>
 
@@ -36,7 +50,7 @@ If you have any issues installing on Windows, check the solutions below:
 
 </details>
 
-### Step 3: Launch the App & Try Sample Task
+### Step 2: Launch the App & Try Sample Task
 
 Launch the app and get started!
 
