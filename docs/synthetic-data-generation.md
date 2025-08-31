@@ -5,17 +5,7 @@ icon: robot
 
 # Synthetic Data Generation
 
-Kiln offers a powerful interactive synthetic data generation tool.
-
-### Video Walkthrough
-
-{% hint style="info" %}
-Kiln's UI has been improved since this video was recorded. You may notice small differences in the UI, but the overall flows are the same.
-{% endhint %}
-
-{% embed url="https://vimeo.com/1088940292" %}
-Synthetic Data Generation Walkthrough
-{% endembed %}
+Anyone can create thousands of synthetic data samples in just a few minutes using our interactive UI.
 
 ### Use Cases
 
@@ -26,6 +16,16 @@ Synthetic data is helpful for many reasons:
 * **Built-in Templates:** Using our built in data-gen templates like 'Jailbreaking' or 'Bias' to check your system for common issues (curated evals)
 * **Addressing Bugs / Issues:** generate targeted data to reproduce a bug/issue, which can be used for training a fix, evaluating a fix, and backtesting
 * **Prompting:** Generate examples to be used for few-shot or multi-shot prompting
+
+### Video Walkthrough
+
+{% hint style="info" %}
+Kiln's UI has been improved since this video was recorded. You may notice small differences in the UI, but the overall flows are the same.
+{% endhint %}
+
+{% embed url="https://vimeo.com/1088940292" %}
+Synthetic Data Generation Walkthrough
+{% endembed %}
 
 ### How It Works
 
