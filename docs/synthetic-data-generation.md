@@ -9,8 +9,8 @@ Kiln offers a powerful interactive synthetic data generation tool.
 
 ### Video Walkthrough
 
-{% hint style="success" %}
-The UI has been improved since this video was recorded
+{% hint style="info" %}
+Kiln's UI has been improved since this video was recorded. You may notice small differences in the UI, but the overall flows are the same.
 {% endhint %}
 
 {% embed url="https://vimeo.com/1088940292" %}
