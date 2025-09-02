@@ -73,7 +73,7 @@ Kiln supports over 60 fine-tuneable models using three different service based t
 * Together AI: Llama 3.1 8b/70b, Llama 3.2 1b/3b, Qwen2.5 14b/72b
 
 {% hint style="success" %}
-Connect additional providers in settings to see more options on the "Creaet Fine Tune" screen.
+To see more options on the "Create Fine Tune" screen, connect API keys for the providers listed above in Settings.
 {% endhint %}
 
 For this demo we choose 9 models to experiment with.
