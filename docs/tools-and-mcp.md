@@ -39,7 +39,7 @@ Kiln has several popular MCP servers pre-configured. You can get started with th
 
 You may need to install developer tools like Node.js or Deno before running these MCP servers. In each case, there’s a header at the top with a link to the appropriate dependency:
 
-<figure><img src="../.gitbook/assets/Screenshot 2025-09-04 at 1.45.40 PM.png" alt="" width="375"><figcaption></figcaption></figure>
+<figure><img src="../.gitbook/assets/Screenshot 2025-09-04 at 1.45.40 PM.png" alt="" width="375"><figcaption><p>Example dependency warning</p></figcaption></figure>
 
 ### Adding Custom MCP Servers
 
