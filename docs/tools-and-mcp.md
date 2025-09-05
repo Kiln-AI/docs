@@ -17,9 +17,9 @@ First, connect some tools to your Kiln project. Tools are connected at the proje
 
 To connect a new set of tools, open "Settings" > "Manage Tools" > "Add Tools".
 
-### Math Tools: the fastest way to try tools
+### Quickstart: Math Tools
 
-Kiln has a few simple built-in math tools, which enable you to quickly try tool calling without setting up a MCP server. These can be enabled in one click, and will add 4 simple tools to your project: add, subtract, multiply and divide.
+If you want to try tools as quickly as possible, enable the "Math Tools" from the "Add Tools" screen. These built into Kiln and don't require setting up a MCP server. They can be enabled in one click, and will add 4 simple math tools to your project: add, subtract, multiply and divide.
 
 ### Powerful Example Tools: Web Search, Python Interpreter, and more
 
