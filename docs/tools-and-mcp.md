@@ -8,18 +8,18 @@ icon: hammer
 Kiln allows connecting to tools via [Model Context Protocol (MCP)](https://modelcontextprotocol.io). These tools can give your Kiln tasks powerful new capabilities.
 
 {% hint style="warning" %}
-Tool Support is in beta, and will be release soon! To access it today, download a nightly build from the tools branch Github.
+Tool Support is in beta, and will be released soon! To access it today, download a nightly build from the tools branch Github.
 {% endhint %}
 
 ## Connecting Tools
 
 First, connect some tools to your Kiln project. Tools are connected at the project level, and become available to all tasks in the project.
 
-To connect a new set of tools, open “Settings” > “Manage Tools” > “Add Tools”.&#x20;
+To connect a new set of tools, open "Settings" > "Manage Tools" > "Add Tools".
 
 ### Math Tools: the fastest way to try tools
 
-Kiln has a few simple built-in math tools, which enable you to quickly try tool calling without setting up a MCP server. These can be enabled in one click, and add 4 simple tools to your project: add, subtract, multiply and divide.
+Kiln has a few simple built-in math tools, which enable you to quickly try tool calling without setting up a MCP server. These can be enabled in one click, and will add 4 simple tools to your project: add, subtract, multiply and divide.
 
 ### Powerful Example Tools: Web Search, Python Interpreter, and more
 
@@ -48,16 +48,16 @@ You can connect any MCP server to Kiln! MCP servers come in two flavours:
 * Local servers: run locally on your computer, and are defined by a terminal command and arguments.
 * Remote servers: run on a server and you connect to them over the web/http.
 
-You can discover new MCP servers to use on registries like [MCP Pulse (external)](https://www.pulsemcp.com/servers).
+You can discover new MCP servers to use in registries like [MCP Pulse (external)](https://www.pulsemcp.com/servers).
 
 #### Connecting Local MCP Servers
 
 Once you’ve found a local MCP server you want to connect, click “Settings” > “Manage Tools” > “Add Tools” > “Local MCP” > “Connect”, and provide the appropriate information in the setup:
 
 * Name and Description: fields for you and your team to identify the server
-* Command: The command to run. Just the actual command not including arguments. For example npx, uvx, deno, or similar. It should not include spaces.
-* Arguments: any arguments to pass to the command, for example the -y firecrawl-mcp portion of the command npx -y firecrawl-mcp
-* Environment variables: a list of environment variables. Be sure to specify which are secrets (like API keys), so that these aren’t synced into your Kiln project on Git (more info).
+* Command: The command to run. Just the actual command, not including arguments. For example: `npx`, `uvx`, `deno`, or similar. It should not include spaces.
+* Arguments: any arguments to pass to the command, for example the `-y firecrawl-mcp` portion of the command `npx -y firecrawl-mcp`
+* Environment variables: a list of environment variables. Be sure to specify which are secrets (like API keys), so that these aren't synced into your Kiln project on Git.
 
 {% hint style="info" %}
 Be sure the server runs in [stdio mode](https://modelcontextprotocol.io/specification/2025-06-18/basic/transports#stdio). This is normally the default, but mode is sometimes is exposed as an argument.
@@ -69,9 +69,9 @@ Be sure the server runs in [stdio mode](https://modelcontextprotocol.io/specific
 
 Kiln will attempt to use your standard PATH to find the appropriate commands. If the command works in a fresh terminal window, they should work in Kiln. If you’re having issues:
 
-1. Ensure the same command works in a new terminal window. If not debug that installing any missing dependencies, or adding the required commands to your PATH.
-2. Ensure the server is is running as [stdio mode](https://modelcontextprotocol.io/specification/2025-06-18/basic/transports#stdio), following its documentation.
-3. If you need to specify a custom PATH variable for Kiln, you can set the custom\_mcp\_path variable in the YAML file \~/.kiln\_ai/settings.yaml to set PATH for all Kiln project, or set PATH manually as an env variable in a specific local MCP server config.
+1. Ensure the same command works in a new terminal window. If not, debug that by installing any missing dependencies, or adding the required commands to your PATH.
+2. Ensure the server is running in [stdio mode](https://modelcontextprotocol.io/specification/2025-06-18/basic/transports#stdio), following its documentation.
+3. If you need to specify a custom PATH variable for Kiln, you can set the custom\_mcp\_path variable in the YAML file \~/.kiln\_ai/settings.yaml to set PATH for all Kiln projects, or set PATH manually as an environment variable in a specific local MCP server config.
 
 </details>
 
@@ -81,7 +81,7 @@ Once you’ve found a remote MCP server you want to connect, click “Settings�
 
 * Name and Description: fields for you and your team to identify the server
 * Server URL: The URL to the remote MCP server, for example https://api.githubcopilot.com/mcp/
-* Headers: a list of headers to pass when calling the remote MCP server. Be sure to specify which are secrets (like API keys), so that these aren’t synced into your Kiln project on Git (more info).
+* Headers: a list of headers to pass when calling the remote MCP server. Be sure to specify which are secrets (like API keys), so that these aren't synced into your Kiln project on Git.
 
 ## Using Tools
 
@@ -95,9 +95,9 @@ Once you’ve connected tools, you can use them in any of your tasks. On the “
 The model may or may not choose to use the tools you provide. If you find the model is not using tools when you feel it should, update your prompt to more explicitly specify when tools should/must be used.
 {% endhint %}
 
-Tool calls happen behind the scenes, between the user message and the models final output.&#x20;
+Tool calls happen behind the scenes, between the user message and the model's final output.
 
-If you want to view which tools were called, their arguments, and their results — expand the “Show Raw Data” view on the "Run” screen or when viewing a dataset entry. The full trace including tool calls, is available in the “trace” field.
+If you want to view which tools were called, their arguments, and their results — expand the "Show Raw Data" view on the "Run" screen or when viewing a dataset entry. The full trace, including tool calls, is available in the "trace" field.
 
 <figure><img src="../.gitbook/assets/Screenshot 2025-09-05 at 4.03.10 PM.png" alt="" width="375"><figcaption><p>Example trace showing a tool call to the multiply tool</p></figcaption></figure>
 
@@ -115,7 +115,7 @@ When you select a model in Kiln, you’ll see a warning if tools are not support
 
 ### Don’t Add Too Many Tools
 
-When you add tools to task run, the model processes their names and descriptions as part of its context. Adding a few relevant tools can be a great way to improve task performance, but if you add dozens or hundreds you’ll both fill your context and dilute the model’s attention. The right number will depend on your task and the base model, but be selective when adding tools.
+When you add tools to a task run, the model processes their names and descriptions as part of its context. Adding a few relevant tools can be a great way to improve task performance, but if you add dozens or hundreds you’ll both fill your context and dilute the model’s attention. The right number will depend on your task and the base model, but be selective when adding tools.
 
 ### Synthetic Data & Fine-Tuning with Tools
 
@@ -125,6 +125,6 @@ At this time, Kiln doesn’t support tool calling for synthetic data and fine-tu
 
 Often MCP servers require secrets, like API keys. However, Kiln projects are designed to be [shared across teams with Git](collaboration.md) and you don’t want to commit secrets in a Git repo.&#x20;
 
-To address this, Kiln allows you to mark headers and environment variables as secrets. Secrets are never stored into the Kiln project files, which are designed to be shared/synced. If a team member adds a tool which required secrets, anyone who syncs it will have to re-enter the secrets in settings before using the tool. Non-secret headers and environment variables will by synced automatically.
+To address this, Kiln allows you to mark headers and environment variables as secrets. Secrets are never stored in the Kiln project files, which are designed to be shared/synced. If a team member adds a tool which requires secrets, anyone who syncs it will have to re-enter the secrets in settings before using the tool. Non-secret headers and environment variables will be synced automatically.
 
 <figure><img src="../.gitbook/assets/Screenshot 2025-09-05 at 3.42.28 PM.png" alt="" width="375"><figcaption><p>Identify secrets on tool setup</p></figcaption></figure>

@@ -17,10 +17,10 @@ Kiln Issues are an AI-native issue tracker for AI teams. It doesn’t just colle
 
 Kiln issues are a way for teams to track known problems, just like Github Issues, JIRA, and countless other bug trackers.&#x20;
 
-Here's what makes Kiln Issues different than standard software bug trackers:
+Here's what makes Kiln Issues different from standard software bug trackers:
 
-* **AI-Data Native**: Kiln Issues include the input/output data, model, provider, hyperparams, and other data you need to diagnose and reproduce an issue
-* **Evals Integration**: Issues include an eval can measure if the issue is fixed or not
+* **AI-Data Native**: Kiln Issues include the input/output data, model, provider, hyperparameters, and other data you need to diagnose and reproduce an issue
+* **Evals Integration**: Issues include an eval that can measure if the issue is fixed or not
 * **Synthetic Data Integration:** Kiln Issues can use data samples to generate synthetic data to reproduce the issue
 * **Prompts:** Issues include prompts, not just freeform text discussions.
 * **Longer lived:** Software bugs are usually closed once fixed. AI issues keep measuring over time, watching for regressions.
@@ -39,10 +39,10 @@ To create an issue, select the Issue template when creating an Eval on the Eval 
 
 Issues are evals in the Kiln UI, but they go beyond a basic eval. Issue Evals have custom synthetic data gen templates, understanding that we want to generate inputs that reproduce a specific issue. It will help you easily create data samples from a single description (and optional examples).
 
-Once you're done setting up your Issue Eval you can use it to:
+Once you're done setting up your Issue Eval, you can use it to:
 
 * Ensuring the issue is fixed: use the Issue Eval to confirm your fix (prompt change, model change, fine-tune) actually resolves the issue
-* Ensuring the issue never regresses: keep running prior issue evals to ensure you don't accidentally regress the issue.
+* Ensuring the issue never regresses: keep running prior issue evals to ensure you don't accidentally regress the issue
 
 Here's an example of the eval compare screen, ensuring several issues don't regress or are improved as they iterate/improve the AI system:
 
