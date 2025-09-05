@@ -57,7 +57,7 @@ Once you’ve found a local MCP server you want to connect, click “Settings”
 * Name and Description: fields for you and your team to identify the server
 * Command: The command to run. Just the actual command, not including arguments. For example: `npx`, `uvx`, `deno`, or similar. It should not include spaces.
 * Arguments: any arguments to pass to the command, for example the `-y firecrawl-mcp` portion of the command `npx -y firecrawl-mcp`
-* Environment variables: a list of environment variables. Be sure to specify which are secrets (like API keys), so that these aren't synced into your Kiln project on Git.
+* Environment variables: a list of environment variables. Be sure to specify which are secrets (like API keys), so that these aren't synced into your Kiln project on Git ([more info](tools-and-mcp.md#secret-management)).
 
 {% hint style="info" %}
 Be sure the server runs in [stdio mode](https://modelcontextprotocol.io/specification/2025-06-18/basic/transports#stdio). This is normally the default, but mode is sometimes is exposed as an argument.
@@ -81,7 +81,7 @@ Once you’ve found a remote MCP server you want to connect, click “Settings�
 
 * Name and Description: fields for you and your team to identify the server
 * Server URL: The URL to the remote MCP server, for example https://api.githubcopilot.com/mcp/
-* Headers: a list of headers to pass when calling the remote MCP server. Be sure to specify which are secrets (like API keys), so that these aren't synced into your Kiln project on Git.
+* Headers: a list of headers to pass when calling the remote MCP server. Be sure to specify which are secrets (like API keys), so that these aren't synced into your Kiln project on Git ([more info](tools-and-mcp.md#secret-management)).
 
 ## Using Tools
 
@@ -123,7 +123,7 @@ At this time, Kiln doesn’t support tool calling for synthetic data and fine-tu
 
 ### Secret Management
 
-Often MCP servers require secrets, like API keys. However, Kiln projects are designed to be [shared across teams with Git](collaboration.md) and you don’t want to commit secrets in a Git repo.&#x20;
+Often MCP servers require secrets, like API keys. However, Kiln projects are designed to be [shared across teams with Git](collaboration.md) and you don’t want to commit secrets in a Git repo.
 
 To address this, Kiln allows you to mark headers and environment variables as secrets. Secrets are never stored in the Kiln project files, which are designed to be shared/synced. If a team member adds a tool which requires secrets, anyone who syncs it will have to re-enter the secrets in settings before using the tool. Non-secret headers and environment variables will be synced automatically.
 
