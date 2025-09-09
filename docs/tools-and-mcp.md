@@ -7,9 +7,9 @@ icon: hammer
 
 Kiln allows connecting to tools via [Model Context Protocol (MCP)](https://modelcontextprotocol.io). These tools can give your Kiln tasks powerful new capabilities.
 
-{% hint style="warning" %}
-Tool Support is in beta, and will be released soon! To access it today, download a tools [beta build](https://github.com/Kiln-AI/Kiln/actions/runs/17504215026).
-{% endhint %}
+## Video Walkthrough
+
+{% embed url="https://www.youtube.com/watch?v=qh0FIrLMrII" %}
 
 ## Connecting Tools
 
