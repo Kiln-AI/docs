@@ -117,6 +117,10 @@ When you select a model in Kiln, you’ll see a warning if tools are not support
 
 When you add tools to a task run, the model processes their names and descriptions as part of its context. Adding a few relevant tools can be a great way to improve task performance, but if you add dozens or hundreds you’ll both fill your context and dilute the model’s attention. The right number will depend on your task and the base model, but be selective when adding tools.
 
+See our [video guide at 7m23s](https://youtu.be/qh0FIrLMrII?si=CHiJ1CCen_2MA5A3\&t=443) for a discussion of these concepts:
+
+<figure><img src="../.gitbook/assets/Context-2.png" alt=""><figcaption></figcaption></figure>
+
 ### Synthetic Data & Fine-Tuning with Tools
 
 At this time, Kiln doesn’t support tool calling for synthetic data and fine-tuning. Rest assured, we’re working on adding it!
