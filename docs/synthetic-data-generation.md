@@ -13,7 +13,7 @@ Synthetic data is helpful for many reasons:
 
 * **Evals:** Generate data for custom evals of your task performance
 * **Fine-tuning:** Generate fine-tuning datasets
-* **Built-in Templates:** Using our built in data-gen templates like 'Jailbreaking' or 'Bias' to check your system for common issues (curated evals)
+* **Built-in Templates:** Use our built-in data-gen templates like 'Jailbreaking' or 'Bias' to check your system for common issues (curated evals)
 * **Addressing Bugs / Issues:** generate targeted data to reproduce a bug/issue, which can be used for training a fix, evaluating a fix, and backtesting
 * **Prompting:** Generate examples to be used for few-shot or multi-shot prompting
 
@@ -46,7 +46,7 @@ First select a goal for your dataset generation: Evals for Fine-Tuning. This is 
 
 <figure><img src="../.gitbook/assets/Screenshot 2025-07-16 at 10.15.49 AM.png" alt="" width="375"><figcaption><p>Select a Goal</p></figcaption></figure>
 
-Selecting the goal will setup two:
+Selecting the goal will set up two properties:
 
 * **Template:** A Kiln prompt template to guide the data gen. You can edit this template before running data gen.
 * **Tag Assignments:** which dataset tags will be assigned to generated data. This could be a single tag like `fine_tuning_data` or a randomly assigned split like `eval_data: 80%, golden_data: 20%`.
@@ -84,7 +84,7 @@ A common issue with synthetic data generation is that if you ask a model to gene
 
 <figure><img src="../.gitbook/assets/Screenshot 2025-01-05 at 12.06.43 PM.png" alt="" width="302"><figcaption><p>Example Topic Tree for a "Newspaper Headline" Task</p></figcaption></figure>
 
-Kiln can use AI models to generate a topic tree for you from your task's prompt. If uses the prompt to ensure the topics are relevant to your goal. See the example above, the model knew it was building topics for newspaper headlines and generated appropriate topics. To generate topics, click "Add Topics" or "Add Topics":&#x20;
+Kiln can use AI models to generate a topic tree for you from your task's prompt. It uses the prompt to ensure the topics are relevant to your goal. See the example above, the model knew it was building topics for newspaper headlines and generated appropriate topics. To generate topics, click "Add Topics":&#x20;
 
 <figure><img src="../.gitbook/assets/Screenshot 2025-09-11 at 1.45.58 PM.png" alt="" width="375"><figcaption><p>Generate Topics Dialog</p></figcaption></figure>
 
@@ -94,11 +94,11 @@ You can nest sub-topics under any topic, forming the tree. Adding layers allows 
 
 You can manually add topics instead of using synthetic topic generation. Select the "or manually add topics" option at the bottom of the "Generate Topics" dialog.
 
-Topics are strongly recommended, but are optional. You skipt topics can add model inputs without topics by clicking "Generate Model Inputs".
+Topics are strongly recommended, but are optional. You can skip topics and add model inputs without topics by clicking "Generate Model Inputs".
 
 #### Generate Model Inputs
 
-Model inputs are the data passed into your task. When normally running your task, these would likley come from a human. However in synthetic data generation we us AI models to generate them.
+Model inputs are the data passed into your task. When normally running your task, these would likely come from a human. However, in synthetic data generation we use AI models to generate them.
 
 <figure><img src="../.gitbook/assets/Screenshot 2025-07-16 at 10.54.50 AM.png" alt="" width="375"><figcaption><p>Generated model inputs for the "Joke Generator" task</p></figcaption></figure>
 
@@ -116,7 +116,7 @@ Once you have generated all of the inputs you want, click "Save All Model Output
 
 Use the Kiln synthetic data UI to review your data. Once you're happy with the data, save it into your dataset for use in evals and fine-tuning. This is currently automatic, as soon as you generate model outputs.
 
-The data will automatically be tagged with appriopiate tags, based on the goal you selected:
+The data will automatically be tagged with appropriate tags, based on the goal you selected:
 
 <figure><img src="../.gitbook/assets/Screenshot 2025-09-11 at 1.41.25 PM.png" alt=""><figcaption><p>The tags which will be assigned are shown in the UI</p></figcaption></figure>
 
@@ -137,7 +137,7 @@ When creating synthetic data for an eval there are two additional powerful optio
 
 These templates are a starting point. They may work for you out of the box, or you may want to edit them to get the desired data. You can edit a template before you run data gen to ensure it matches your needs.
 
-Some examples of custom prompts/edit:
+Some examples of custom prompts/edits:
 
 * Generate content for global topics, not only US-centric
 * Generate examples in Spanish
@@ -175,7 +175,7 @@ Follow these steps:
 All synthetic data will be assigned a series of [tags](organizing-datasets.md#using-tags-to-organize-your-dataset):
 
 * The tag `synthetic` (manual and imported runs have their own tags)
-* A unique tag to identify the date session (e.g. `synthetic_session_12345` )
+* A unique tag to identify the data session (e.g. `synthetic_session_12345`)
 * Custom tags. These are setup automatically when you select a goal, but you can edit before generating data:
 
 <figure><img src="../.gitbook/assets/Screenshot 2025-07-16 at 11.13.57 AM.png" alt="" width="375"><figcaption><p>Editing Tag Assignments</p></figcaption></figure>
