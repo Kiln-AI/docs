@@ -69,35 +69,56 @@ If generating content to evaluate how your model responds to inappropriate reque
 
 Kiln synthetic data generation is designed to be interactive! As you work, be critical of the generated data and use the interactive UI to make great quality data. You can delete topics or examples that don't match your goals, add custom topics manually, update prompts to guide content, and iterate until you're happy with the results.
 
-#### 3 Levels of Data Gen: Topics, Inputs, Outputs
+### 4 Stages of Data Gen: Topics, Inputs, Outputs, Saving
 
-Kiln generates synthetic data in 3 stages:
+Kiln generates synthetic data in 4 stages:
 
 * [**Topics**](synthetic-data-generation.md#topic-tree-data-generation-for-content-breadth): generate a tree of topics, which allows for breadth
-* [**Model Inputs**](synthetic-data-generation.md#model-input): generate synthetic model inputs (the user message). Optionally targeting a specific topic. Within each topic, we aim for a range of relevant inputs which are not too similar to each other.
-* [**Model Outputs**](synthetic-data-generation.md#model-outputs): generate synthetic model outputs from one of the inputs.
+* [**Model Inputs**](synthetic-data-generation.md#generate-model-inputs): generate synthetic model inputs (the user message). Optionally targeting a specific topic. Within each topic, we aim for a range of relevant inputs which are not too similar to each other.
+* [**Model Outputs**](synthetic-data-generation.md#generate-model-outputs): generate synthetic model outputs from one of the inputs.
+* [**Save Data**](synthetic-data-generation.md#save-synthetic-data-into-dataset): once you're happy with your synthetic data, save it into your dataset for use in evals and fine-tuning.
 
-#### Topic-Tree Data Generation For Content Breadth
+#### Topic Generation For Content Breadth
 
-A common issue with synthetic data generation is that if you ask a model to generate synthetic data 100 times, you get 100 similar outputs. Kiln topics fixes this by guiding the task to generate a breadth of examples across different topics.
+A common issue with synthetic data generation is that if you ask a model to generate synthetic data 1000 times, you get 1000 very similar outputs. Kiln addresses this by first generating a tree of diverse topics, then generating data targeting on individual topics.
 
-Kiln can generate a topic tree and generate examples for each node. This includes nested topics, which allows you to generate a lot of broad data very quickly.
+<figure><img src="../.gitbook/assets/Screenshot 2025-01-05 at 12.06.43 PM.png" alt="" width="302"><figcaption><p>Example Topic Tree for a "Newspaper Headline" Task</p></figcaption></figure>
 
-You can use automatic topic generation, or manually add topics to your topic tree.
+Kiln can use AI models to generate a topic tree for you from your task's prompt. If uses the prompt to ensure the topics are relevant to your goal. See the example above, the model knew it was building topics for newspaper headlines and generated appropriate topics. To generate topics, click "Add Topics" or "Add Topics":&#x20;
 
-<figure><img src="../.gitbook/assets/Screenshot 2025-01-05 at 12.06.43 PM.png" alt="" width="302"><figcaption><p>Example Topic Tree</p></figcaption></figure>
+<figure><img src="../.gitbook/assets/Screenshot 2025-09-11 at 1.45.58 PM.png" alt="" width="375"><figcaption><p>Generate Topics Dialog</p></figcaption></figure>
 
-#### Model Inputs
+You can nest sub-topics under any topic, forming the tree. Adding layers allows you to quickly generate a significant amount of diverse data. Hover any topic row to expose a "Add Subtopics" link:
 
-Once you have a topic, you can generate model inputs:
+<figure><img src="../.gitbook/assets/Screenshot 2025-09-11 at 1.21.32 PM.png" alt="Add Subtopics Button"><figcaption><p>Visible when hovering a topic row</p></figcaption></figure>
 
-<figure><img src="../.gitbook/assets/Screenshot 2025-07-16 at 10.54.50 AM.png" alt="" width="375"><figcaption><p>Generated model inputs under a topic</p></figcaption></figure>
+You can manually add topics instead of using synthetic topic generation. Select the "or manually add topics" option at the bottom of the "Generate Topics" dialog.
 
-#### Model Outputs
+Topics are strongly recommended, but are optional. You skipt topics can add model inputs without topics by clicking "Generate Model Inputs".
 
-When you have generated all of the inputs you want, click "Save All Model Outputs" to generate outputs. These won't appear in this UI, but will appear in your dataset with the appropriate tags.
+#### Generate Model Inputs
+
+Model inputs are the data passed into your task. When normally running your task, these would likley come from a human. However in synthetic data generation we us AI models to generate them.
+
+<figure><img src="../.gitbook/assets/Screenshot 2025-07-16 at 10.54.50 AM.png" alt="" width="375"><figcaption><p>Generated model inputs for the "Joke Generator" task</p></figcaption></figure>
+
+Click "Generate Model Inputs" to generate model inputs using an AI model:
+
+<figure><img src="../.gitbook/assets/Screenshot 2025-09-11 at 1.37.16 PM.png" alt="" width="375"><figcaption><p>Generate Model Inputs Dialog</p></figcaption></figure>
+
+#### Generate Model Outputs
+
+Once you have generated all of the inputs you want, click "Save All Model Outputs" to generate outputs. These won't appear in this UI, but will appear in your dataset with the appropriate tags.
 
 <figure><img src="../.gitbook/assets/Screenshot 2025-07-16 at 10.56.16 AM.png" alt="" width="375"><figcaption></figcaption></figure>
+
+#### Save Synthetic Data into Dataset
+
+Use the Kiln synthetic data UI to review your data. Once you're happy with the data, save it into your dataset for use in evals and fine-tuning. This is currently automatic, as soon as you generate model outputs.
+
+The data will automatically be tagged with appriopiate tags, based on the goal you selected:
+
+<figure><img src="../.gitbook/assets/Screenshot 2025-09-11 at 1.41.25 PM.png" alt=""><figcaption><p>The tags which will be assigned are shown in the UI</p></figcaption></figure>
 
 ### Automatic Templates and Custom Prompting
 
