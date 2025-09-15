@@ -84,7 +84,7 @@ A common issue with synthetic data generation is that if you ask a model to gene
 
 <figure><img src="../.gitbook/assets/Screenshot 2025-01-05 at 12.06.43 PM.png" alt="" width="302"><figcaption><p>Example Topic Tree for a "Newspaper Headline" Task</p></figcaption></figure>
 
-Kiln can use AI models to generate a topic tree for you from your task's prompt. It uses the prompt to ensure the topics are relevant to your goal. See the example above, the model knew it was building topics for newspaper headlines and generated appropriate topics. To generate topics, click "Add Topics":&#x20;
+Kiln can use AI models to generate a topic tree for you from your task's prompt. It uses the prompt to ensure the topics are relevant to your goal. See the example above, the model knew it was building topics for newspaper headlines and generated appropriate topics. To generate topics, click "Add Topics":
 
 <figure><img src="../.gitbook/assets/Screenshot 2025-09-11 at 1.45.58 PM.png" alt="" width="375"><figcaption><p>Generate Topics Dialog</p></figcaption></figure>
 
@@ -116,7 +116,7 @@ Once you have generated all of the inputs you want, click "Save All Model Output
 
 Use the Kiln synthetic data UI to review your data. Once you're happy with the data, save it into your dataset for use in evals and fine-tuning. This is currently automatic, as soon as you generate model outputs.
 
-The data will automatically be tagged with appropriate tags, based on the goal you selected:
+The data will automatically be tagged with appropriate tags, based on the goal you selected ([see details](synthetic-data-generation.md#tagging)):
 
 <figure><img src="../.gitbook/assets/Screenshot 2025-09-11 at 1.41.25 PM.png" alt=""><figcaption><p>The tags which will be assigned are shown in the UI</p></figcaption></figure>
 
