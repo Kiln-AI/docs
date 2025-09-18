@@ -11,6 +11,7 @@
 * [Fine Tuning Guide](docs/fine-tuning-guide.md)
 * [Evaluations](docs/evaluations.md)
 * [Tools & MCP](docs/tools-and-mcp.md)
+* [Documents & Search (RAG)](docs/documents-and-search-rag.md)
 * [Issues](docs/issues.md)
 * [Guide: Train a Reasoning Model](docs/guide-train-a-reasoning-model.md)
 * [Reasoning & Chain of Thought](docs/reasoning-and-chain-of-thought.md)
