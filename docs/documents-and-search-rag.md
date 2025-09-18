@@ -11,13 +11,15 @@ You're here early. RAG is being launched next week!
 
 RAG (Retrieval-Augmented Generation) is a powerful technique for adding knowledge to AI systems, and Kiln makes building RAG systems incredibly easy!
 
-### Quick Start
+### Quick Start: Create a RAG in Under 5 Minutes
 
 Building a search tool in Kiln takes 3 steps:
 
 1. [Adding Documents](documents-and-search-rag.md#adding-documents): Drag and drop files into the Kiln document library
 2. [Create a search tool](documents-and-search-rag.md#building-a-search-tool): specify how you want Kiln to search the documents
 3. [Use the tool](documents-and-search-rag.md#using-search-tools): Select the search tool when running your task
+
+{% embed url="https://vimeo.com/1119945690?_loop=1&autoplay=1" %}
 
 ### Document Library
 
