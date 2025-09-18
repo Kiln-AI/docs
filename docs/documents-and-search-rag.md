@@ -9,7 +9,7 @@ icon: magnifying-glass
 You're here early. RAG is being launched next week!
 {% endhint %}
 
-RAG (retrieval-augmented generation) is a powerful technique for adding knowledge to AI systems, and Kiln makes building RAG systems incredibly easy!
+RAG (Retrieval-Augmented Generation) is a powerful technique for adding knowledge to AI systems, and Kiln makes building RAG systems incredibly easy!
 
 ### Quick Start
 
@@ -25,7 +25,7 @@ You can open the document library from the “Manage Documents” link in the �
 
 #### Adding Documents
 
-To add documents, simply click “Add Documents” in the Document Library, then drag-and-drop in as many files as you like.&#x20;
+To add documents, simply click “Add Documents” in the Document Library, then drag-and-drop in as many files as you like.
 
 <figure><img src="../.gitbook/assets/Screenshot 2025-09-17 at 8.00.42 PM.png" alt="" width="375"><figcaption><p>The Add Documents dialog</p></figcaption></figure>
 
@@ -43,12 +43,12 @@ Kiln supports the following file types:
 * **Audio**: .mp3, .wav, .ogg
 
 {% hint style="info" %}
-Not every extraction model can handle every file type. Use Google Gemini models for maximal filetype support.
+Not every extraction model can handle every file type. Use Google Gemini models for maximal filetype support. When creating a custom search tool, the model selection dropdown will list supported file types.
 {% endhint %}
 
 #### Tagging Documents
 
-Like your dataset, documents can be organized by adding tags. This is typically used to sub-divide your docs library into sections, which allows you to build search tools targeting specific document sets. Here are some examples:
+Documents can be organized by adding tags. This is typically used to sub-divide your docs library into sections, which allows you to build search tools targeting specific document sets. Here are some examples:
 
 * **knowledge\_base**: your public help docs / knowledge base
 * **customer\_support\_policies**: internal docs for how to respond to various types of customer requests
@@ -58,7 +58,7 @@ Like your dataset, documents can be organized by adding tags. This is typically 
 You can add or remove tags in Kiln in 2 ways:
 
 1. Single document: open a document’s page in the document library, then add or remove tags using the “Tags” sidebar.
-2. Many documents: click “select” in the document library, select all relevant documents, click the tag icon, then select “Add Tags” or “Remove Tags”&#x20;
+2. Many documents: click “select” in the document library, select all relevant documents, click the tag icon, then select “Add Tags” or “Remove Tags”
 
 <figure><img src="../.gitbook/assets/Screenshot 2025-09-17 at 7.57.10 PM.png" alt="" width="335"><figcaption><p>Managing tags from the document's detail page</p></figcaption></figure>
 
@@ -104,7 +104,7 @@ You can customize:
 * Embeddings: specify the embedding model and embedding dimensions
 * Search Index / Vector Store: select the search index strategy including vector index, full-text/keyword search (BM25), or hybrid mode.
 
-Want to see more options here? Let us know on our [Discord](https://kiln.tech/discord)!&#x20;
+Want to see more options here? Let us know on our [Discord](https://kiln.tech/discord)!
 
 #### Processing Documents
 
@@ -120,9 +120,9 @@ Once you’ve [created a search tool](documents-and-search-rag.md#building-a-sea
 
 To use a search tool in a task, simply select it from the “Tools” dropdown in the “Advanced” section of the Run page then run your task.
 
-<figure><img src="../.gitbook/assets/Screenshot 2025-09-18 at 2.27.11 PM.png" alt="" width="375"><figcaption><p>Selecting a seach tool in "Run"</p></figcaption></figure>
+<figure><img src="../.gitbook/assets/Screenshot 2025-09-18 at 2.27.11 PM.png" alt="" width="375"><figcaption><p>Selecting a search tool in "Run"</p></figcaption></figure>
 
-The search tool will be provided to your task, and your model may invoke it. You can view the model’s tool calls and the search tool’s response in the “All Messages” section of the run page:&#x20;
+The search tool will be provided to your task, and your model may invoke it. You can view the model’s tool calls and the search tool’s response in the “All Messages” section of the run page:
 
 <figure><img src="../.gitbook/assets/Screenshot 2025-09-18 at 2.29.03 PM.png" alt="" width="375"><figcaption><p>A trace including a tool call to a search tool</p></figcaption></figure>
 
@@ -132,7 +132,7 @@ It’s the model’s choice if and when to invoke a tool. If the model isn’t i
 
 #### Testing Your Search Tool
 
-If you just want to test your tool to see what it returns, you can do so from "Docs & Search" > "Search Tools" > search tool details. Enter any query to see what your search tool returns.&#x20;
+If you just want to test your tool to see what it returns, you can do so from "Docs & Search" > "Search Tools" > search tool details. Enter any query to see what your search tool returns.
 
 This mode is intended only for testing. It will render the raw chunks as would be returned to the AI task. You wouldn't normally expose these results directly to a user, and instead would have an AI task extract answers or summarize the content.
 
