@@ -148,3 +148,120 @@ Under the hood, there are 4 stages to Kiln's RAG/search pipeline:
 2. Chunking: break down large documents into smaller chunks
 3. Embedding: generate semantic embeddings from your chunks
 4. Search: index the embeddings and chunks in a vector database, then search it
+
+### Optimizing your RAG
+
+Kiln offers several options for improving your RAG. To do so, you can create multiple search tools, then compare their quality using either:
+
+* Manually review search result quality in the [search tool test UI](documents-and-search-rag.md#testing-your-search-tool)
+* Write [evals](evaluations.md) to measure resulting task quality
+
+{% hint style="success" %}
+Kiln will minimize processing where possible. For example, if many search tools all use the same extraction config, it won't re-run extraction. While the first might take a while to process, subsequent serach tools should be very fast and won't incure additional cost.
+{% endhint %}
+
+#### Step 1: Optimize Search Tool Name, Description and Task Prompt
+
+Often we see issues where the search tool can easily retrieve the needed data, but is never called. This is easy to identify: check the "All Mesages" section of the run to see if the tool was invoked.
+
+This is usually an easy fix with one of the following:
+
+* Make the search tool name and description more descriptive: [example and guidance](documents-and-search-rag.md#search-tool-name-and-description).
+* Make the task's prompt more explicit, for example by adding "Always confirm answers with the knowledge\_base\_search tool."
+
+#### Step 2: Improve Document Extraction
+
+The first step of RAG is extracting your documents (PDFs, images, videos) into text which we can index, search, and provide to tasks after retrieval.&#x20;
+
+{% hint style="info" %}
+If the data produced during extraction isn’t high quality, there’s nothing the rest of the pipeline can do to recover.
+{% endhint %}
+
+Walk through these steps to identify and improve document extraction:
+
+1. **Inspect Extractions for Issues**: Read document extractions and compare with the original documents. You can do this by clicking on documents in the document library. Once you identify issues, you can fix them using the steps below. Example issues:
+   * Including irrelevant data, like a header/footer content, transcribing menus/navigation content, or transcriptions of images which are embedded but not part of the core content (navigation, headers, even web ads).
+   * Skipping important data, like insights from chart images
+2. **Upgrade Extraction Model**: If you have issues, consider a higher quality extraction method. Often a better model will resolve extraction issues. We suggest trying Gemini 2.5 Pro via the Gemini API. While these APIs can be costly, you only need to extract documents once so it’s not a recurring cost.
+3. **Customize Extraction Prompts**: The default extraction prompts in Kiln are generalized prompts designed to work with any document. However, if you know your documents are a specific format, you can improve extraction by creating custom extraction prompts for your use case. You can do this when creating a new Search Tool, in the “Advanced section” of the extractor. See the examples below.
+4. **Fully Custom Extraction**: If desired, you can always extract your documents separately using your own code, then add text (`.txt`) or markdown (`.md`) files to Kiln. This gives you complete control. Kiln won’t re-process files that are already in text/markdown formats.
+
+<details>
+
+<summary>Custom Extraction Prompt Examples</summary>
+
+Here is an example prompt if you know all documents are PDFs of blog posts:
+
+{% code overflow="wrap" %}
+```
+Only transcribe the blog title, subtitle, byline and blog post content.
+
+Ignore other elements of the page including headers, footers, and navigation elements.
+
+Extract the blog data into markdown. Specify the post title as H1 (`#`) at the top, and all section titles should be smaller (H2, H3, etc).
+```
+{% endcode %}
+
+Example for extracting invoices:
+
+{% code overflow="wrap" %}
+````
+You are extracting invoice PDFs. Only extract payee, payer, date, status, invoice number, and invoice line items. Disregard headers, footers, addresses, and decorative elements.
+
+Extract the invoice data into the following format:
+```
+Payee Name: X
+Invoice ID: X
+...
+```
+````
+{% endcode %}
+
+{% hint style="info" %}
+Videos, Documents and Audio have separate prompts, so you can customize each to the use case as needed.
+{% endhint %}
+
+</details>
+
+#### Step 3: Tune Chunking Size and Top-K
+
+When your task calls your search tool, it will fetch a certain number of document chunks. Chunks are created by splitting long documents into smaller pieces. This is important for 2 reasons:
+
+* You don’t want to feed too much information into the task, as it will flood the context, produce poorer results, and cost more.
+* Splitting into chunks improves search relevance. A 50 page document might contain a ton of information across many topics. Searching for smaller chunks helps your search tool find the most relevant portions of the document.
+
+{% hint style="info" %}
+The chunk size is defined when creating a search tool, in the chunking method options. The default is 512 words/tokens. You can also define how much overlap there is between chunks.
+
+The number of results returned is called top-k, and is defined when creating a search tool, in the search index options. The default is to return 10 chunks.
+{% endhint %}
+
+Tuning these two variables for your use case can help produce better search results.
+
+**Option 1: Increase Chunk Size and Reduce Top-K** Sometimes you know there’s exactly one document which will contain the answer; for example for the question “What is the total on invoice INV-123456?”. Returning 10 invoices won’t help this query, nor will splitting the one invoice across 5 chunks. In this case, a larger chunk size and a small top-K would be a great configuration. You’ll still end up returning a reasonable amount of data, as you’ve lowered top-K.
+
+**Option 2: Lower Chunk Size and Increase Top-K** Sometimes you know the model will need many of chunks to get a good answer; for example “Which protein structures were rated as ‘promising’ in experiments from June to July 2025?” might need to return hundreds of data chunks. In this case a small chunk size and higher top-K could work well.
+
+\[Info Text] It's almost never a good idea to set Top-K to 1. There's always a chance that an answer is split across 2 or more chunks, so returning multiple chunks is always a good idea.
+
+#### Step 4: Tune Search Index Options
+
+Kiln has powerful search options, backed by [LanceDB](https://lancedb.com/):
+
+* **Vector Search**: Searches for chunks based on an embedding/vector representation of their semantic meaning. This lets you find results that _mean_ the same thing, even if the query uses completely different wording.
+* **Full-text search / Keyword search / BM25**: Searches for literal words/terms. It scores chunks based on how often your keywords appear (term frequency) and how rare they are across the entire dataset (inverse document frequency).
+* **Hybrid search**: Combines both vector and full-text search, giving you relevance by meaning _and_ by exact keyword match.
+
+You can read more about search indexing and retrieval on the [LanceDB Blog](https://blog.lancedb.com/hybrid-search-combining-bm25-and-semantic-search-for-better-results-with-lan-1358038fe7e6/).
+
+We typically recommend **hybrid search**, but your use case might benefit from other options:
+
+* **Full-text only**: best for cases where you want _exact term matching_ (e.g. legal text search, log file search).
+* **Vector-only**: best for cases where _meaning matters more than exact words_ (e.g. semantic question answering, summarization datasets).
+* **Hybrid**: best for cases where you want both — i.e. match the meaning but still boost exact matches.
+
+#### Step 5: Explore Embedding Models
+
+As a last step, you can try different embedding models: the models which generate a embedding/vector-representation from a chunk.
+
+Generally, we suggest exhausting the options above before tuning here.
