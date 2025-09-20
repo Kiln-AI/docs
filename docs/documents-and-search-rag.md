@@ -251,10 +251,10 @@ Tuning these two variables for your use case can help produce better search resu
 Kiln has powerful search options, backed by [LanceDB](https://lancedb.com/):
 
 * **Vector Search**: Searches for chunks based on an embedding/vector representation of their semantic meaning. This lets you find results that _mean_ the same thing, even if the query uses completely different wording.
-* **Full-text search / Keyword search / BM25**: Searches for literal words/terms. It scores chunks based on how often your keywords appear (term frequency) and how rare they are across the entire dataset (inverse document frequency).
+* **Full-text search (aka keyword search or BM25)**: Searches for literal words/terms. It scores chunks based on how often your keywords appear (term frequency) and how rare they are across the entire dataset (inverse document frequency).
 * **Hybrid search**: Combines both vector and full-text search, giving you relevance by meaning _and_ by exact keyword match.
 
-You can read more about search indexing and retrieval on the [LanceDB Blog](https://blog.lancedb.com/hybrid-search-combining-bm25-and-semantic-search-for-better-results-with-lan-1358038fe7e6/).
+You can read more about search indexing and retrieval in the [LanceDB docs](https://www.lancedb.com/docs/search/) or on the [LanceDB Blog](https://blog.lancedb.com/hybrid-search-combining-bm25-and-semantic-search-for-better-results-with-lan-1358038fe7e6/).
 
 We typically recommend **hybrid search**, but your use case might benefit from other options:
 
