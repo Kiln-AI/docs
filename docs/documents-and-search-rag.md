@@ -228,21 +228,23 @@ Videos, Documents and Audio have separate prompts, so you can customize each to 
 When your task calls your search tool, it will fetch a certain number of document chunks. Chunks are created by splitting long documents into smaller pieces. This is important for 2 reasons:
 
 * You don’t want to feed too much information into the task, as it will flood the context, produce poorer results, and cost more.
-* Splitting into chunks improves search relevance. A 50 page document might contain a ton of information across many topics. Searching for smaller chunks helps your search tool find the most relevant portions of the document.
+* Splitting into chunks improves search relevance. A 50 page document might contain information on many topics.  Searching for smaller chunks reduces the topic per segment, which helps your search tool find the most relevant portions of the document.
 
 {% hint style="info" %}
-The chunk size is defined when creating a search tool, in the chunking method options. The default is 512 words/tokens. You can also define how much overlap there is between chunks.
+The chunk size is defined when creating a search tool, in the chunking method options. You can also define how much overlap there is between chunks. The default is 512 words/tokens per chunk with 64 words/tokens overlap.&#x20;
 
 The number of results returned is called top-k, and is defined when creating a search tool, in the search index options. The default is to return 10 chunks.
 {% endhint %}
 
 Tuning these two variables for your use case can help produce better search results.
 
-**Option 1: Increase Chunk Size and Reduce Top-K** Sometimes you know there’s exactly one document which will contain the answer; for example for the question “What is the total on invoice INV-123456?”. Returning 10 invoices won’t help this query, nor will splitting the one invoice across 5 chunks. In this case, a larger chunk size and a small top-K would be a great configuration. You’ll still end up returning a reasonable amount of data, as you’ve lowered top-K.
+**Option 1: Increase Chunk Size and Reduce Top-K** Sometimes you know there’s exactly one document which will contain the answer; for example for the question “What is the total on invoice INV-123456?”. Returning 10 invoices won’t help this query, and will splitting the one invoice across 5 chunks could harm it's performance. In this case, a larger chunk size and a small top-K would be a great configuration. You’ll still end up returning a reasonable amount of data, as you’ve lowered top-K.
 
 **Option 2: Lower Chunk Size and Increase Top-K** Sometimes you know the model will need many of chunks to get a good answer; for example “Which protein structures were rated as ‘promising’ in experiments from June to July 2025?” might need to return hundreds of data chunks. In this case a small chunk size and higher top-K could work well.
 
-\[Info Text] It's almost never a good idea to set Top-K to 1. There's always a chance that an answer is split across 2 or more chunks, so returning multiple chunks is always a good idea.
+{% hint style="info" %}
+&#x20;It's almost never a good idea to set Top-K to 1. There's always a chance that an answer is split across 2 or more chunks, so returning multiple chunks is always a good idea.
+{% endhint %}
 
 #### Step 4: Tune Search Index Options
 
