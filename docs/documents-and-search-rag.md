@@ -104,7 +104,7 @@ You can customize:
 * Extractor: The model used to extract non-text documents (e.g. PDFs, videos) into text. Optionally customize the prompts passed to the extractor model for each type of file.
 * Chunking Strategy: specify how large documents are split into smaller chunks for embedding, indexing, and retrieval
 * Embeddings: specify the embedding model and embedding dimensions
-* Search Index / Vector Store: select the search index strategy including vector index, full-text/keyword search (BM25), or hybrid mode.
+* Search Index / Vector Store: select the search index strategy including vector index, full-text search, or hybrid mode.
 
 Want to see more options here? Let us know on our [Discord](https://kiln.tech/discord)!
 
@@ -129,7 +129,7 @@ The search tool will be provided to your task, and your model may invoke it. You
 <figure><img src="../.gitbook/assets/Screenshot 2025-09-18 at 2.29.03 PM.png" alt="" width="375"><figcaption><p>A trace including a tool call to a search tool</p></figcaption></figure>
 
 {% hint style="info" %}
-It’s the model’s choice if and when to invoke a tool. If the model isn’t invoking search when you feel it should, consider updating your [tool name/description](documents-and-search-rag.md#search-tool-name-and-description) to be more descriptive of when it should be used, or update your task prompt to instruct it to call the tool.
+It’s the model’s choice if and when to invoke a tool. If the model isn’t invoking search when you feel it should, see the section below on [optimizing your RAG](documents-and-search-rag.md#step-1-optimize-search-tool-name-description-and-task-prompt).
 {% endhint %}
 
 #### Testing Your Search Tool
@@ -157,17 +157,17 @@ Kiln offers several options for improving your RAG. To do so, you can create mul
 * Write [evals](evaluations.md) to measure resulting task quality
 
 {% hint style="success" %}
-Kiln will minimize processing where possible. For example, if many search tools all use the same extraction config, it won't re-run extraction. While the first might take a while to process, subsequent serach tools should be very fast and won't incure additional cost.
+Kiln will minimize processing where possible. For example, if many search tools all share the same extraction config, it will reuse the prior extractions. This makes experimentation faster and reduces costs.
 {% endhint %}
 
 #### Step 1: Optimize Search Tool Name, Description and Task Prompt
 
-Often we see issues where the search tool can easily retrieve the needed data, but is never called. This is easy to identify: check the "All Mesages" section of the run to see if the tool was invoked.
+Often we see issues where the search tool can easily retrieve the needed data, but the tool is never called. This is easy to identify: check the "All Mesages" section of the run to see if the tool was invoked.
 
 This is usually an easy fix with one of the following:
 
 * Make the search tool name and description more descriptive: [example and guidance](documents-and-search-rag.md#search-tool-name-and-description).
-* Make the task's prompt more explicit, for example by adding "Always confirm answers with the knowledge\_base\_search tool."
+* Make the task's prompt explicitly define when search tools should be used, for example by adding "Always confirm answers with the knowledge\_base\_search tool."
 
 #### Step 2: Improve Document Extraction
 
