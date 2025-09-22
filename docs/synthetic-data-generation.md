@@ -88,9 +88,9 @@ Kiln can use AI models to generate a topic tree for you from your task's prompt.
 
 <figure><img src="../.gitbook/assets/Screenshot 2025-09-11 at 1.45.58 PM.png" alt="" width="375"><figcaption><p>Generate Topics Dialog</p></figcaption></figure>
 
-You can nest sub-topics under any topic, forming the tree. Adding layers allows you to quickly generate a significant amount of diverse data. Hover any topic row to expose a "Add Subtopics" link:
+You can nest sub-topics under any topic, forming the tree. Adding layers allows you to quickly generate a significant amount of diverse data. Hover any topic's "..." menu to expose a "Add Subtopics" button:
 
-<figure><img src="../.gitbook/assets/Screenshot 2025-09-11 at 1.21.32 PM.png" alt="Add Subtopics Button"><figcaption><p>Visible when hovering a topic row</p></figcaption></figure>
+<figure><img src="../.gitbook/assets/Screenshot 2025-09-22 at 7.17.28 PM.png" alt="" width="219"><figcaption><p>"Add Subtopic" from ... menu</p></figcaption></figure>
 
 You can manually add topics instead of using synthetic topic generation. Select the "or manually add topics" option at the bottom of the "Generate Topics" dialog.
 
@@ -100,25 +100,39 @@ Topics are strongly recommended, but are optional. You can skip topics and add m
 
 Model inputs are the data passed into your task. When normally running your task, these would likely come from a human. However, in synthetic data generation we use AI models to generate them.
 
-<figure><img src="../.gitbook/assets/Screenshot 2025-07-16 at 10.54.50 AM.png" alt="" width="375"><figcaption><p>Generated model inputs for the "Joke Generator" task</p></figcaption></figure>
-
-Click "Generate Model Inputs" to generate model inputs using an AI model:
+Click "Generate Inputs" button to generate model inputs using an AI model:
 
 <figure><img src="../.gitbook/assets/Screenshot 2025-09-11 at 1.37.16 PM.png" alt="" width="375"><figcaption><p>Generate Model Inputs Dialog</p></figcaption></figure>
 
+This will produce inputs under each topic in your data table:
+
+<figure><img src="../.gitbook/assets/Screenshot 2025-09-22 at 7.19.49 PM.png" alt="" width="375"><figcaption><p>Generated model inputs for the "Joke Generator" task</p></figcaption></figure>
+
+Review the quality of inputs and ensure you're happy with them before proceeding. You can delete individual inputs for manual curation, or delete them all, [edit the generation prompt with more guidance](synthetic-data-generation.md#automatic-templates-and-custom-prompting), and then try generating again to get better quality data.
+
 #### Generate Model Outputs
 
-Once you have generated all of the inputs you want, click "Save All Model Outputs" to generate outputs. These won't appear in this UI, but will appear in your dataset with the appropriate tags.
+Once you have generated all of the inputs you want, click "Generate Outputs" to generate outputs to present options for generation:
 
 <figure><img src="../.gitbook/assets/Screenshot 2025-07-16 at 10.56.16 AM.png" alt="" width="375"><figcaption></figcaption></figure>
 
+Generating will result in outputs for each input:
+
+<figure><img src="../.gitbook/assets/Screenshot 2025-09-22 at 7.21.43 PM.png" alt="" width="375"><figcaption><p>Synthetic Input/Output pairs under a topic</p></figcaption></figure>
+
+Review the quality of outputs and ensure you're happy with them before proceeding. You can delete individual outputs for manual curation, or delete them all, [edit the generation prompt](synthetic-data-generation.md#automatic-templates-and-custom-prompting) with more guidance, and then try generating again to get better quality data.
+
 #### Save Synthetic Data into Dataset
 
-Use the Kiln synthetic data UI to review your data. Once you're happy with the data, save it into your dataset for use in evals and fine-tuning. This is currently automatic, as soon as you generate model outputs.
+Use the Kiln synthetic data UI to review your data. Once you're happy with the data, click "Save All" to save it into your dataset for use in evals and fine-tuning.&#x20;
+
+<figure><img src="../.gitbook/assets/Screenshot 2025-09-22 at 7.27.27 PM.png" alt="" width="375"><figcaption><p>Saving All Data</p></figcaption></figure>
 
 The data will automatically be tagged with appropriate tags, based on the goal you selected ([see details](synthetic-data-generation.md#tagging)):
 
 <figure><img src="../.gitbook/assets/Screenshot 2025-09-11 at 1.41.25 PM.png" alt=""><figcaption><p>The tags which will be assigned are shown in the UI</p></figcaption></figure>
+
+Once saved, you can view all of your saved data in the Dataset tab.&#x20;
 
 ### Automatic Templates and Custom Prompting
 
