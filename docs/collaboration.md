@@ -56,8 +56,12 @@ We don't recommend or support trying to host it as a service and access it over 
 * Security: there's no web-based logins or access controls, so anyone who can access the service can edit data and send requests. That's okay when running as an app locally behind your machine login, but brings risk when opening the service up to anyone over a network.
 * Collaboration: If multiple users are sharing an instance of Kiln, all the created\_by tags in your dataset will all have the machine name of your VM/host, not the individuals.
 * Data backup and history: if you run as suggested above, Git and/or the shared drive will provide data sync, backup and history. If you run on a single server, there's a higher risk of data loss if that server drive is lost/damaged.
-* System Integrations: Kiln accesses things like the taskbar and filesystem, which aren't available to web apps. We'll add more native integrations over time.&#x20;
+* System Integrations: Kiln accesses OS features like the taskbar, local filesystem and custom folder-picker UI; these aren't available to web apps. We continue to add more native integrations over time.&#x20;
 
-For these reasons, we recommend each user runs Kiln locally. Don't worry - it's fast and doesn't take up many resources.
+The solution is just to have each user run Kiln locally on their own machine. It's quite easy and there are no compromises:
 
-You can still access remote LLM services when running locally. It can connect to remote LLM providers, like OpenAI's API or connect to a remote Ollama instance over the network via a custom URL. You don't need to co-locate Kiln and you LLM servers.
+* We support all major platforms: Mac, Windows and Linux. Each has a user-friendly [installer](https://kiln.tech/download).
+* You don't need to co-locate Kiln and your LLM/GPU servers. You can still connect Kiln to LLM services on another machine by setting a custom URL. See [AI Provider Setup](models-and-ai-providers.md) for details.&#x20;
+* Kiln doesn't require a GPU and uses minimal system resources (CPU, memory).
+* You can share data with your team via our [Collaboration Sync](collaboration.md).
+
