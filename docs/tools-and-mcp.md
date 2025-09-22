@@ -5,7 +5,7 @@ icon: hammer
 
 # Tools & MCP
 
-Kiln allows connecting to tools via [Model Context Protocol (MCP)](https://modelcontextprotocol.io). These tools can give your Kiln tasks powerful new capabilities.
+Kiln allows connecting to tools such as [Kiln Search Tools (RAG)](documents-and-search-rag.md) or third party tools via via [Model Context Protocol (MCP)](https://modelcontextprotocol.io). These tools can give your Kiln tasks powerful new capabilities.
 
 ## Video Walkthrough
 
@@ -20,6 +20,10 @@ To connect a new set of tools, open "Settings" > "Manage Tools" > "Add Tools".
 ### Quickstart: Math Tools
 
 If you want to try tools as quickly as possible, enable the "Math Tools" from the "Add Tools" screen. These built into Kiln and don't require setting up a MCP server. They can be enabled in one click, and will add 4 simple math tools to your project: add, subtract, multiply and divide.
+
+### Kiln Search Tools / RAG
+
+Kiln allows you to build powerful search tools, which can search thousands of documents for knowledge. See the [Documents & Search](documents-and-search-rag.md) docs for details. Every search tool you create, will be automatically available in the tools dropdown.
 
 ### Powerful Example Tools: Web Search, Python Interpreter, and more
 

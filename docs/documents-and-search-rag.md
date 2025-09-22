@@ -5,10 +5,6 @@ icon: magnifying-glass
 
 # Documents & Search (RAG)
 
-{% hint style="warning" %}
-You're here early. RAG is being launched next week!
-{% endhint %}
-
 RAG (Retrieval-Augmented Generation) is a powerful technique for adding knowledge to AI systems, and Kiln makes building RAG systems incredibly easy!
 
 ### Quick Start: Create a RAG in Under 5 Minutes
