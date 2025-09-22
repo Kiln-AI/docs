@@ -21,9 +21,11 @@ To connect a new set of tools, open "Settings" > "Manage Tools" > "Add Tools".
 
 If you want to try tools as quickly as possible, enable the "Math Tools" from the "Add Tools" screen. These built into Kiln and don't require setting up a MCP server. They can be enabled in one click, and will add 4 simple math tools to your project: add, subtract, multiply and divide.
 
-### Kiln Search Tools / RAG
+### Kiln Search Tools (RAG)
 
-Kiln allows you to build powerful search tools, which can search thousands of documents for knowledge. See the [Documents & Search](documents-and-search-rag.md) docs for details. Every search tool you create, will be automatically available in the tools dropdown.
+Kiln allows you to build powerful search tools, which can search thousands of documents for knowledge. These behave like any other tool: each search tool you create, will be automatically available in the tools dropdown.
+
+See the [Documents & Search](documents-and-search-rag.md) docs for details.&#x20;
 
 ### Powerful Example Tools: Web Search, Python Interpreter, and more
 
@@ -101,9 +103,9 @@ The model may or may not choose to use the tools you provide. If you find the mo
 
 Tool calls happen behind the scenes, between the user message and the model's final output.
 
-If you want to view which tools were called, their arguments, and their results — expand the "Show Raw Data" view on the "Run" screen or when viewing a dataset entry. The full trace, including tool calls, is available in the "trace" field.
+If you want to view which tools were called, their arguments, and their results look at the "All Messages" section on the "Run" screen or when viewing a dataset entry. You'll be able to see tool calls the model makes, as well as the tool's response:
 
-<figure><img src="../.gitbook/assets/Screenshot 2025-09-05 at 4.03.10 PM.png" alt="" width="375"><figcaption><p>Example trace showing a tool call to the multiply tool</p></figcaption></figure>
+<figure><img src="../.gitbook/assets/Screenshot 2025-09-22 at 11.49.42 AM.png" alt="A Trace Including Tool Calls" width="375"><figcaption><p>A Trace Showing a Tool Call</p></figcaption></figure>
 
 ## Guidance / Understanding Tools
 
