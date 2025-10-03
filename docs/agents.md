@@ -70,8 +70,8 @@ You’ll be asked to provide a tool name and description. These are very importa
 
 For example:
 
-* **Poor:** search - “Search for information” (where will it search?, what information?)
-* **Better:** web\_search - “Search the web for information” (does it return webpages? summaries?)
+* **Poor:** search - “Search for information” (what will it search?)
+* **Better:** web\_search - “Search the web for information” (does it return webpages? summaries? search listings?)
 * **Best:** web\_researcher - "This tool can search and scrape the web for information. Ask it a question and it will research using the web, and reply with a summarized answer."
 {% endhint %}
 
