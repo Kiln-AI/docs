@@ -97,7 +97,7 @@ A common issue with agentic systems is that the context window (chat history) ge
 
 * **Filling the context window**: if the context window grows larger than the model supports, it will error and fail
 * **Degraded quality**: a large context window can degrade the quality of newly generated content, especially if some of the messages are no longer relevant or inaccurate.
-* **Increased costs**: each new message has process all of the tokens in the chat history. Even a short message at the end of a long chain can be expensive. \[note][^1]&#x20;
+* **Increased costs**: each new message has process all of the tokens in the chat history. Even a short message at the end of a long chain can be expensive. \[note]
 
 {% hint style="success" %}
 **Using subtasks is the easiest way to solve context management issues!**
@@ -106,9 +106,9 @@ A common issue with agentic systems is that the context window (chat history) ge
 Let's look at a visual example of an agent which requires many web-searches to build a final answer:
 
 * **Without Sub-Agents**: the context becomes very large very quickly. Entire webpages are loaded into context and stay there. Data we don't need, like web pages that didn't yield useful information, keep taking context room forever. Later calls need to process a large number of tokens to generate the next new token (increasing cost).
-* **With Sub-Agents**: each web-research task is performed in its own sub-agent. The results of the webpages are summarized and only the important details are returned to the main task. The context of the main task stays focused and small. Each subtask is also smaller and more focused. Irrelevant data is dropped when the subtask ends. Costs are lower by approximately a factor of 4.
+* **With Sub-Agents**: each web-research task is performed in its own sub-agent. The results of the webpages are summarized and only the important details are returned to the main task. The context of the main task stays focused and small. Each subtask is also smaller and more focused. Irrelevant data is dropped when the subtask ends. Costs are lower by approximately a factor of&#x20;
 
-<figure><img src="../.gitbook/assets/context mgmt.png" alt=""><figcaption></figcaption></figure>
+<figure><img src="../.gitbook/assets/contextmgmt.png" alt=""><figcaption></figcaption></figure>
 
 ### Goal Directed, Autonomy, & Reasoning
 
@@ -136,5 +136,3 @@ Agents maintain state over steps, letting them make progress towards their goals
 Currently Kiln maintains memory simply through the message history. See the [context management](agents.md#context-management) section above for how to use Kiln subtasks to compress memory, summarizing many subtask messages into a shorter summaries in the main-task history.
 
 We're exploring additional memory management options in Kiln. If you have requests, please let us know on the [Discord](https://kiln.tech/discord)!
-
-[^1]: A technique called Prompt Caching can help here, but support varries from model provider to model provider.
