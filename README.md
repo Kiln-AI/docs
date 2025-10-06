@@ -9,9 +9,9 @@ Kiln AI is the easiest tool for:
 
 * 🎛️ [**Fine Tuning**](docs/fine-tuning-guide.md): Zero-code fine-tuning for Llama, GPT-4o, and more. Automatic serverless deployment of models.
 * 📊 [**Evals**](docs/evaluations.md)**:** Evaluate the quality of your models/tasks using state of the art evaluators.
-* 🔍 [**Docs & Search (RAG)**](https://docs.kiln.tech/docs/documents-and-search-rag): Add knowledge to your AI systems with Retrieval-Augmented Generation (RAG)
+* 🔍 [**Docs & Search (RAG)**](docs/documents-and-search-rag.md): Add knowledge to your AI systems with Retrieval-Augmented Generation (RAG)
 * 🤖 [**Agents**](docs/agents.md) Build agentic systems with multiple actors
-* 🛠 [**Tools & MCP**](https://docs.kiln.tech/docs/tools-and-mcp): Connect powerful tools to your Kiln tasks
+* 🛠 [**Tools & MCP**](docs/tools-and-mcp.md): Connect powerful tools to your Kiln tasks
 * 🪄 [**Synthetic Data Generation**](docs/synthetic-data-generation.md): Generate training data with our interactive visual tooling.
 * 🧠 [**Reasoning Models**](docs/guide-train-a-reasoning-model.md): Train or distill your own custom reasoning models.
 * 🤝 [**Team Collaboration**](docs/collaboration.md): Git-based version control for your AI datasets. Intuitive UI makes it easy to collaborate with QA, PM, and subject matter experts on structured data (examples, prompts, ratings, feedback, issues, etc.).
