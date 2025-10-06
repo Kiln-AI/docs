@@ -5,10 +5,6 @@ icon: circle-nodes
 
 # Agents
 
-{% hint style="warning" %}
-You're here early! Multi-actor agents are launching next week
-{% endhint %}
-
 Ah "agents", the most overloaded term in AI! The word "Agents" means different things to different people, but the good news is Kiln supports all the patterns typically associated with "agentic systems". Let's break down the common agent features, and how to build them in Kiln!
 
 * [Tool Use](agents.md#tool-use)
