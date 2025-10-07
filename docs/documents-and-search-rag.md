@@ -270,14 +270,27 @@ Generally, we suggest exhausting the options above before tuning here.
 
 ### Deploying your RAG
 
-Once you've optimize your RAG in Kiln, you're ready to deploy it!&#x20;
+Once you've optimized your RAG in Kiln, you're ready to deploy it!&#x20;
 
 You have several deployment options to choose from, depending on your use case:
 
-* **Kiln UI for Personal Use**: Continue to use the Search Tool inside Kiln, using the "Run" UI. Great for single user or small teams.
-* **MCP for Local LLM Clients**: If you prefer another LLM frontend like LMStudio or Jan, you can run your Kiln Search Tool as a MCP server then connect to it from your client of choice. See our [MCP server documentation for instructions](https://github.com/Kiln-AI/Kiln/tree/main/libs/server/kiln_server/mcp#readme).&#x20;
-* [**LlamaIndex**](https://www.llamaindex.ai/) **for Production Applications:** You can load your Kiln RAG dataset into a production-ready LlamaIndex stack:
-  * See our [Python library docs](https://kiln-ai.github.io/Kiln/kiln_core_docs/kiln_ai.html#taking-kiln-rag-to-production) for how to load a Kiln Search Tool, called RAGConfig in code, into any LlamaIndex vector store.&#x20;
-  * Note: Loading need to repeat extraction, chunking and embedding as those steps are already completed in Kiln. It will load the existing data into your production hosted vector index, without repeating processing.
-  * _**We recommend**_ [_**LanceDB Cloud**_](https://lancedb.com/) _**for production hosting**_. Internally Kiln uses LanceDB; using LanceDB in prod ensures your production stack matches the RAG you optimized in Kiln.
+#### **Kiln UI: For Personal Use**
+
+You can continue to use the Search Tool inside Kiln, using the "Run" UI. This option is great for a single user or small teams. See our [collaboration docs](collaboration.md) for how to share a search tool with your team.
+
+#### **MCP: For Local LLM Clients**
+
+If you prefer another LLM frontend like LMStudio or Jan, you can run your Kiln Search Tool as an MCP server, then connect to it from your client of choice. See our [MCP server documentation for instructions](https://github.com/Kiln-AI/Kiln/tree/main/libs/server/kiln_server/mcp#readme) on running an MCP server exposing Kiln Search Tools.&#x20;
+
+#### **LlamaIndex: For Production Applications**
+
+You can load your Kiln RAG dataset into a production-ready [LlamaIndex](https://www.llamaindex.ai/) stack. See our [Python library docs](https://kiln-ai.github.io/Kiln/kiln_core_docs/kiln_ai.html#taking-kiln-rag-to-production) for how to load a Kiln Search Tool into any LlamaIndex vector store.&#x20;
+
+<a href="https://kiln-ai.github.io/Kiln/kiln_core_docs/kiln_ai.html#taking-kiln-rag-to-production" class="button primary">Deploy a Kiln Search Tool</a>
+
+_**We recommend**_ [_**LanceDB Cloud**_](https://lancedb.com/) _**for production hosting**_. The Kiln app and library use LanceDB; using LanceDB in prod ensures your production stack matches the RAG you optimized in Kiln perfectly. It is a  performant vector database for any scale.
+
+{% hint style="success" %}
+Note: Loading a production index will not need to repeat extraction, chunking, and embeddings. Those steps are already completed in Kiln, and their results are saved in your Kiln dataset.&#x20;
+{% endhint %}
 
