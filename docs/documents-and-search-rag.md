@@ -267,3 +267,17 @@ We typically recommend **hybrid search**, but your use case might benefit from o
 As a last step, you can try different embedding models: the models which generate a embedding/vector-representation from a chunk.
 
 Generally, we suggest exhausting the options above before tuning here.
+
+### Deploying your RAG
+
+Once you've optimize your RAG in Kiln, you're ready to deploy it!&#x20;
+
+You have several deployment options to choose from, depending on your use case:
+
+* **Kiln UI for Personal Use**: Continue to use the Search Tool inside Kiln, using the "Run" UI. Great for single user or small teams.
+* **MCP for local LLM clients**: If you prefer another LLM frontend like LMStudio or Jan, you can run your Kiln Search Tools as a MCP server then connect to it from your client of choice. See our [MCP server documentation for instructions](https://github.com/Kiln-AI/Kiln/tree/main/libs/server/kiln_server/mcp#readme).&#x20;
+* **LlamaIndex for Production Applications:** You can load your Kiln RAG dataset into a production-ready LlamaIndex stack:
+  * See our [Python library docs](https://kiln-ai.github.io/Kiln/kiln_core_docs/kiln_ai.html#taking-kiln-rag-to-production) for how to load a Kiln Search Tool (called RAGConfig in code) into any LlamaIndex vector store.&#x20;
+  * Note: It won't need to repeat extraction, chunking and embedding as those steps are already completed in Kiln. It will load the existing data into your production hosted vector index, without repeating processing.
+  * _**We recommend**_ [_**LanceDB Cloud**_](https://lancedb.com/) _**for production hosting**_. Internally Kiln uses LanceDB; using LanceDB in prod ensures your production stack matches the RAG you optimized in Kiln.
+

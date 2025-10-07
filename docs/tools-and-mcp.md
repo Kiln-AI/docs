@@ -138,3 +138,17 @@ Often MCP servers require secrets, like API keys. However, Kiln projects are des
 To address this, Kiln allows you to mark headers and environment variables as secrets. Secrets are never stored in the Kiln project files, which are designed to be shared/synced. If a team member adds a tool which requires secrets, anyone who syncs it will have to re-enter the secrets in settings before using the tool. Non-secret headers and environment variables will be synced automatically.
 
 <figure><img src="../.gitbook/assets/Screenshot 2025-09-05 at 3.42.28 PM.png" alt="" width="375"><figcaption><p>Identify secrets on tool setup</p></figcaption></figure>
+
+## Kiln MCP Server
+
+The documentation above is for using Kiln as a MCP client (where Kiln calls other MCP servers to use tools). Kiln can also function as a MCP server (where Kiln exposes tools to other MCP clients).&#x20;
+
+Kiln can expose tools for:
+
+* Any [Search Tools (RAG)](documents-and-search-rag.md) you have created in Kiln
+* Any [Kiln Task as Tool](agents.md#multi-actor-interaction-aka-subtasks) agents you have created in Kiln
+
+To use Kiln as a tool server
+
+* Install Kiln CLI server tools: `uv tool install kiln_server`&#x20;
+* Run the `kiln_mcp` command, pointing it to the Kiln project you want to host. See [the docs on the Kiln MCP Server](https://github.com/Kiln-AI/Kiln/tree/main/libs/server/kiln_server/mcp#readme) for details.
