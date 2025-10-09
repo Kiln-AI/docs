@@ -39,7 +39,7 @@ Kiln doesn't require you to write complex custom synthetic data gen prompts. Sin
 
 #### Choose A Goal To Focus Data Gen
 
-First select a goal for your dataset generation: Evals for Fine-Tuning. This is an important step as you need different data for different goals:
+First select a goal for your dataset generation: Evals or Fine-Tuning. This is an important step as you need different data for different goals:
 
 * **Fine-Tuning**: generate high quality outputs across a broad range of possible inputs, to help your model learn how to respond to a range of requests. This can include generating inputs that commonly produce issues, and outputs that avoid that issue.
 * **Evals**: Intentionally generate a mix of good and bad inputs and outputs. We'll use the bad outputs to ensure the judge model can properly assess failures, and we'll use the bad inputs to ensure your task no longer has the issue.
