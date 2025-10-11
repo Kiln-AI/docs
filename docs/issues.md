@@ -5,6 +5,8 @@ icon: bug
 
 # Issues
 
+<figure><img src="../.gitbook/assets/issuesbg-2.png" alt=""><figcaption></figcaption></figure>
+
 Software teams have tools like Github Issues and JIRA for tracking issues. What should AI product teams use?
 
 Kiln Issues are an AI-native issue tracker for AI teams. It doesn’t just collect bug reports, but keeps the structured data needed to reproduce, evaluate and fix AI system issues.
@@ -15,7 +17,7 @@ Kiln Issues are an AI-native issue tracker for AI teams. It doesn’t just colle
 
 ### How are Kiln Issues Different than Github Issues, JIRA, etc?
 
-Kiln issues are a way for teams to track known problems, just like Github Issues, JIRA, and countless other bug trackers.&#x20;
+Kiln issues are a way for teams to track known problems, just like Github Issues, JIRA, and countless other bug trackers.
 
 Here's what makes Kiln Issues different from standard software bug trackers:
 

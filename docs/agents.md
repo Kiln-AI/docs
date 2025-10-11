@@ -5,6 +5,8 @@ icon: circle-nodes
 
 # Agents
 
+<figure><img src="../.gitbook/assets/agentsbg-2.png" alt=""><figcaption></figcaption></figure>
+
 Ah "agents", the most overloaded term in AI! The word "Agents" means different things to different people, but the good news is Kiln supports all the patterns typically associated with "agentic systems". Let's break down the common agent features, and how to build them in Kiln!
 
 * [Tool Use](agents.md#tool-use)
