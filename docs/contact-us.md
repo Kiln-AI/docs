@@ -12,5 +12,6 @@ Feel free to reach out:
 * Newsletter: [Newsletter Signup](https://kiln.tech/blog)
 * Blog: [Kiln Blog](https://kiln.tech/blog)
 * Ideas & Discussions: [Github Discussions](https://github.com/Kiln-AI/Kiln/discussions?discussions_q=)
-* Email: support at our\_domain dot ai
+* Email: support at our\_domain
 * Security Reports: [Github Security](https://github.com/Kiln-AI/Kiln/security)
+* [Enterprise Sales](https://kiln.tech/contact_sales)
