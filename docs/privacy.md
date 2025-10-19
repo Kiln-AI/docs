@@ -15,8 +15,16 @@ All of Kiln's source code is on GitHub. Anyone can verify these privacy claims. 
 
 If you use Kiln with API keys (for example, OpenAI or OpenRouter), requests are sent directly from your computer to the API provider. We can't see your keys or any data from those requests.
 
-{% hint style="info" %}
-We collect anonymous usage metrics via [Posthog analytics](https://github.com/PostHog/posthog).
+#### Desktop App Analytics
 
-This analytics data never includes dataset content, API keys, or your identity.
+The Kiln desktop app collects analytics so we can understand how people are using it. This includes analytics like which pages are being visited, and which actions are taken in the app’s UI. Analytics are collected with [Posthog](https://posthog.com/).\
+
+
+* The Kiln Python library does not collect analytics. Only the desktop app’s user interface collects analytics.
+* Analytics never includes your dataset information, such as inputs to models, output from models, project names, etc.
+* Analytics never include your API keys.
+* If you specify you’re using Kiln for personal non-commercial use we do not associate analytics with your personal identity (like your name or email). If you register for commercial usage of Kiln, which is optional and requires an explicit opt-in process, your work email is associated with analytics.
+
+{% hint style="info" %}
+If you opt-in to our email newsletter, we collect your email address to provide you the newsletter. You can unsubscribe any time.
 {% endhint %}
