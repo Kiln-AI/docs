@@ -10,7 +10,7 @@
 * [Synthetic Data Generation](docs/synthetic-data-generation.md)
 * [Fine Tuning Guide](docs/fine-tuning-guide.md)
 * [Evaluations](docs/evaluations/README.md)
-  * [Evaluate Search/RAG with Q\&A Data](docs/evaluations/evaluate-search-rag-with-q-and-a-data.md)
+  * [Evaluate RAG Accuracy: Q\&A Evals](docs/evaluations/evaluate-rag-accuracy-q-and-a-evals.md)
   * [Evaluate Appropriate Tool Use](docs/evaluations/evaluate-appropriate-tool-use.md)
 * [Tools & MCP](docs/tools-and-mcp.md)
 * [Documents & Search (RAG)](docs/documents-and-search-rag.md)
