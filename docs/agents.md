@@ -18,7 +18,7 @@ Ah "agents", the most overloaded term in AI! The word "Agents" means different t
 
 Almost every definition of agents includes tool use. This is some way for the agent to interact with the outside world, such as calling a database, calling an API, or even sending an email.
 
-Kiln has full support for adding tools to your Kiln tasks. Tools can be added to Kiln via [MCP servers](tools-and-mcp.md#connecting-tools) or [Kiln Search Tools (RAG)](documents-and-search-rag.md). See the [Tools & MCP](tools-and-mcp.md) docs for details.
+Kiln has full support for adding tools to your Kiln tasks. Tools can be added to Kiln via [MCP servers](tools-and-mcp.md#connecting-tools) or [Kiln Search Tools (RAG)](documents-and-search-rag/). See the [Tools & MCP](tools-and-mcp.md) docs for details.
 
 ### Multi-Actor Interaction (aka subtasks)
 

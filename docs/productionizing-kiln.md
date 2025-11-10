@@ -11,7 +11,7 @@ Once you've found the ideal way to run your AI workload, you are ready to create
 
 ### Productionizing Kiln Search Tools / RAG
 
-We have multiple options for deploying search tools you build inside of Kiln. See the docs for [deploying search tools / RAG](documents-and-search-rag.md#deploying-your-rag).
+We have multiple options for deploying search tools you build inside of Kiln. See the docs for [deploying search tools / RAG](documents-and-search-rag/#deploying-your-rag).
 
 ### Productionizing Kiln Tasks
 
