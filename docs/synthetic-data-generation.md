@@ -124,7 +124,7 @@ Review the quality of outputs and ensure you're happy with them before proceedin
 
 #### Save Synthetic Data into Dataset
 
-Use the Kiln synthetic data UI to review your data. Once you're happy with the data, click "Save All" to save it into your dataset for use in evals and fine-tuning.&#x20;
+Use the Kiln synthetic data UI to review your data. Once you're happy with the data, click "Save All" to save it into your dataset for use in evals and fine-tuning.
 
 <figure><img src="../.gitbook/assets/Screenshot 2025-09-22 at 7.27.27 PM.png" alt="" width="375"><figcaption><p>Saving All Data</p></figcaption></figure>
 
@@ -132,7 +132,7 @@ The data will automatically be tagged with appropriate tags, based on the goal y
 
 <figure><img src="../.gitbook/assets/Screenshot 2025-09-11 at 1.41.25 PM.png" alt=""><figcaption><p>The tags which will be assigned are shown in the UI</p></figcaption></figure>
 
-Once saved, you can view all of your saved data in the Dataset tab.&#x20;
+Once saved, you can view all of your saved data in the Dataset tab.
 
 ### Automatic Templates and Custom Prompting
 
@@ -160,7 +160,7 @@ Some examples of custom prompts/edits:
 <figure><img src="../.gitbook/assets/Screenshot 2025-07-16 at 10.48.14 AM.png" alt="" width="375"><figcaption><p>Editing a template</p></figcaption></figure>
 
 {% hint style="info" %}
-Often custom guidance is used for producing adversarial content: poor quality or inappropriate content. This is done to ensure an [evaluation](evaluations.md) can detect and fail this sort of content.
+Often custom guidance is used for producing adversarial content: poor quality or inappropriate content. This is done to ensure an [evaluation](evaluations/) can detect and fail this sort of content.
 
 However, LLMs will often do their best to avoid producing poor or inappropriate content, even when asked for it. If you find that's the case, use an uncensored and unaligned model like Dolphin 8x22B or Grok. These models will follow instructions more closely, and do not attempt to censor their content.
 {% endhint %}

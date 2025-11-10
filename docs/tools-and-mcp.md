@@ -5,7 +5,7 @@ icon: hammer
 
 # Tools & MCP
 
-Kiln allows connecting to tools such as [Kiln Search Tools (RAG)](documents-and-search-rag/) or third party tools via via [Model Context Protocol (MCP)](https://modelcontextprotocol.io). These tools can give your Kiln tasks powerful new capabilities.
+Kiln allows connecting to tools such as [Kiln Search Tools (RAG)](documents-and-search-rag.md) or third party tools via via [Model Context Protocol (MCP)](https://modelcontextprotocol.io). These tools can give your Kiln tasks powerful new capabilities.
 
 ## Video Walkthrough
 
@@ -25,7 +25,7 @@ If you want to try tools as quickly as possible, enable the "Math Tools" from th
 
 Kiln allows you to build powerful search tools, which can search thousands of documents for knowledge. These behave like any other tool: each search tool you create, will be automatically available in the tools dropdown.
 
-See the [Documents & Search](documents-and-search-rag/) docs for details.&#x20;
+See the [Documents & Search](documents-and-search-rag.md) docs for details.&#x20;
 
 ### Powerful Example Tools: Web Search, Python Interpreter, and more
 
@@ -145,7 +145,7 @@ The documentation above is for using Kiln as a MCP client (where Kiln calls othe
 
 Kiln can expose tools for:
 
-* Any [Search Tools (RAG)](documents-and-search-rag/) you have created in Kiln
+* Any [Search Tools (RAG)](documents-and-search-rag.md) you have created in Kiln
 * Any [Kiln Task as Tool](agents.md#multi-actor-interaction-aka-subtasks) agents you have created in Kiln
 
 To use Kiln as a tool server

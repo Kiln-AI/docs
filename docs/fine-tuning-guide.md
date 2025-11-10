@@ -162,9 +162,9 @@ What’s next after fine tuning?
 
 We now have 9 fine-tuned models, but which is best for our task? We should evaluate them for quality/speed/cost tradeoffs.
 
-Kiln has [powerful evaluation tools](evaluations.md) to help you though this process. Check out the [evaluation guide](evaluations.md) for details.
+Kiln has [powerful evaluation tools](evaluations/) to help you though this process. Check out the [evaluation guide](evaluations/) for details.
 
-If your task is deterministic (classification), Kiln AI will provide the validation set to OpenAI or Together during tuning, and they will report val\_loss on their dashboard. For non-deterministic tasks (including generative tasks) you can use our [evaluation tools](evaluations.md) to evaluate quality.
+If your task is deterministic (classification), Kiln AI will provide the validation set to OpenAI or Together during tuning, and they will report val\_loss on their dashboard. For non-deterministic tasks (including generative tasks) you can use our [evaluation tools](evaluations/) to evaluate quality.
 
 #### **Exporting Models**
 
