@@ -13,7 +13,7 @@ icon: crystal-ball
 
 Picking a model for a specific task can be hard. Each has different capabilities such as supported JSON modes, reasoning support, API features (logprobs, temperature) and censorship levels. Some work great for synthetic data and evals, others no so much.
 
-We have written over 2000 test cases testing each popular model, on each AI provider, for each important feature. The tests are updated weekly, and we publish these capabilities in our model library. With this knowledge, the  Kiln app automatically suggests appropriate models and model settings for each task. It will even warn you if you select a model that's unlikely to work. Read more on our blog: [I wrote 2000 LLM test cases so you don't have to](https://kiln.tech/blog/i_wrote_2000_llm_test_cases_so_you_dont_have_to).
+We have written over 2000 test cases testing each popular model, on each AI provider, for each important feature. The tests are updated weekly, and we publish these capabilities in our model library. With this knowledge, the Kiln app automatically suggests appropriate models and model settings for each task. It will even warn you if you select a model that's unlikely to work. Read more on our blog: [I wrote 2000 LLM test cases so you don't have to](https://kiln.tech/blog/i_wrote_2000_llm_test_cases_so_you_dont_have_to).
 
 <figure><img src="../.gitbook/assets/beware-2.png" alt="" width="375"><figcaption><p>Kiln's model selector is task aware</p></figcaption></figure>
 
@@ -72,18 +72,16 @@ You can request we add models on our [Discord](https://kiln.tech/discord).
 
 ### Fine-Tuneable Models
 
-The [model library](https://kiln.tech/model_library) or the models tab in app lists many of the of models that Kiln can fine-tune. Kiln can  fine-tune even more models than shown in our library, including:
+The [model library](https://kiln.tech/model_library) or the models tab in app lists many of the of models that Kiln can fine-tune. Kiln can fine-tune even more models than shown in our library, including:
 
 * Additional Fireworks.ai models: as soon as you connect a Fireworks.ai API key, over 60 additional models will be available for tuning in the Kiln UI. These are loaded live from Fireworks, and update automatically as new models are released. See a preview list below.
-* Tune almost any model via tools like Unsloth: see our [fine-tuning guide](fine-tuning-guide.md) for instructions on how to export fine-tuning datasets from Kiln for use with any tuning tool.
+* Tune almost any model via tools like Unsloth: see our [fine-tuning guide](fine-tuning/fine-tuning-guide.md) for instructions on how to export fine-tuning datasets from Kiln for use with any tuning tool.
 
 <details>
 
 <summary>60+ Fine-Tuneable Models on Fireworks.ai</summary>
 
 New models will automatically appear in Kiln as they are released by Fireworks. Here's a snapshot:
-
-
 
 * Chronos Hermes 13B v2 (chronos-hermes-13b-v2)
 * Code Llama 13B (code-llama-13b)

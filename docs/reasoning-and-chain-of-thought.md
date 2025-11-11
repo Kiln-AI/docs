@@ -1,6 +1,6 @@
 ---
-icon: brain
 description: Improve your model's quality with inference time scaling
+icon: brain
 ---
 
 # Reasoning & Chain of Thought
@@ -8,7 +8,7 @@ description: Improve your model's quality with inference time scaling
 <figure><img src="../.gitbook/assets/reasoning (1).png" alt=""><figcaption></figcaption></figure>
 
 {% hint style="info" %}
-Want to dive in and build a reasoning model? See our [Guide for Training A Reasoning Model](guide-train-a-reasoning-model.md)
+Want to dive in and build a reasoning model? See our [Guide for Training A Reasoning Model](fine-tuning/guide-train-a-reasoning-model.md)
 {% endhint %}
 
 Kiln has powerful support for reasoning models and chain of thought. These techniques can generate higher quality results, while also reducing costs and improving performance.
@@ -17,7 +17,7 @@ Kiln has powerful support for reasoning models and chain of thought. These techn
 
 <summary>What are reasoning models and chain of thought?</summary>
 
-Reasoning models and chain of thought (COT) are methods that give models time to "think" before giving a final answer. Their "thinking" takes the form of discussing the request and possible answers in a stream of generated tokens. These additional tokens allow for more complex reasoning, step-by-step thinking, and have been shown to improve the quality of results.&#x20;
+Reasoning models and chain of thought (COT) are methods that give models time to "think" before giving a final answer. Their "thinking" takes the form of discussing the request and possible answers in a stream of generated tokens. These additional tokens allow for more complex reasoning, step-by-step thinking, and have been shown to improve the quality of results.
 
 These approaches are also known as "inference time scaling," where models improve from spending more compute power at inference time — as opposed to improving by spending more compute at training time.
 
@@ -26,7 +26,7 @@ While similar in some ways, the methods have some differences:
 * **Chain of thought** is a method that's been around for a few years, and simply involves asking the model to think before giving an answer. This can be as simple as appending "Think step by step" to your prompt or adding detailed instructions for what the model should "think" about before giving its final answer.
 * **Reasoning/thinking models** like Deepseek R1 or OpenAI's O3 are a newer form of inference time compute, where the model itself was trained to develop powerful reasoning skills. These models are trained with reinforcement learning, where the model is rewarded for being correct and penalized when incorrect. This training system uses deep learning to help models develop reasoning skills across a range of domains.
 
-While reasoning models are generally more powerful than chain of thought, it's often worth testing both approaches for your use case. Thinking models strive to reason about everything effectively, but a well-crafted chain of thought prompt from a human expert can often outperform them when developing use-case-specific models/APIs.&#x20;
+While reasoning models are generally more powerful than chain of thought, it's often worth testing both approaches for your use case. Thinking models strive to reason about everything effectively, but a well-crafted chain of thought prompt from a human expert can often outperform them when developing use-case-specific models/APIs.
 
 </details>
 
@@ -55,7 +55,7 @@ Once the run is complete, you'll see both a final answer and reasoning in the mo
 Kiln can fine-tune a thinking model using your dataset. Often called distillation, these models can learn the reasoning strategies for your use case from examples in your Kiln dataset. By fine-tuning a model, you can produce a model that's smaller, faster, cheaper, and better than the original model (for your use case).
 
 * See our guide on fine-tuning reasoning models
-* See our guide for [general fine-tuning](fine-tuning-guide.md) (non-reasoning models)
+* See our guide for [general fine-tuning](fine-tuning/fine-tuning-guide.md) (non-reasoning models)
 
 {% hint style="info" %}
 Kiln uses supervised fine tuning to distill reasoning models.

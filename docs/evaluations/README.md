@@ -351,7 +351,7 @@ Return to the "Evaluator" screen for your eval, and add a variety of run methods
 * A range of models (SOTA, smaller, open, etc)
 * A range of prompts: both Kiln's [auto-generated prompts](../prompts.md#prompt-generators), and [custom prompts](../prompts.md#custom-prompts-saved-prompts)
 * A range of model parameters: temperature, top\_p, etc
-* Some model fine-tunes of various sizes, created by [Kiln fine tuning](../fine-tuning-guide.md)
+* Some model fine-tunes of various sizes, created by [Kiln fine tuning](../fine-tuning/fine-tuning-guide.md)
 
 Once you've defined a set of run methods, click "Run Eval" to kick off the eval. Behind the scenes, this is performing the following steps:
 

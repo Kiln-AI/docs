@@ -18,7 +18,7 @@ You can follow this guide to create your own LLM fine-tunes. We'll cover:
 A Demo Project:
 
 * \[2 mins]: [Define task, goals, and schema](fine-tuning-guide.md#step-1-define-your-task-and-goals)
-* \[9 mins]: [Synthetic data generation](synthetic-data-generation.md): create 920 high-quality examples for training
+* \[9 mins]: [Synthetic data generation](../synthetic-data-generation.md): create 920 high-quality examples for training
 * \[5 mins]: Dispatch 9 fine tuning jobs: [Fireworks](fine-tuning-guide.md#step-4-dispatch-training-jobs) (Llama 3.2 1b/3b/11b, Llama 3.1 8b/70b, Mixtral 8x7b), [OpenAI](fine-tuning-guide.md#step-4-dispatch-training-jobs) (GPT 4o, 4o-Mini), and [Unsloth](fine-tuning-guide.md#step-6-optional-training-on-your-own-infrastructure) (Llama 3.2 1b/3b). Note: since this guide was written we've added over 60 new models for fine tuning!
 * \[2 mins]: [Deploy your new models and test they work](fine-tuning-guide.md#step-5-deploy-and-run-your-models)
 
@@ -45,10 +45,10 @@ Create a task to fine-tune for
 
 To fine tune, you’ll need a dataset to learn from.
 
-Kiln offers an interactive UI for quickly and easily building synthetic datasets. In the video below we use it to generate 920 training examples in 9 minutes of hands-on work. See our [data gen guide](synthetic-data-generation.md) for more details.
+Kiln offers an interactive UI for quickly and easily building synthetic datasets. In the video below we use it to generate 920 training examples in 9 minutes of hands-on work. See our [data gen guide](../synthetic-data-generation.md) for more details.
 
 {% hint style="info" %}
-All fine tuning data must be tagged with a [tag](organizing-datasets.md#using-tags-to-organize-your-dataset) starting with `fine_tune` (e.g. fine\_tune, fune\_tune\_thinking, fine\_tune\_experiment\_42).
+All fine tuning data must be tagged with a [tag](../organizing-datasets.md#using-tags-to-organize-your-dataset) starting with `fine_tune` (e.g. fine\_tune, fune\_tune\_thinking, fine\_tune\_experiment\_42).
 
 If you launch synthetic data gen from within the "Create a New Fine Tune" screen, the tag `fine_tune` will automatically be added to all generated samples.&#x20;
 
@@ -69,7 +69,7 @@ Kiln supports over 60 fine-tuneable models using three different service based t
 
 * Open AI: GPT 4.1, 4o, 4.1-mini and 4o-mini
 * Google Gemini: Gemini 2.0 flash and Gemini 2.0 Pro
-* Fireworks.ai: over 60 open weight models including Qwen 2.5, Llama 2/3.x, Deepseek V3/R1, QwQ, and more. See the [full list here](models-and-ai-providers.md#additional-fine-tuneable-models).
+* Fireworks.ai: over 60 open weight models including Qwen 2.5, Llama 2/3.x, Deepseek V3/R1, QwQ, and more. See the [full list here](../models-and-ai-providers.md#additional-fine-tuneable-models).
 * Together AI: Llama 3.1 8b/70b, Llama 3.2 1b/3b, Qwen2.5 14b/72b
 
 {% hint style="success" %}
@@ -152,7 +152,7 @@ Meanwhile our fastest fine-tune (Llama 3.2 1b) is about 10x faster and 150x chea
 
 Kiln supports tracking training metrics with the tool [Weights & Biases](https://wandb.ai/site/) . Configure your W\&B API key in `Settings > AI Providers & Models > Weights & Biases` before starting your fine-tuning job. Metrics will appear for any training jobs on Fireworks or Together. OpenAI doesn't support W\&B, but provides similar metrics in their own dashboard, which is linked from the Kiln Fine Tune page.
 
-<figure><img src="../.gitbook/assets/Screenshot 2025-03-19 at 7.27.16 PM.png" alt="" width="287"><figcaption><p>Weights and Biases Metrics</p></figcaption></figure>
+<figure><img src="../../.gitbook/assets/Screenshot 2025-03-19 at 7.27.16 PM.png" alt="" width="287"><figcaption><p>Weights and Biases Metrics</p></figcaption></figure>
 
 ### Next Steps
 
@@ -162,9 +162,9 @@ What’s next after fine tuning?
 
 We now have 9 fine-tuned models, but which is best for our task? We should evaluate them for quality/speed/cost tradeoffs.
 
-Kiln has [powerful evaluation tools](evaluations/) to help you though this process. Check out the [evaluation guide](evaluations/) for details.
+Kiln has [powerful evaluation tools](../evaluations/) to help you though this process. Check out the [evaluation guide](../evaluations/) for details.
 
-If your task is deterministic (classification), Kiln AI will provide the validation set to OpenAI or Together during tuning, and they will report val\_loss on their dashboard. For non-deterministic tasks (including generative tasks) you can use our [evaluation tools](evaluations/) to evaluate quality.
+If your task is deterministic (classification), Kiln AI will provide the validation set to OpenAI or Together during tuning, and they will report val\_loss on their dashboard. For non-deterministic tasks (including generative tasks) you can use our [evaluation tools](../evaluations/) to evaluate quality.
 
 #### **Exporting Models**
 
@@ -182,9 +182,9 @@ Models and products are rarely perfect on their first try. When you find bugs or
 * Experiment with different base-models
 * Experiment with fine-tuning hyperparameters (see the "Advanced Options" section of the UI)
 * Experiment with shorter training prompts, which can reduce costs
-* For one-off bugs you encounter use Kiln to “[repair](repairing-responses.md)” the issues. These get added to your training data for future iterations.
-* For recurring bugs/patterns, use [synthetic data generation](synthetic-data-generation.md) to generate many samples of common bugs, ensure they have correct responses with [human guidance](synthetic-data-generation.md#human-guidance), and add the results to the training set to prevent this class of issues in the future.
-* Rate your dataset using Kiln’s [rating system](reviewing-and-rating.md), then build fine-tunes using only highly rated content.
+* For one-off bugs you encounter use Kiln to “[repair](../repairing-responses.md)” the issues. These get added to your training data for future iterations.
+* For recurring bugs/patterns, use [synthetic data generation](../synthetic-data-generation.md) to generate many samples of common bugs, ensure they have correct responses with [human guidance](../synthetic-data-generation.md#human-guidance), and add the results to the training set to prevent this class of issues in the future.
+* Rate your dataset using Kiln’s [rating system](../reviewing-and-rating.md), then build fine-tunes using only highly rated content.
 * Regenerate fine-tunes as your dataset grows and evolves
 * Try new foundation models (directly and with fine tuning) when new state of the art models are released.
 

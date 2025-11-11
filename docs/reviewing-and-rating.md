@@ -42,5 +42,5 @@ Kiln uses ratings in a variety of ways:
 
 * In evals, ratings of your golden dataset are used to benchmark and compare judges for evaluating your task. This helps you find the [ideal judge](evaluations/#finding-the-ideal-judge).
 * Kiln's [automatic prompt generators](prompts.md#prompt-generators) may incorporate highly rated samples into a prompt. For example, multi-shot or few-shot prompts will automatically incorporate highly rated samples. These filters to examples 4+ stars, and prefers 5-star ratings if available.
-* When creating a [fine-tuning dataset](fine-tuning-guide.md), you may optionally filter the training data to highly rated content.
+* When creating a [fine-tuning dataset](fine-tuning/fine-tuning-guide.md), you may optionally filter the training data to highly rated content.
 * When using the [python library](../developers/python-library-quickstart.md), you can access ratings.
