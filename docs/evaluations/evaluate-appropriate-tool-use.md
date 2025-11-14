@@ -76,12 +76,12 @@ Once configured, save your eval to proceed.
 After creating your eval, populate your eval dataset using synthetic data generation. Clicking "Add Eval Data" from the Evals UI, and selecting "Synthetic Data" will launch the synthetic data generation tool with the proper eval tags already populated.
 
 {% hint style="info" %}
-**Tool-Specific Behavior**: When generating outputs in the synthetic data generation flow, **the tool you're evaluating is automatically enabled** for this step, ensuring your model has the opportunity to call it when appropriate. The system captures the full conversation trace, including whether the tool was called and what parameters were used.
+**Tool-Specific Behaviour**: When generating outputs in the synthetic data generation flow, **the tool you're evaluating is automatically enabled** for this step, ensuring your model has the opportunity to call it when appropriate. The system captures the full conversation trace, including whether the tool was called and what parameters were used.
 
 For general guidance on synthetic data generation, see Synthetic Data Generation.
 {% endhint %}
 
-#### Add Human Ratings
+### Add Human Ratings
 
 When rating your golden dataset for appropriate tool use evals, you'll need to check both the dataset entry and the Message Trace to see if the tool was invoked and with what parameters.
 
@@ -92,7 +92,7 @@ When rating your golden dataset for appropriate tool use evals, you'll need to c
 
 This allows you to accurately rate whether the tool was called appropriately based on the full conversation context.
 
-For your eval output rating, you should click "Pass" if the model's behavior was appropriate and "Fail" if not.
+For your eval output rating, you should click "Pass" if the model's behaviour was appropriate and "Fail" if not.
 
 ### Appropriate Tool Use
 
@@ -104,17 +104,17 @@ For your eval output rating, you should click "Pass" if the model's behavior was
 * The model should have called the tool but did not
 * The model called the tool but shouldn't have, or called it with wrong parameters.
 
-For more details on the general human rating workflow, see Add Human Ratings.
+For more details on the general human rating workflow, see [Add Human Ratings](evaluate-appropriate-tool-use.md#add-human-ratings).
 
 #### Finding the Ideal Judge
 
 Before evaluating different run configurations, you need to create a judge. The eval you created defines the goal, but the judge defines how it's run (judge algorithm, model, and instructions).
 
-For detailed guidance on selecting judge algorithms (LLM as Judge vs G-Eval), models, and customizing evaluation steps, see Add a Judge to your Eval.
+For detailed guidance on selecting judge algorithms (LLM as Judge vs G-Eval), models, and customizing evaluation steps, see [Add a Judge to your Eval](./#add-a-judge-to-your-eval).
 
 The judge will examine the full conversation trace to determine appropriate tool use, using your provided guidelines.
 
-For guidance on comparing judges and finding the one that best aligns with human preferences, see Finding the Ideal Judge.
+For guidance on comparing judges and finding the one that best aligns with human preferences, see [Finding the Ideal Judge](./#finding-the-ideal-judge).
 
 #### Finding the Ideal Run Configuration
 
@@ -128,4 +128,4 @@ You will also be able to see the tools available to each run configuration. Keep
 
 <figure><img src="../../.gitbook/assets/Screenshot 2025-11-14 at 1.33.24 PM.png" alt="" width="375"><figcaption><p>Comparing Run Configurations</p></figcaption></figure>
 
-For detailed guidance on selecting and comparing task model options, see Finding the Ideal Run Method.
+For detailed guidance on selecting and comparing task model options, see e[#finding-the-ideal-run-method](./#finding-the-ideal-run-method "mention").
