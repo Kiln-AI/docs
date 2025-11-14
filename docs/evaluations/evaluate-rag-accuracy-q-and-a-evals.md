@@ -1,35 +1,37 @@
+---
+description: Evaluate the accuracy of your Retrieval-Augmented Generation (RAG) system.
+icon: list-check
+---
+
 # Evaluating RAG with Q\&A Data Gen
 
-Evaluate the accuracy of your Retrieval-Augmented Generation (RAG) system by generating query-answer (Q&A) pairs from your document library and using them as reference answers to test your RAG system's responses.
+### Overview
 
-## Overview
+Reference answer accuracy evals measure how well your model leverages search tools (RAG) by generating query-answer (Q&A) pairs from your document library and using them as reference answers to test your RAG system's responses. This approach includes:
 
-Reference answer accuracy evals are a powerful way to measure how well your model leverages Search Tools (RAG) and answers questions based on your document corpus. The workflow involves:
+* Generating large eval datasets quickly from your existing documents using synthetic Q&A pair generation
+* Creating realistic queries that reflect user questions about your corpus
+* Using reference answers (ground truth) derived from your documents to evaluate accuracy
+* Systematically testing different search tool configurations (chunking strategies, embedding models, etc.) and task models to find optimal settings
 
-1. **Creating an eval** to define what you want to measure
-2. **Generating Q&A pairs** from your documents using AI, where the answers serve as reference answers
-3. **Creating a judge** to score your RAG system's responses against the reference answers
-4. **Comparing results** to find the best configuration for your Search tool and task model
+## Video Guide
 
-This approach is particularly effective because:
-
-* You can generate large eval datasets quickly from your existing documents
-* The queries reflect realistic user questions about your corpus
-* You have reference answers (ground truth) to compare against
-* You can systematically test different search tool configurations (chunking strategies, embedding models, etc.) and task models
+{% hint style="warning" %}
+Coming soon!
+{% endhint %}
 
 ## The Workflow
 
 This guide walks through the RAG-specific workflow for reference answer accuracy evals:
 
-* Creating a Reference Answer Accuracy Eval
-* Generating Q&A pairs from your documents
-* Setting up a Judge
-* Finding the Ideal Run Configuration for RAG
+* [Creating a Reference Answer Accuracy Eval](#creating-a-reference-answer-accuracy-eval)
+* [Generating Q&A pairs from your documents](#generate-qa-pairs)
+* [Setting up a Judge](#setting-up-a-judge)
+* [Finding the Ideal Run Configuration](#finding-the-ideal-run-configuration)
 
 For general eval concepts like judges, run configurations, and comparing results, see [Evaluations](./README.md).
 
-### Creating a Reference Answer Accuracy Eval
+## Creating a Reference Answer Accuracy Eval
 
 From the "Eval" tab in Kiln's UI, create a new evaluator using the "Reference Answer Accuracy Eval (RAG)" template.
 
@@ -37,35 +39,28 @@ From the "Eval" tab in Kiln's UI, create a new evaluator using the "Reference An
 
 Select the template, edit if desired, and save your eval.
 
-### Generate Q&A Pairs
+## Generate Q&A Pairs
 
 Most commonly, you'll want to populate your eval dataset using synthetic Q&A pairs generated from your documents. These pairs include reference answers that serve as ground truth for evaluation. Clicking "Add Eval Data" from the Evals UI, and selecting "Synthetic Data" will launch the Q&A generation tool with the proper eval tags already populated.
 
-**Select Documents**
+### Select Documents
 
-Choose which documents from your library to use for generating Q&A pairs.
-
-**Options:**
+Choose which documents from your library to use for generating Q&A pairs:
 
 * **All documents**: Use every document in your library
 * **Filter by tags**: Select specific documents by applying tag filters. This is useful when you want to generate evals for a specific subset of your corpus.
 
 You can add tags to documents in the Document Library UI (found in the Docs & Search tab) to organize them for filtering.
 
-**Extract Documents**
+### Extract Documents
 
-Before generating Q&A pairs, you need to extract text from your documents.
+Before generating Q&A pairs, you need to extract text from your documents. Choose an extractor config that will process your documents. The extractor converts your documents (PDFs, HTML, etc.) into markdown or plain text. If you've already extracted documents with this extractor, those extractions will be reused.
 
-**Extractor Selection:**
-
-* Choose an extractor config that will process your documents. The extractor converts your documents (PDFs, HTML, etc.) into markdown or plain text.
-* If you've already extracted documents with this extractor, those extractions will be reused.
-
-**Generate Pairs**
+### Generate Pairs
 
 Configure the generation process to create Q&A pairs from your documents.
 
-**Chunking (Optional):**
+**Chunking (Optional)**
 
 Under "Advanced Options", check the "Split documents into smaller chunks" checkbox if you want to split documents before generating pairs. This is recommended for very long documents such as books, manuals, or transcripts. Splitting into smaller chunks helps create more focused Q&A pairs.
 
@@ -74,7 +69,7 @@ Under "Advanced Options", check the "Split documents into smaller chunks" checkb
 
 If you leave it unchecked, Q&A pairs will be generated from entire documents without chunking. This works well for shorter documents or when you want queries that span the full document context.
 
-**Generation Settings:**
+**Generation Settings**
 
 * **Pairs per document/chunk**: How many Q&A pairs to generate from each document/chunk. More pairs give you a larger eval dataset but take longer to generate.
 * **Model and provider**: The AI model used to generate Q&A pairs. Larger models typically produce higher quality pairs.
@@ -82,14 +77,14 @@ If you leave it unchecked, Q&A pairs will be generated from entire documents wit
   * Use the default Q&A generation template (recommended for most cases)
   * Provide custom guidance to focus on specific types of queries (e.g. "Focus on technical questions")
 
-**What Gets Generated:**
+**What Gets Generated**
 
 * **Queries**: Realistic questions that users might ask about your document corpus. These can be:
   * Natural language questions (e.g. "What is the population of Pittsburgh?")
   * Search-style queries (e.g., "Pittsburgh population 2020")
 * **Reference Answers**: Factual, concise answers derived strictly from the document content. These serve as ground truth for evaluating your RAG system's accuracy.
 
-**Review and Save:**
+### Review and Save
 
 * Review generated pairs organized by document/chunk
 * Remove individual pairs, entire chunks or documents if needed
@@ -102,13 +97,13 @@ Pairs will also be saved with tags that identify:
 * They're synthetic Q&A data (`synthetic`, `qna`)
 * Their generation session ID (starting with `synthetic_qna_session`)
 
-### Setting up a Judge
+## Setting up a Judge
 
 Before evaluating different run configurations, you need to create a judge. The eval you created defines the goal, but the judge defines how it's run (judge algorithm, model, and instructions).
 
 Click "Create Judge" to get started. For detailed guidance on selecting judge algorithms (LLM as Judge vs G-Eval), models, and customizing evaluation steps, see [Add a Judge section](./README.md#add-a-judge-to-your-eval).
 
-### Finding the Ideal Run Configuration
+## Finding the Ideal Run Configuration
 
 Once you have a judge set up, you can evaluate different configurations for running your RAG task. You can test different task models, prompts, and model parameters to find the best combination for answering questions from your document corpus. For detailed guidance on selecting and comparing task model options, see [Finding the Ideal Run Method](./README.md#finding-the-ideal-run-method).
 
