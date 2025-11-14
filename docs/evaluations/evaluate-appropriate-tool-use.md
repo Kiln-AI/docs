@@ -29,7 +29,7 @@ This approach includes:
 
 #### The Workflow
 
-This guide covers the tool-specific aspects of appropriate tool use evals. For the general eval workflow including setting up judges, adding human ratings, finding the ideal judge, and finding the ideal run configuration, see [Evaluations](./).
+This guide covers the tool-specific aspects of appropriate tool use evals. For the general eval workflow including setting up judges, adding human ratings, finding the ideal judge, and finding the ideal run configuration, see [main guide to evaluations](./).
 
 The key differences for appropriate tool use evals are:
 
@@ -78,7 +78,7 @@ After creating your eval, populate your eval dataset using synthetic data genera
 {% hint style="info" %}
 **Tool-Specific Behaviour**: When generating outputs in the synthetic data generation flow, **the tool you're evaluating is automatically enabled** for this step, ensuring your model has the opportunity to call it when appropriate. The system captures the full conversation trace, including whether the tool was called and what parameters were used.
 
-For general guidance on synthetic data generation, see Synthetic Data Generation.
+For general guidance on synthetic data generation, see [Synthetic Data Generation](../synthetic-data-generation.md).
 {% endhint %}
 
 ### Add Human Ratings
