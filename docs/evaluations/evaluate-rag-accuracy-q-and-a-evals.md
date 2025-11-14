@@ -16,7 +16,7 @@ This approach is particularly effective because:
 * You can generate large eval datasets quickly from your existing documents
 * The queries reflect realistic user questions about your corpus
 * You have reference answers (ground truth) to compare against
-* You can systematically test different Search tool configurations (chunking strategies, embedding models, etc.) and task models
+* You can systematically test different search tool configurations (chunking strategies, embedding models, etc.) and task models
 
 ## The Workflow
 
@@ -27,7 +27,7 @@ This guide walks through the RAG-specific workflow for reference answer accuracy
 * Setting up a Judge
 * Finding the Ideal Run Configuration for RAG
 
-For general eval concepts like judges, run methods, and comparing results, see the [Evaluations README](./README.md).
+For general eval concepts like judges, run configurations, and comparing results, see [Evaluations](./README.md).
 
 ### Creating a Reference Answer Accuracy Eval
 
@@ -110,7 +110,7 @@ Click "Create Judge" to get started. For detailed guidance on selecting judge al
 
 ### Finding the Ideal Run Configuration
 
-Once you have a judge set up, you can evaluate different methods of running your RAG task. You can test different task models, prompts, and model parameters to find the best combination for answering questions from your document corpus. For detailed guidance on selecting and comparing task model options, see [Finding the Ideal Run Method](./README.md#finding-the-ideal-run-method).
+Once you have a judge set up, you can evaluate different configurations for running your RAG task. You can test different task models, prompts, and model parameters to find the best combination for answering questions from your document corpus. For detailed guidance on selecting and comparing task model options, see [Finding the Ideal Run Method](./README.md#finding-the-ideal-run-method).
 
 Since reference answer accuracy evals specifically test how well your RAG system retrieves and uses information from your documents, you'll also want to test different search tool configurations:
 
@@ -120,10 +120,10 @@ Since reference answer accuracy evals specifically test how well your RAG system
 * Different search index configurations: full-text search, vector search, or hybrid search, with varying K values
 * A range of reranking models, with varying N top results
 
-Once you've defined a set of run methods (combining different task model options and search tool configurations), click "Run Eval" to test them against your Q&A dataset.
+Once you've defined a set of run configurations (combining different task model options and search tool configurations), click "Run Eval" to test them against your Q&A dataset.
 
 **Comparing Results**
 
-After the eval completes, you'll see average scores for each run method. The highest average score indicates the best-performing configuration for your RAG system.
+After the eval completes, you'll see average scores for each run configuration. The highest average score indicates the best-performing configuration for your RAG system.
 
 This systematic approach helps you find the optimal combination of task model and Search Tool settings for answering questions from your document corpus.
