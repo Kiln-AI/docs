@@ -78,14 +78,14 @@ After creating your eval, populate your eval dataset using synthetic data genera
 {% hint style="info" %}
 **Tool-Specific Behaviour**: When generating outputs in the synthetic data generation flow, **the tool you're evaluating is automatically enabled** for this step, ensuring your model has the opportunity to call it when appropriate. The system captures the full conversation trace, including whether the tool was called and what parameters were used.
 
-For general guidance on synthetic data generation, see [Synthetic Data Generation](../synthetic-data-generation.md).
+See our [Synthetic Data Generation docs](../synthetic-data-generation.md) for more guidance.
 {% endhint %}
 
 ### Add Human Ratings
 
 When rating your golden dataset for appropriate tool use evals, you'll need to check both the dataset entry and the Message Trace to see if the tool was invoked and with what parameters.
 
-1. Click the `Rate Golden Dataset` button on the eval screen to go to the dataset view filtered to your golden dataset. For general guidance on rating, see Reviewing and Rating.
+1. Click the `Rate Golden Dataset` button on the eval screen to go to the dataset view filtered to your golden dataset. For general guidance on rating, see [Reviewing and Rating](../reviewing-and-rating.md).
 2. **View the Message Trace** for each dataset entry to inspect:
    * Whether the tool was called
    * What parameters were passed to the tool
@@ -94,17 +94,17 @@ This allows you to accurately rate whether the tool was called appropriately bas
 
 For your eval output rating, you should click "Pass" if the model's behaviour was appropriate and "Fail" if not.
 
-### Appropriate Tool Use
+#### Pass = Appropriate Tool Use
 
 * The model called the tool with correct parameters at the appropriate time
 * The model correctly did not call the tool as it was not needed
 
-### Inappropriate Tool Use
+#### Fail = Inappropriate Tool Use
 
 * The model should have called the tool but did not
 * The model called the tool but shouldn't have, or called it with wrong parameters.
 
-For more details on the general human rating workflow, see [Add Human Ratings](evaluate-appropriate-tool-use.md#add-human-ratings).
+For more details on the human rating workflow, see [Add Human Ratings](evaluate-appropriate-tool-use.md#add-human-ratings).
 
 #### Finding the Ideal Judge
 
