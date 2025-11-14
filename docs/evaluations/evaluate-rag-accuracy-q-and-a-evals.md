@@ -6,6 +6,12 @@ description: >-
 
 # Evaluate RAG Accuracy: Q\&A Evals
 
+{% hint style="success" %}
+**Evaluating RAG is tricky**. An LLM-as-judge doesn't have the knowledge from your documents, so it can't tell if a response is actually correct. But giving the judge access to RAG biases the evaluation.&#x20;
+
+**The solution** is reference-answer evals. The judge compares results to a known correct answer. Building these datasets used to be a long manual process, but Kiln makes the process fast and easy.
+{% endhint %}
+
 #### Overview
 
 Reference answer accuracy evals measure how well your model leverages search tools (RAG) by generating query-answer (Q\&A) pairs from your document library and using them as reference answers to test your RAG system's responses. This approach includes:
@@ -63,7 +69,17 @@ Before generating Q\&A pairs, you need to extract text from your documents. Choo
 
 Configure the generation process to create Q\&A pairs from your documents.
 
-**Chunking (Optional)**
+**Generation Settings**
+
+* **Pairs per document/chunk**: How many Q\&A pairs to generate from each document/chunk. More pairs give you a larger eval dataset but take longer to generate.
+* **Model and provider**: The AI model used to generate Q\&A pairs. Larger models typically produce higher quality pairs.
+* **Guidance**: Optional instructions to steer the generation. You can:
+  * Use the default Q\&A generation template (recommended for most cases)
+  * Provide custom guidance to focus on specific types of queries (e.g. "Focus on technical questions")
+
+<details>
+
+<summary>Optional: Break Long Documents Into <strong>Chunks</strong></summary>
 
 Under "Advanced Options", check the "Split documents into smaller chunks" checkbox if you want to split documents before generating pairs. This is recommended for very long documents such as books, manuals, or transcripts. Splitting into smaller chunks helps create more focused Q\&A pairs.
 
@@ -80,12 +96,14 @@ If you leave it unchecked, Q\&A pairs will be generated from entire documents wi
   * Use the default Q\&A generation template (recommended for most cases)
   * Provide custom guidance to focus on specific types of queries (e.g. "Focus on technical questions")
 
+</details>
+
 **What Gets Generated**
 
 * **Queries**: Realistic questions that users might ask about your document corpus. These can be:
   * Natural language questions (e.g. "What is the population of Pittsburgh?")
   * Search-style queries (e.g., "Pittsburgh population 2020")
-* **Reference Answers**: Factual, concise answers derived strictly from the document content. These serve as ground truth for evaluating your RAG system's accuracy.
+* **Reference Answers**: Factual, concise answers derived from the document content. These serve as ground truth for evaluating your RAG system's accuracy.
 
 #### Review and Save
 
@@ -119,6 +137,8 @@ Since reference answer accuracy evals specifically test how well your RAG system
 * A range of reranking models, with varying N top results
 
 Once you've defined a set of run configurations (combining different task model options and search tool configurations), click "Run Eval" to test them against your Q\&A dataset.
+
+<a href="../documents-and-search-rag.md#optimizing-your-rag" class="button primary">RAG Optimization Guide</a>
 
 **Comparing Results**
 
