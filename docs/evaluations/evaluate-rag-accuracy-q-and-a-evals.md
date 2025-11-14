@@ -30,11 +30,15 @@ This guide walks through the RAG-specific workflow for reference answer accuracy
 
 For general eval concepts like judges, run configurations, and comparing results, see Evaluations.
 
+<figure><img src="../../.gitbook/assets/Screenshot 2025-11-14 at 12.47.34 PM (1).png" alt="" width="375"><figcaption><p>The RAG Eval Process</p></figcaption></figure>
+
 ### Creating a Reference Answer Accuracy Eval
 
 From the "Eval" tab in Kiln's UI, create a new evaluator using the "Reference Answer Accuracy Eval (RAG)" template.
 
+{% hint style="info" %}
 **Reference Answer Accuracy Eval (RAG)**: This template is designed for evaluating Q\&A pairs and includes a Reference Answer Accuracy score (pass/fail) that evaluates if the model's output is accurate as per the reference answer. The template is configured to work with Q\&A datasets built from your documents.
+{% endhint %}
 
 Select the template, edit if desired, and save your eval.
 
