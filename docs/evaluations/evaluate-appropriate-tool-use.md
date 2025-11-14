@@ -128,4 +128,4 @@ You will also be able to see the tools available to each run configuration. Keep
 
 <figure><img src="../../.gitbook/assets/Screenshot 2025-11-14 at 1.33.24 PM.png" alt="" width="375"><figcaption><p>Comparing Run Configurations</p></figcaption></figure>
 
-For detailed guidance on selecting and comparing task model options, see e[#finding-the-ideal-run-method](./#finding-the-ideal-run-method "mention").
+For detailed guidance on selecting and comparing task model options, see [Finding the Ideal Run Method](./#finding-the-ideal-run-method).
