@@ -1,6 +1,5 @@
 ---
 description: Fine tuning 9 Models in 18 minutes
-icon: dial-max
 ---
 
 # Fine Tuning Guide

@@ -1,6 +1,5 @@
 ---
 description: Built a reasoning model, like o3 or R1, for your use case
-icon: person-chalkboard
 ---
 
 # Train a Reasoning Model
