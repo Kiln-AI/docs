@@ -15,7 +15,9 @@ Building a search tool in Kiln takes 3 steps:
 2. [Create a search tool](documents-and-search-rag.md#building-a-search-tool): specify how you want Kiln to search the documents
 3. [Use the tool](documents-and-search-rag.md#using-search-tools): Select the search tool when running your task
 
-{% embed url="https://vimeo.com/1119945690?_loop=1&autoplay=1" %}
+See our Video Guide if you prefer video format:
+
+{% embed url="https://vimeo.com/1138141451" %}
 
 ### Document Library
 
