@@ -184,6 +184,8 @@ Walk through these steps to identify and improve document extraction:
 3. **Customize Extraction Prompts**: The default extraction prompts in Kiln are generalized prompts designed to work with any document. However, if you know your documents are a specific format, you can improve extraction by creating custom extraction prompts for your use case. You can do this when creating a new Search Tool, in the “Advanced section” of the extractor. See the examples below.
 4. **Fully Custom Extraction**: If desired, you can always extract your documents separately using your own code, then add text (`.txt`) or markdown (`.md`) files to Kiln. This gives you complete control. Kiln won’t re-process files that are already in text/markdown formats.
 
+{% embed url="https://vimeo.com/1138970149" %}
+
 <details>
 
 <summary>Custom Extraction Prompt Examples</summary>
