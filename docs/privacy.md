@@ -17,8 +17,7 @@ If you use Kiln with API keys (for example, OpenAI or OpenRouter), requests are 
 
 #### Desktop App Analytics
 
-The Kiln desktop app collects analytics so we can understand how people are using it. This includes analytics like which pages are being visited, and which actions are taken in the app’s UI. Analytics are collected with [Posthog](https://posthog.com/).\
-
+The Kiln desktop app collects analytics so we can understand how people are using it. This includes analytics like which pages are being visited, and which actions are taken in the app’s UI. Analytics are collected with [Posthog](https://posthog.com/).<br>
 
 * The Kiln Python library does not collect analytics. Only the desktop app’s user interface collects analytics.
 * Analytics never includes your dataset information, such as inputs to models, output from models, project names, etc.

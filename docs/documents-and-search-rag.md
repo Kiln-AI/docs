@@ -110,7 +110,7 @@ Want to see more options here? Let us know on our [Discord](https://kiln.tech/di
 
 After adding documents, Kiln must process them before they can be searched. You can monitor progress on the "Search Tools (RAG)" page. See [how it works](documents-and-search-rag.md#how-it-works) below for more information about what each step is doing.
 
-<figure><img src="../.gitbook/assets/image.png" alt="" width="187"><figcaption><p>Waiting on Processing</p></figcaption></figure>
+<figure><img src="../.gitbook/assets/image (1).png" alt="" width="187"><figcaption><p>Waiting on Processing</p></figcaption></figure>
 
 ### Using Search Tools
 
