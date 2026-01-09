@@ -44,13 +44,23 @@ Kiln makes building a tool-calling training dataset easy:
     <figure><img src="../../.gitbook/assets/image.png" alt="" width="375"><figcaption></figcaption></figure>
 
 
-5. Generate synthetic training data.&#x20;
+5. Generate synthetic training data using Kiln's [synthetic data gen](../synthetic-data-generation.md) tool. It will automatically select the correct tools for you when generating sample outputs.
 
-{% hint style="info" %}
-When generating your training data, you typically want to use a larger model and/or a longer prompt with additional guidance about tool use.&#x20;
+#### Distilling Larger Models and Longer Prompts For Better Tool Calling
 
-The improvements from these techniques will be reflected in your training set, which can then be learned by the fine-tuned model.
-{% endhint %}
+On top of learning tool call formatting, your fine-tune is learning when to call each tool, and which parameters to pass. The quality of your resulting fine-tune will largely depend on the quality of your training dataset -- so how do you build a high quality training set for tool calling?
+
+The answer is typically [_distillation_](https://en.wikipedia.org/wiki/Knowledge_distillation): the process of training a model on the output of another model. By using large models with prompts detailing how tools should be used, you can build a high quality dataset showing proper tool use. You can then train a smaller, faster and cheaper model to reproduce similar quality metrics, with lower cost and higher performance.
+
+|                                                                                                                             | Training Set Generation                                                                                                           | Fine Tuned Model                                                                        |
+| --------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| Model                                                                                                                       | Large Model                                                                                                                       | Smaller Model                                                                           |
+| Prompt                                                                                                                      | Long prompt detailing tool calling strategy. This includes when each tool should be used, and detailing which parameters to pass. | Short prompt focused on task. Does not need to address tool-calling strategy in detail. |
+| Reasoning Mode                                                                                                              | Recommended to Enable                                                                                                             | Optional                                                                                |
+| Cost per Token                                                                                                              | Expensive                                                                                                                         | Cheap                                                                                   |
+| Speed                                                                                                                       | Slower                                                                                                                            | Faster                                                                                  |
+| <p>Tool Usage Evals<br><a href="fine-tuning-for-tool-use.md#evaluating-tool-use"><em>Always measure to confirm</em></a></p> | High Quality                                                                                                                      | High quality                                                                            |
+| Origin of Tool Calling Logic                                                                                                | Base model + detailed strategy in prompt                                                                                          | Learned during fine-tuning                                                              |
 
 #### Create a Tool Calling Fine-Tune
 
