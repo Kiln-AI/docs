@@ -48,9 +48,9 @@ Kiln makes building a tool-calling training dataset easy:
 
 #### Distilling Larger Models and Longer Prompts For Better Tool Calling
 
-On top of learning tool call formatting, your fine-tune is learning when to call each tool, and which parameters to pass. The quality of your resulting fine-tune will largely depend on the quality of your training dataset -- so how do you build a high quality training set for tool calling?
+Beyond learning tool-call formatting, your fine-tuned model must learn _when_ to call each tool and _which parameters_ to pass. The quality of the resulting model depends heavily on the quality of the training dataset—so how do you build a high-quality dataset for tool calling?
 
-The answer is typically [_distillation_](https://en.wikipedia.org/wiki/Knowledge_distillation): the process of training a model on the output of another model. By using large models with prompts detailing how tools should be used, you can build a high quality dataset showing proper tool use. You can then train a smaller, faster and cheaper model to reproduce similar quality metrics, with lower cost and higher performance.
+The answer is typically [_distillation_](https://en.wikipedia.org/wiki/Knowledge_distillation): training a model on the outputs of another model. By using larger models with carefully designed prompts that specify how tools should be used, you can generate a high-quality dataset that demonstrates correct tool usage. You can then fine-tune a smaller, faster, and cheaper model to reproduce similar quality.
 
 |                                                                                                                             | Training Set Generation                                                                                                           | Fine Tuned Model                                                                        |
 | --------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
