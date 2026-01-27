@@ -1,6 +1,5 @@
 ---
 description: Evaluate the quality of your models/tasks using state-of-the-art evals
-icon: list-check
 ---
 
 # Evaluations
@@ -47,12 +46,12 @@ This is a quick summary of all of the concepts in creating evals with Kiln:
 
 Working with Evals in Kiln is easy. We'll walk through the flow of creating your first evaluator end to end:
 
-* [Creating an Evaluator](./#creating-an-eval)
-* [Add a Judge to your Eval](./#add-a-judge-to-your-eval)
-* [Create your Eval Datasets](./#create-your-eval-datasets)
-* [Finding the Ideal Judge](./#finding-the-ideal-judge)
-* [Finding the Ideal Run Method](./#finding-the-ideal-run-method)
-* [Iterate and Expand](./#iterate-and-expand)
+* [Creating an Evaluator](evaluations.md#creating-an-eval)
+* [Add a Judge to your Eval](evaluations.md#add-a-judge-to-your-eval)
+* [Create your Eval Datasets](evaluations.md#create-your-eval-datasets)
+* [Finding the Ideal Judge](evaluations.md#finding-the-ideal-judge)
+* [Finding the Ideal Run Method](evaluations.md#finding-the-ideal-run-method)
+* [Iterate and Expand](evaluations.md#iterate-and-expand)
 
 <figure><img src="../../.gitbook/assets/Screenshot 2025-06-27 at 10.52.26 AM.png" alt="" width="188"><figcaption><p>Kiln's UI will guide you</p></figcaption></figure>
 
@@ -178,7 +177,7 @@ If you're creating multiple evals for task, it's usually beneficial to maintain 
 
 #### Populating the Dataset with Synthetic Data
 
-Most commonly, you'll want to populate the datasets using synthetic data. Clicking `Add Eval Data` then `Synthetic Data` from the Evals UI; this will launch the synthetic data gen tool with the proper [eval tags](./#defining-your-dataset-with-tags) already populated. See our [synthetic data generation guide](../synthetic-data-generation.md) for details on generating synthetic data.
+Most commonly, you'll want to populate the datasets using synthetic data. Clicking `Add Eval Data` then `Synthetic Data` from the Evals UI; this will launch the synthetic data gen tool with the proper [eval tags](evaluations.md#defining-your-dataset-with-tags) already populated. See our [synthetic data generation guide](../synthetic-data-generation.md) for details on generating synthetic data.
 
 We suggest at least 160 data samples per eval. Difficult or subjective tasks may require more.
 

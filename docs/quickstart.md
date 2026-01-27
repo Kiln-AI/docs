@@ -66,7 +66,7 @@ Our end to end demo walks you through all the major features of Kiln in a 20 min
 
 Our documents explain each feature, and how to use it:
 
-* [Evaluations](evaluations/)
+* [Evaluations](evals-and-specs/evaluations.md)
 * [Synthetic Data Generation](synthetic-data-generation.md)
 * [Fine Tuning Guide](fine-tuning/fine-tuning-guide.md)
 * [Collaboration](collaboration.md)

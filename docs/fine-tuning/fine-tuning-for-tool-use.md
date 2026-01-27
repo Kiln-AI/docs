@@ -88,4 +88,4 @@ If deploying a fine-tune created in Kiln, always provide the same tools as it wa
 
 #### Evaluating Tool Use
 
-Kiln has a custom eval for [evaluating appropriate tool use](../evaluations/evaluate-appropriate-tool-use.md). We suggest using it to compare the base model to your fine-tune, to confirm performance is improving.
+Kiln has a custom eval for [evaluating appropriate tool use](../evals-and-specs/evaluate-appropriate-tool-use.md). We suggest using it to compare the base model to your fine-tune, to confirm performance is improving.

@@ -160,7 +160,7 @@ Some examples of custom prompts/edits:
 <figure><img src="../.gitbook/assets/Screenshot 2025-07-16 at 10.48.14 AM.png" alt="" width="375"><figcaption><p>Editing a template</p></figcaption></figure>
 
 {% hint style="info" %}
-Often custom guidance is used for producing adversarial content: poor quality or inappropriate content. This is done to ensure an [evaluation](evaluations/) can detect and fail this sort of content.
+Often custom guidance is used for producing adversarial content: poor quality or inappropriate content. This is done to ensure an [evaluation](evals-and-specs/evaluations.md) can detect and fail this sort of content.
 
 However, LLMs will often do their best to avoid producing poor or inappropriate content, even when asked for it. If you find that's the case, use an uncensored and unaligned model like Dolphin 8x22B or Grok. These models will follow instructions more closely, and do not attempt to censor their content.
 {% endhint %}

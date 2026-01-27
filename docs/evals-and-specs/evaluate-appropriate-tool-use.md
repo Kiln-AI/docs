@@ -29,7 +29,7 @@ This approach includes:
 
 #### The Workflow
 
-This guide covers the tool-specific aspects of appropriate tool use evals. For the general eval workflow including setting up judges, adding human ratings, finding the ideal judge, and finding the ideal run configuration, see [main guide to evaluations](./).
+This guide covers the tool-specific aspects of appropriate tool use evals. For the general eval workflow including setting up judges, adding human ratings, finding the ideal judge, and finding the ideal run configuration, see [main guide to evaluations](evaluations.md).
 
 The key differences for appropriate tool use evals are:
 
@@ -110,11 +110,11 @@ For more details on the human rating workflow, see [Add Human Ratings](evaluate-
 
 Before evaluating different run configurations, you need to create a judge. The eval you created defines the goal, but the judge defines how it's run (judge algorithm, model, and instructions).
 
-For detailed guidance on selecting judge algorithms (LLM as Judge vs G-Eval), models, and customizing evaluation steps, see [Add a Judge to your Eval](./#add-a-judge-to-your-eval).
+For detailed guidance on selecting judge algorithms (LLM as Judge vs G-Eval), models, and customizing evaluation steps, see [Add a Judge to your Eval](evaluations.md#add-a-judge-to-your-eval).
 
 The judge will examine the full conversation trace to determine appropriate tool use, using your provided guidelines.
 
-For guidance on comparing judges and finding the one that best aligns with human preferences, see [Finding the Ideal Judge](./#finding-the-ideal-judge).
+For guidance on comparing judges and finding the one that best aligns with human preferences, see [Finding the Ideal Judge](evaluations.md#finding-the-ideal-judge).
 
 #### Finding the Ideal Run Configuration
 
@@ -128,4 +128,4 @@ You will also be able to see the tools available to each run configuration. Keep
 
 <figure><img src="../../.gitbook/assets/Screenshot 2025-11-14 at 1.33.24 PM.png" alt="" width="375"><figcaption><p>Comparing Run Configurations</p></figcaption></figure>
 
-For detailed guidance on selecting and comparing task model options, see [Finding the Ideal Run Method](./#finding-the-ideal-run-method).
+For detailed guidance on selecting and comparing task model options, see [Finding the Ideal Run Method](evaluations.md#finding-the-ideal-run-method).

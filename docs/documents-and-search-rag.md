@@ -152,7 +152,7 @@ Under the hood, there are 4 stages to Kiln's RAG/search pipeline:
 Kiln offers several options for improving your RAG. To do so, you can create multiple search tools, then compare their quality using either:
 
 * Manually review search result quality in the [search tool test UI](documents-and-search-rag.md#testing-your-search-tool)
-* Write [evals](evaluations/) to measure resulting task quality
+* Write [evals](evals-and-specs/evaluations.md) to measure resulting task quality
 
 {% hint style="success" %}
 Kiln will minimize processing where possible. For example, if many search tools all share the same extraction config, it will reuse the prior extractions. This makes experimentation faster and reduces costs.
