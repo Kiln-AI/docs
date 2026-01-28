@@ -10,7 +10,7 @@ icon: list-check
 Kiln has two powerful features to ensure your AI systems perform as expected, drive optimizations and don't regress in quality:
 
 * [**Evaluations**](evaluations.md): powerful AI evals, made easy.&#x20;
-* **Specifications \[Coming Soon]:** Work with Kiln's Copilot to build optimal specifications for agent behaviour, including automatically generating optimal evals/judges.
+* **Specifications \[Docs Coming Soon]:** Work with Kiln's Copilot to build optimal specifications for agent behaviour, including automatically generating optimal evals/judges.
 
 #### Guides
 

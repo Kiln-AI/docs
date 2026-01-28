@@ -4,12 +4,6 @@ description: Build fine-tuned models for calling a set of tools, like MCP
 
 # Fine Tuning for Tool Use
 
-{% hint style="warning" %}
-**Coming soon**
-
-This feature will be in our next release. To use it today, download a daily build.
-{% endhint %}
-
 Kiln can fine-tune a model for calling a specific set of tools. The fine-tuned models can improve over the base model by:
 
 * Learning when to call each tool, and when not to
