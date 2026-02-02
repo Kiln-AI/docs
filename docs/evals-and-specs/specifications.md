@@ -23,6 +23,7 @@ It goes beyond making an eval manually in many ways.&#x20;
 * **Automatic Synthetic Data**: Build robust synthetic dataset for evals and training in seconds
 * **Judge Meta-prompting**: The best way to descrive a issue isn't always the best judge prompt. Our judge meta-prompting takes you issues, and turns them into functional evals.
 * **Easy to Use**: no data-science background needed. Kiln's copilot will walk you through all the steps of defining your judge, creating synthetic data, aligning your judge, and creating training datasets.
+* **Fast**: creating a Spec can be done in as little as 5 minutes, compared to over 30 minutes for an eval.
 
 ### How to Get Started
 
