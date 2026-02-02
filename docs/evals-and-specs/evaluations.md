@@ -6,6 +6,12 @@ description: Evaluate the quality of your models/tasks using state-of-the-art ev
 
 <figure><img src="../../.gitbook/assets/eval_header.png" alt=""><figcaption></figcaption></figure>
 
+{% hint style="success" %}
+[**Kiln Specs**](specifications.md) are an even easier way to build evals. It reduces 6 manual steps into one interactive flow.
+
+<a href="specifications.md" class="button secondary">Try Kiln Specs</a>
+{% endhint %}
+
 ### Overview
 
 Kiln includes a complete platform for ensuring your tasks/models are of the highest possible quality. It includes:
