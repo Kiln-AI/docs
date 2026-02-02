@@ -13,6 +13,7 @@
   * [Train a Reasoning Model](docs/fine-tuning/guide-train-a-reasoning-model.md)
   * [Fine Tuning for Tool Use](docs/fine-tuning/fine-tuning-for-tool-use.md)
 * [Evals & Specs](docs/evals-and-specs/README.md)
+  * [Specifications](docs/evals-and-specs/specifications.md)
   * [Evaluations](docs/evals-and-specs/evaluations.md)
   * [Evaluate RAG Accuracy: Q\&A Evals](docs/evals-and-specs/evaluate-rag-accuracy-q-and-a-evals.md)
   * [Evaluate Appropriate Tool Use](docs/evals-and-specs/evaluate-appropriate-tool-use.md)
