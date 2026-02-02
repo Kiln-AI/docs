@@ -18,6 +18,7 @@ Kiln has two powerful features to ensure your AI systems perform as expected, dr
 
 * [Specs Guide](specifications.md): build an eval, synthetic data, and align your judge in one interactive flow
 * [Evals 101](evaluations.md): build your first eval start to finish&#x20;
+* [Many Small Evals Beat One Big Eval](https://kiln.tech/blog/you_need_many_small_evals_for_ai_products): Blog post which walks through how to setup eval tooling, and how to create an eval culture on your team.
 * [Evaluate RAG Accuracy](evaluate-rag-accuracy-q-and-a-evals.md): Kiln can generate custom Q\&A evals which test your RAG with knowledge from your documents
 * [Evaluate Tool Use](evaluate-appropriate-tool-use.md): ensure your agents are using the right tools, at the right time, with the right parameters with tool use evals
 
