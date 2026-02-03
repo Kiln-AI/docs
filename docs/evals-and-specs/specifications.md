@@ -10,13 +10,11 @@ description: >-
 
 {% embed url="https://vimeo.com/1161246105" %}
 
-### What are Kiln Specs?
-
-Kiln Specs combine 3 of Kiln's best features into an interactive tool.&#x20;
+### What are Kiln Specs?&#x20;
 
 <figure><img src="../../.gitbook/assets/specs img (1).png" alt="" width="375"><figcaption></figcaption></figure>
 
-It goes beyond making an eval manually in many ways.&#x20;
+Kiln Specs combine 3 of Kiln's best features into an interactive tool: evals, synthetic data generation and copilot. Together they goes beyond making an eval manually in several ways:
 
 * **Identify Gaps**: Kiln will read your judge prompt and help refine it. We detect underspecified aspects of your judge, conflicts with your task definition, ambiguous requests that Judges may struggle with and more common issues. It will generate few-shot examples for your judge to help improve judge consistency and reliability.
 * **Interactive Human Alignment**: Getting a LLM-as-Judge to align to a human isn't easy. Human judges make subtle and subjective decisions, and have a hard time articulate exactly why in a way LLMs can duplicate. Our alignment loop finds tough edge cases, and confirms the LLM judge and human judge are aligned. Work with Kiln Copilot iteratively to reduce and eliminate any gaps.
