@@ -10,6 +10,10 @@ description: >-
 
 {% embed url="https://vimeo.com/1161246105" %}
 
+{% hint style="info" %}
+**Note:** Kiln Specs requires a Kiln Copilot account. Registration is free and easy inside the Kiln app.
+{% endhint %}
+
 ### What are Kiln Specs?&#x20;
 
 <figure><img src="../../.gitbook/assets/specs img (1).png" alt="" width="375"><figcaption></figcaption></figure>
