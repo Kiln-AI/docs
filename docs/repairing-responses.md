@@ -1,6 +1,6 @@
 ---
-icon: hammer
 description: '"Teach the model, you will" - ML Yoda'
+icon: hammer
 ---
 
 # Repairing Responses
@@ -28,7 +28,7 @@ Repairing generates some useful data in our dataset, such as:
 
 ### Where is this data used?
 
-Currently this data is used in [repair prompts](prompts.md#prompt-builders-prompt-styles): a prompt style that includes both all of the data above in a multi-shot prompt format.
+Currently this data is used in [repair prompts](prompts/#prompt-builders-prompt-styles): a prompt style that includes both all of the data above in a multi-shot prompt format.
 
 In the future we plan to use it in other places, like evaluations, so collecting it now will help you in the future.
 

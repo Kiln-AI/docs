@@ -47,7 +47,7 @@ Here are some tips to getting consistent JSON output:
 * Use a model that is suggested for JSON output. The model drop down will warn you if you're using an untested model, or a model with known issues producing JSON.
 * Consider [fine-tuning a model](fine-tuning/fine-tuning-guide.md) on synthetic data from a larger and more reliable model. Fine tuning is a great way to get consistent format output, and you can get models as small as 1B parameters to consistently produce JSON with fine-tuning.
 * Don't use an output schema unless necessary. If you only require plain text output from your task, be sure to select plaintext as the output format when creating the task. This will work with well with any model.
-* Try adding an example of the output structure you want to your prompt. You can do this in `Settings > Edit Task > Task Instructions` or via a [custom prompt](prompts.md#custom-prompts-saved-prompts). For example, add this to your prompt:
+* Try adding an example of the output structure you want to your prompt. You can do this in `Settings > Edit Task > Task Instructions` or via a [custom prompt](prompts/#custom-prompts-saved-prompts). For example, add this to your prompt:
 
 ````
 Provide the output in the following JSON format:

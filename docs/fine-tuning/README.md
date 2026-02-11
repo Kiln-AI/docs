@@ -1,6 +1,6 @@
 ---
 description: Create custom fine-tuned models for your use case
-icon: dial-max
+icon: radio-tuner
 ---
 
 # Fine Tuning

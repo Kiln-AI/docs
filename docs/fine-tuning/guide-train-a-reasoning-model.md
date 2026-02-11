@@ -29,7 +29,7 @@ See below for [how to choose between reasoning and chain of thought](guide-train
 <figure><img src="../../.gitbook/assets/run method.png" alt="" width="375"><figcaption><p>Synthetic Data Run Options</p></figcaption></figure>
 
 {% hint style="info" %}
-If you're using multi-shot prompting, also ensure your prompt examples have appropriate reasoning data. Consider a [custom prompt](../prompts.md#custom-prompts-saved-prompts) with examples demonstrating ideal reasoning for your task.
+If you're using multi-shot prompting, also ensure your prompt examples have appropriate reasoning data. Consider a [custom prompt](../prompts/#custom-prompts-saved-prompts) with examples demonstrating ideal reasoning for your task.
 {% endhint %}
 
 ### Create a training dataset filtered to samples with reasoning
