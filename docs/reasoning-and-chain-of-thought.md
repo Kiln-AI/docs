@@ -38,7 +38,7 @@ Kiln has native support for both these methods. This includes:
 * [**Data Model**](../developers/kiln-datamodel.md)**:** Our data model stores thinking separately from final answers, allowing you to evaluate or train on them independently.
 * [**Custom Message Flow**](reasoning-and-chain-of-thought.md#custom-message-chat-flow)**:** When using chain-of-thought with models that don't support reasoning we make a chain of calls to the model to formally separate the thinking from the answer.
 * [**Structured Data**](structured-data-json.md): Our chat call flow allows for the final answer messages to use structured data tools (json\_schema, json\_object, tool-calls, etc.) without adding "thinking" fields to your data structures.
-* [**Prompts**](prompts/)**:** Prompts are divided into the primary system message and a separate "thinking instruction."
+* [**Prompts**](prompts.md)**:** Prompts are divided into the primary system message and a separate "thinking instruction."
 * **Reasoning Parsers:** Kiln includes parsers that separate out "thinking" from answers for common thinking models.
 
 ### Using Reasoning or COT in Kiln for inference

@@ -354,7 +354,7 @@ Now that we have an evaluator we trust, we can use it to rapidly evaluate a vari
 Return to the "Evaluator" screen for your eval, and add a variety of run methods you want to compare. We suggest:
 
 * A range of models (SOTA, smaller, open, etc)
-* A range of prompts: both Kiln's [auto-generated prompts](../prompts/#prompt-generators), and [custom prompts](../prompts/#custom-prompts-saved-prompts)
+* A range of prompts: both Kiln's [auto-generated prompts](../prompts.md#prompt-generators), and [custom prompts](../prompts.md#custom-prompts-saved-prompts)
 * A range of model parameters: temperature, top\_p, etc
 * Some model fine-tunes of various sizes, created by [Kiln fine tuning](../fine-tuning/fine-tuning-guide.md)
 

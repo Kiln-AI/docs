@@ -22,7 +22,7 @@ Here's a high level overview of the Kiln datamodel. A project folder will reflec
   * Task: a specific task including prompt instructions, input/output schemas, and requirements.
     * TaskRun: a sample (run) of a task including input, output, and human rating information.
     * [Finetune](../docs/fine-tuning/fine-tuning-guide.md): a model for fine-tuning jobs. Includes configuration, status tracking, and data necessary to call the deployed fine-tuned model.
-    * [Prompts](../docs/prompts/): a custom prompt for this task. See our [prompts docs](../docs/prompts/) for details.
+    * [Prompts](../docs/prompts.md): a custom prompt for this task. See our [prompts docs](../docs/prompts.md) for details.
     * DatasetSplit: a frozen collection of task runs divided into train/test/validation splits.
     * [Task Run Config](../docs/evals-and-specs/evaluations.md#finding-the-ideal-run-method): a specific method of running this task, including a prompt and model.
     * [Eval](../docs/evals-and-specs/evaluations.md): an evaluation of this task, including output score definitions and datasets to run this eval on

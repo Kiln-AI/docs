@@ -18,7 +18,7 @@
   * [Evaluate RAG Accuracy: Q\&A Evals](docs/evals-and-specs/evaluate-rag-accuracy-q-and-a-evals.md)
   * [Evaluate Appropriate Tool Use](docs/evals-and-specs/evaluate-appropriate-tool-use.md)
 * [Tools & MCP](docs/tools-and-mcp.md)
-* [Prompts](docs/prompts/README.md)
+* [Prompts](docs/prompts.md)
   * [Automatic Prompt Optimizer](docs/prompts/automatic-prompt-optimizer.md)
   * [Prompt Generators](docs/prompts/prompt-generators.md)
 * [Documents & Search (RAG)](docs/documents-and-search-rag.md)
