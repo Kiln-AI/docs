@@ -24,7 +24,7 @@ Kiln’s Prompt Optimizer automatically finds high-performing prompts for your t
 
 To find the optimal prompt, Kiln Prompt Optimizer combines [Kiln Specs & Evals](../evals-and-specs/), synthetic training dataset generation, and algorithmic reflective prompt evolution.
 
-Instead of human trial-and-error, Kiln will run thousands of automated experiments and iteratively find an optimial prompt for a given model and task.
+Instead of human trial-and-error, Kiln will run thousands of automated experiments and iteratively find an optimal prompt for a given model and task.
 
 #### Kiln Specs & Evals Drive Quality
 
@@ -56,7 +56,7 @@ The process is conceptually similar to fine-tuning, but instead of updating mode
 ### Guide
 
 1. **Create one or more** [**specs or evals**](../evals-and-specs/) that define the desired behaviour of your product.
-2. **Choose a base model** that performs reasonably well on your task. If it can performe well on a naive prompt, it's more likley to improve with prompt optimization. The prompt we produce will be optimized for this specific model, and may not work as well on other models.
+2. **Choose a base model** that performs reasonably well on your task. If it can perform well on a naive prompt, it's more likely to improve with prompt optimization. The prompt we produce will be optimized for this specific model, and may not work as well on other models.
 3. **Run the Prompt Optimizer** to evolve and validate improved prompts. Simply select "Create Prompt" in the UI and follow the steps.
 
 ### **Fine Tuning vs Prompt Optimization**
