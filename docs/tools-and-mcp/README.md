@@ -5,7 +5,7 @@ icon: hammer
 
 # Tools & MCP
 
-Kiln allows connecting to tools such as [Kiln Search Tools (RAG)](documents-and-search-rag.md) or third party tools via via [Model Context Protocol (MCP)](https://modelcontextprotocol.io). These tools can give your Kiln tasks powerful new capabilities.
+Kiln allows connecting to tools such as [Kiln Search Tools (RAG)](../documents-and-search-rag.md) or third party tools via via [Model Context Protocol (MCP)](https://modelcontextprotocol.io). These tools can give your Kiln tasks powerful new capabilities.
 
 ## Video Walkthrough
 
@@ -25,7 +25,7 @@ If you want to try tools as quickly as possible, enable the "Math Tools" from th
 
 Kiln allows you to build powerful search tools, which can search thousands of documents for knowledge. These behave like any other tool: each search tool you create, will be automatically available in the tools dropdown.
 
-See the [Documents & Search](documents-and-search-rag.md) docs for details.&#x20;
+See the [Documents & Search](../documents-and-search-rag.md) docs for details.&#x20;
 
 ### Powerful Example Tools: Web Search, Python Interpreter, and more
 
@@ -41,11 +41,11 @@ Kiln has several popular MCP servers pre-configured. You can get started with th
 * [Stock Quotes by Twelve Data](https://github.com/twelvedata/mcp): Realtime access to stock quotes and other market data. Requires a Twelve Data API key.
 * [Control Github by Github](https://github.com/github/github-mcp-server): Manage repos, issues, PRs and workflows. Requires a GitHub Access Token.
 
-<figure><img src="../.gitbook/assets/Screenshot 2025-09-04 at 1.47.57 PM (1).png" alt=""><figcaption><p>Example tools on the "Add Tools" screen</p></figcaption></figure>
+<figure><img src="../../.gitbook/assets/Screenshot 2025-09-04 at 1.47.57 PM (1).png" alt=""><figcaption><p>Example tools on the "Add Tools" screen</p></figcaption></figure>
 
 You may need to install developer tools like Node.js or Deno before running these MCP servers. In each case, there’s a header at the top with a link to the appropriate dependency:
 
-<figure><img src="../.gitbook/assets/Screenshot 2025-09-04 at 1.45.40 PM.png" alt="" width="375"><figcaption><p>Example dependency warning</p></figcaption></figure>
+<figure><img src="../../.gitbook/assets/Screenshot 2025-09-04 at 1.45.40 PM.png" alt="" width="375"><figcaption><p>Example dependency warning</p></figcaption></figure>
 
 ### Adding Custom MCP Servers
 
@@ -63,7 +63,7 @@ Once you’ve found a local MCP server you want to connect, click “Settings”
 * Name and Description: fields for you and your team to identify the server
 * Command: The command to run. Just the actual command, not including arguments. For example: `npx`, `uvx`, `deno`, or similar. It should not include spaces.
 * Arguments: any arguments to pass to the command, for example the `-y firecrawl-mcp` portion of the command `npx -y firecrawl-mcp`
-* Environment variables: a list of environment variables. Be sure to specify which are secrets (like API keys), so that these aren't synced into your Kiln project on Git ([more info](tools-and-mcp.md#secret-management)).
+* Environment variables: a list of environment variables. Be sure to specify which are secrets (like API keys), so that these aren't synced into your Kiln project on Git ([more info](./#secret-management)).
 
 {% hint style="info" %}
 Be sure the server runs in [stdio mode](https://modelcontextprotocol.io/specification/2025-06-18/basic/transports#stdio). This is normally the default, but mode is sometimes is exposed as an argument.
@@ -87,13 +87,13 @@ Once you’ve found a remote MCP server you want to connect, click “Settings�
 
 * Name and Description: fields for you and your team to identify the server
 * Server URL: The URL to the remote MCP server, for example https://api.githubcopilot.com/mcp/
-* Headers: a list of headers to pass when calling the remote MCP server. Be sure to specify which are secrets (like API keys), so that these aren't synced into your Kiln project on Git ([more info](tools-and-mcp.md#secret-management)).
+* Headers: a list of headers to pass when calling the remote MCP server. Be sure to specify which are secrets (like API keys), so that these aren't synced into your Kiln project on Git ([more info](./#secret-management)).
 
 ## Using Tools
 
 Once you’ve connected tools, you can use them in any of your tasks. On the “Run” screen you can select which tools will be available to the model under “Advanced”. You can select any number of tools, then run your task as you normally would.
 
-<figure><img src="../.gitbook/assets/Screenshot 2025-09-04 at 2.08.06 PM.png" alt="" width="182"><figcaption></figcaption></figure>
+<figure><img src="../../.gitbook/assets/Screenshot 2025-09-04 at 2.08.06 PM.png" alt="" width="182"><figcaption></figcaption></figure>
 
 ### Viewing Tool Calls
 
@@ -105,7 +105,7 @@ Tool calls happen behind the scenes, between the user message and the model's fi
 
 If you want to view which tools were called, their arguments, and their results look at the "All Messages" section on the "Run" screen or when viewing a dataset entry. You'll be able to see tool calls the model makes, as well as the tool's response:
 
-<figure><img src="../.gitbook/assets/Screenshot 2025-09-22 at 11.49.42 AM.png" alt="A Trace Including Tool Calls" width="375"><figcaption><p>A Trace Showing a Tool Call</p></figcaption></figure>
+<figure><img src="../../.gitbook/assets/Screenshot 2025-09-22 at 11.49.42 AM.png" alt="A Trace Including Tool Calls" width="375"><figcaption><p>A Trace Showing a Tool Call</p></figcaption></figure>
 
 ## Guidance / Understanding Tools
 
@@ -117,7 +117,7 @@ Kiln tests every model for its capabilities to minimize guesswork; you can read 
 
 When you select a model in Kiln, you’ll see a warning if tools are not supported. While you can still try these models, they are likely to fail:
 
-<figure><img src="../.gitbook/assets/Screenshot 2025-09-05 at 2.24.36 PM.png" alt="" width="375"><figcaption><p>Ignore the warnings at your peril</p></figcaption></figure>
+<figure><img src="../../.gitbook/assets/Screenshot 2025-09-05 at 2.24.36 PM.png" alt="" width="375"><figcaption><p>Ignore the warnings at your peril</p></figcaption></figure>
 
 ### Don’t Add Too Many Tools
 
@@ -125,7 +125,7 @@ When you add tools to a task run, the model processes their names and descriptio
 
 See our [video guide at 7m23s](https://youtu.be/qh0FIrLMrII?si=CHiJ1CCen_2MA5A3\&t=443) for a discussion of these concepts:
 
-<figure><img src="../.gitbook/assets/Context-2.png" alt=""><figcaption></figcaption></figure>
+<figure><img src="../../.gitbook/assets/Context-2.png" alt=""><figcaption></figcaption></figure>
 
 ### Synthetic Data & Fine-Tuning with Tools
 
@@ -133,11 +133,11 @@ At this time, Kiln doesn’t support tool calling for synthetic data and fine-tu
 
 ### Secret Management
 
-Often MCP servers require secrets, like API keys. However, Kiln projects are designed to be [shared across teams with Git](collaboration.md) and you don’t want to commit secrets in a Git repo.
+Often MCP servers require secrets, like API keys. However, Kiln projects are designed to be [shared across teams with Git](../collaboration.md) and you don’t want to commit secrets in a Git repo.
 
 To address this, Kiln allows you to mark headers and environment variables as secrets. Secrets are never stored in the Kiln project files, which are designed to be shared/synced. If a team member adds a tool which requires secrets, anyone who syncs it will have to re-enter the secrets in settings before using the tool. Non-secret headers and environment variables will be synced automatically.
 
-<figure><img src="../.gitbook/assets/Screenshot 2025-09-05 at 3.42.28 PM.png" alt="" width="375"><figcaption><p>Identify secrets on tool setup</p></figcaption></figure>
+<figure><img src="../../.gitbook/assets/Screenshot 2025-09-05 at 3.42.28 PM.png" alt="" width="375"><figcaption><p>Identify secrets on tool setup</p></figcaption></figure>
 
 ## Kiln MCP Server
 
@@ -145,8 +145,8 @@ The documentation above is for using Kiln as a MCP client (where Kiln calls othe
 
 Kiln can expose tools for:
 
-* Any [Search Tools (RAG)](documents-and-search-rag.md) you have created in Kiln
-* Any [Kiln Task as Tool](agents.md#multi-actor-interaction-aka-subtasks) agents you have created in Kiln
+* Any [Search Tools (RAG)](../documents-and-search-rag.md) you have created in Kiln
+* Any [Kiln Task as Tool](../agents.md#multi-actor-interaction-aka-subtasks) agents you have created in Kiln
 
 To use Kiln as a tool server
 
