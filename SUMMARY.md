@@ -18,7 +18,7 @@
   * [Evaluate RAG Accuracy: Q\&A Evals](docs/evals-and-specs/evaluate-rag-accuracy-q-and-a-evals.md)
   * [Evaluate Appropriate Tool Use](docs/evals-and-specs/evaluate-appropriate-tool-use.md)
 * [Tools & MCP](docs/tools-and-mcp/README.md)
-  * [Running Tools as Tasks](docs/tools-and-mcp/running-tools-as-tasks.md)
+  * [Connect to Existing Agents](docs/tools-and-mcp/connect-to-existing-agents.md)
 * [Prompts](docs/prompts.md)
   * [Automatic Prompt Optimizer](docs/prompts/automatic-prompt-optimizer.md)
   * [Prompt Generators](docs/prompts/prompt-generators.md)

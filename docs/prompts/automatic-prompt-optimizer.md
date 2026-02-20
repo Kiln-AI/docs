@@ -5,12 +5,6 @@ description: Find the best prompt for your task, automatically.
 # Automatic Prompt Optimizer
 
 {% hint style="warning" %}
-**Coming Soon**
-
-Kiln Prompt Optimizer will be in our next release!
-{% endhint %}
-
-{% hint style="warning" %}
 **Kiln Prompt Optimizer Requires a Kiln Copilot Enterprise Plan**
 
 The Kiln Prompt Optimizer runs on Kiln's servers, and consumes millions of tokens each run. Due to the high cost of running the optimizer, the prompt optimizer is a paid feature.
@@ -28,7 +22,7 @@ Instead of human trial-and-error, Kiln will run thousands of automated experimen
 
 #### Kiln Specs & Evals Drive Quality
 
-We can't optimize something unless we can measure it, so the heart of our prompt optimizer is [Kiln Specs & Evals](../evals-and-specs/).&#x20;
+We can't optimize something unless we can measure it, so the heart of our prompt optimizer is [Kiln Specs & Evals](../evals-and-specs/).
 
 Follow our guides to create evals that measure your task's quality. The better your evals are at assessing quality, the better the prompt optimizer will work. Some guidance:
 
@@ -75,4 +69,3 @@ Prompt optimization is typically **faster and easier** than fine-tuning. We gene
 | **Time**                | 20m to 1 day              | \~1 hour                     |
 | **Interpretability**    | Can't interpret changes   | Easy: read your new prompt   |
 | **Deployment Effort**   | High: host a custom model | Low: just change your prompt |
-
