@@ -9,6 +9,7 @@ Kiln AI is the easiest tool for:
 
 * 🎛️ [**Fine Tuning**](docs/fine-tuning/fine-tuning-guide.md): Zero-code fine-tuning for Llama, GPT-4o, and more. Automatic serverless deployment of models.
 * 📊 [**Evals & Specs**](docs/evals-and-specs/evaluations.md)**:** Evaluate the quality of your models/tasks using state of the art evaluators.
+* 📈 [**Optimizers**](docs/optimizers.md): Find the best model, prompt or fine-tune for your task. Improve quality and lower costs.
 * 🔍 [**Docs & Search (RAG)**](docs/documents-and-search-rag.md): Add knowledge to your AI systems with Retrieval-Augmented Generation (RAG)
 * 🤖 [**Agents**](docs/agents.md) Build agentic systems with multiple actors
 * 🛠 [**Tools & MCP**](docs/tools-and-mcp/): Connect powerful tools to your Kiln tasks
