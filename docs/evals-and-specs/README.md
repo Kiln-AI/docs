@@ -21,4 +21,5 @@ Kiln has two powerful features to ensure your AI systems perform as expected, dr
 * [Many Small Evals Beat One Big Eval](https://kiln.tech/blog/you_need_many_small_evals_for_ai_products): Blog post which walks through how to setup eval tooling, and how to create an eval culture on your team.
 * [Evaluate RAG Accuracy](evaluate-rag-accuracy-q-and-a-evals.md): Kiln can generate custom Q\&A evals which test your RAG with knowledge from your documents
 * [Evaluate Tool Use](evaluate-appropriate-tool-use.md): ensure your agents are using the right tools, at the right time, with the right parameters with tool use evals
+* [Use Kiln Evals on External Agents](../tools-and-mcp/connect-to-existing-agents.md): If you've built agents in another platform, you can still evaluate them in Kiln using our MCP connectors.
 
