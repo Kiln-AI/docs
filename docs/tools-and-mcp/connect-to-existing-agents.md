@@ -6,11 +6,11 @@ description: You can connect Kiln Evals to existing agents on any platform, usin
 
 If you've already built an agent using another platform, you can still use Kiln to evaluate and optimize your system!
 
-### Step 1: Expose your Existing Agent as a MCP Server
+### Step 1: Expose your Existing Agent as an MCP Server
 
-Wrap your existing agent in a [MCP server](https://modelcontextprotocol.io/docs/getting-started/intro), so Kiln can call it. You can use any library, framework, or programming language.
+Wrap your existing agent in an [MCP server](https://modelcontextprotocol.io/docs/getting-started/intro), so Kiln can call it. You can use any library, framework, or programming language.
 
-Exactly how to do this will depend on how you implemented your existing agents, but every major programming language has a MCP library for wrapping existing functions as MCP servers:
+Exactly how to do this will depend on how you implemented your existing agents, but every major programming language has an MCP library for wrapping existing functions as MCP servers:
 
 * [Python](https://github.com/modelcontextprotocol/python-sdk?utm_source=chatgpt.com)
 * [Javascript/Typescript](https://github.com/modelcontextprotocol/typescript-sdk?utm_source=chatgpt.com)
@@ -23,11 +23,11 @@ Exactly how to do this will depend on how you implemented your existing agents, 
 
 Follow [our instructions](./#connecting-tools) to connect your MCP server to Kiln.
 
-### Step 3: Connect a MCP Tool to a Kiln Task
+### Step 3: Connect an MCP Tool to a Kiln Task
 
-A "task" in Kiln represents a unit of work an agent can do. It has a specific input/output schema, and may have a collection of evals to measure quality. There are a number of ways to connect a MCP tool to your Kiln tasks.
+A "task" in Kiln represents a unit of work an agent can do. It has a specific input/output schema, and may have a collection of evals to measure quality. There are a number of ways to connect an MCP tool to your Kiln tasks.
 
-#### Option 1: Create a New Kiln Task From a MCP Tool
+#### Option 1: Create a New Kiln Task From an MCP Tool
 
 The easiest way is to create a new task from your MCP tool signature. It will create a new task with the exact same input and output schema as your MCP tool.
 
@@ -45,17 +45,17 @@ Any existing Kiln task can call your MCP tools. You can give your existing agent
 
 This is a great approach if your task's input/output schemas doesn't exactly match your tool's input/output schemas. The wrapping LLM agent can follow instructions, and call the tool with the needed parameters.
 
-#### Option 3: Connect a MCP Tool to an Existing Task
+#### Option 3: Connect an MCP Tool to an Existing Task
 
 If you have an existing Kiln task and want to use Kiln to compare multiple methods of running your task (MCP tools, Kiln agents), you can connect your MCP tool to an existing task as a "Run Configuration". Run configurations describe how to run a specific task. For an agent, it's typically fields like model, system prompt, and LLM parameters; however, a run configuration can also point to any MCP server.
 
 {% hint style="info" %}
-The input/output signature of your MCP tool **must exactly match** the input/output signature of your Kiln task, or you won't be able to directly connect a task to a MCP tool.
+The input/output signature of your MCP tool **must exactly match** the input/output signature of your Kiln task, or you won't be able to directly connect a task to an MCP tool.
 
 If it doesn't match, we suggest either using a wrapper agent (option 2) or modifying the MCP tool's schema to align to your task.
 {% endhint %}
 
-To connect a MCP tool to an existing task, click  `Settings > Manage Tools > Tool Server > Individual Tool > [...] Menu > Run Task with Tool > Run Task Directly`.
+To connect an MCP tool to an existing task, click  `Settings > Manage Tools > Tool Server > Individual Tool > [...] Menu > Run Task with Tool > Run Task Directly`.
 
 <figure><img src="../../.gitbook/assets/Screenshot 2026-02-20 at 2.47.25 PM.png" alt="" width="375"><figcaption></figcaption></figure>
 
