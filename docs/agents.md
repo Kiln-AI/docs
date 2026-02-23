@@ -95,7 +95,7 @@ A common issue with agentic systems is that the context window (chat history) ge
 
 * **Filling the context window**: if the context window grows larger than the model supports, it will error and fail
 * **Degraded quality**: a large context window can degrade the quality of newly generated content, especially if some of the messages are no longer relevant or inaccurate.
-* **Increased costs**: each new message has process all of the tokens in the chat history. Even a short message at the end of a long chain can be expensive. \[note]
+* **Increased costs**: each new message has to process all of the tokens in the chat history. Even a short message at the end of a long chain can be expensive. \[note]
 
 {% hint style="success" %}
 **Using subtasks is the easiest way to solve context management issues!**

@@ -7,7 +7,7 @@ icon: industry-windows
 
 Kiln is a great place to rapidly experiment with many models, providers, fine-tunes, and prompts.&#x20;
 
-Once you've found the ideal way to run your AI workload, you are ready to create (or iterate) on your product. This guide walks through the options for creating prodcuts from Kiln projects.
+Once you've found the ideal way to run your AI workload, you are ready to create (or iterate) on your product. This guide walks through the options for creating products from Kiln projects.
 
 ### Productionizing Kiln Tasks
 
@@ -24,7 +24,7 @@ We have multiple options for deploying search tools you build inside of Kiln. Se
 #### Option 3: \[Simple Tasks Only] Replicate Kiln Prompts and Requests in the Framework of your Choice&#x20;
 
 {% hint style="warning" %}
-This approach works well for simple single-turn AI tasks. However replicating a complete agent system with sub-agents, tools, or RAG can be quite challening. We suggest using the Kiln library for complex tasks.
+This approach works well for simple single-turn AI tasks. However replicating a complete agent system with sub-agents, tools, or RAG can be quite challenging. We suggest using the Kiln library for complex tasks.
 {% endhint %}
 
 Every model request sent from Kiln is logged to `~/.kiln_ai/logs/model_calls.log` .  This includes the messages and any parameters sent to the API (model, temperature, reasoning, etc). It even includes a curl command to replicate the call Kiln made from the command line.

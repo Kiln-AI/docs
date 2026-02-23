@@ -39,7 +39,7 @@ Kiln's data structure was designed with collaboration in mind:
 
 * A Kiln project is simply a folder of files, which makes it compatible with a range of existing collaboration tools, from Git to Dropbox
 * New items use unique random IDs to avoid conflicts/collisions, allowing many people to work concurrently on the same project.
-* Projects files are kept small and predominantly append-only. It's rare multiple people will need to work on the same file at the same time, reducing conflicts.
+* Project files are kept small and predominantly append-only. It's rare multiple people will need to work on the same file at the same time, reducing conflicts.
 * The Kiln project files are JSON files, and are formatted to be easily used with diff tools and standard PR tools (GitHub, GitLab, etc).
 * Static paths: even when changing the name of resource, the path will remain static.
 

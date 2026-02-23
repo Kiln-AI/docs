@@ -199,7 +199,7 @@ If after rating your golden set doesn't a range of content (for example, one sco
 
 #### Tagging the Eval Datasets
 
-If you've launched the synthetic data generator from the evals UI, it will know to assign the needed tags in the apppriopiate ratio. There's no need to manually tag dataset items.
+If you've launched the synthetic data generator from the evals UI, it will know to assign the needed tags in the appropriate ratio. There's no need to manually tag dataset items.
 
 <figure><img src="../../.gitbook/assets/Screenshot 2025-07-16 at 12.52.18 PM.png" alt=""><figcaption><p>Data gen will populate target tags when launched from Evals</p></figcaption></figure>
 

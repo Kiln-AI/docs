@@ -44,7 +44,7 @@ The key differences for appropriate tool use evals are:
 From the "Eval" tab in Kiln's UI, create a new evaluator using the "Appropriate Tool Use" template.
 
 {% hint style="info" %}
-**Appropriate Tool Use**: This template is designed for evaluating tool calling behavior and includes evaluation steps that examine the full conversation trace to determine if the model correctly decided to call (or not call) the selected tool with appropriate parameters.
+**Appropriate Tool Use**: This template is designed for evaluating tool calling behaviour and includes evaluation steps that examine the full conversation trace to determine if the model correctly decided to call (or not call) the selected tool with appropriate parameters.
 {% endhint %}
 
 When creating the eval, you'll need to specify the tool to evaluate and guidelines. This eval will test whether the model appropriately invokes this tool according to your guidelines.

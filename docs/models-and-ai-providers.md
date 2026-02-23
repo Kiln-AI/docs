@@ -204,7 +204,7 @@ New models will automatically appear in Kiln as they are released by Fireworks. 
 * QWQ 32B (qwq-32b)
 * Rolm OCR (rolm-ocr)
 * Yi 34B (yi-34b)
-* Nouse Capybara 34B V1.9 (yi-34b-200k-capybara)
+* Nous Capybara 34B V1.9 (yi-34b-200k-capybara)
 * Yi 34B Chat (yi-34b-chat)
 
 </details>

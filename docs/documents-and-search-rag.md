@@ -43,7 +43,7 @@ Kiln supports the following file types:
 * **Audio**: .mp3, .wav, .ogg
 
 {% hint style="info" %}
-Not every extraction model can handle every file type. Use Google Gemini models for maximal filetype support. When creating a custom search tool, the model selection dropdown will list supported file types.
+Not every extraction model can handle every file type. Use Google Gemini models for maximal file type support. When creating a custom search tool, the model selection dropdown will list supported file types.
 {% endhint %}
 
 #### Tagging Documents
@@ -160,7 +160,7 @@ Kiln will minimize processing where possible. For example, if many search tools 
 
 #### Step 1: Optimize Search Tool Name, Description and Task Prompt
 
-Often we see issues where the search tool can easily retrieve the needed data, but the tool is never called. This is easy to identify: check the "All Mesages" section of the run to see if the tool was invoked.
+Often we see issues where the search tool can easily retrieve the needed data, but the tool is never called. This is easy to identify: check the "All Messages" section of the run to see if the tool was invoked.
 
 This is usually an easy fix with one of the following:
 
@@ -238,7 +238,7 @@ The number of results returned is called top-k, and is defined when creating a s
 
 Tuning these two variables for your use case can help produce better search results.
 
-**Option 1: Increase Chunk Size and Reduce Top-K** Sometimes you know there’s exactly one document which will contain the answer; for example for the question “What is the total on invoice INV-123456?”. Returning 10 invoices won’t help this query, and will splitting the one invoice across 5 chunks could harm it's performance. In this case, a larger chunk size and a small top-K would be a great configuration. You’ll still end up returning a reasonable amount of data, as you’ve lowered top-K.
+**Option 1: Increase Chunk Size and Reduce Top-K** Sometimes you know there’s exactly one document which will contain the answer; for example for the question “What is the total on invoice INV-123456?”. Returning 10 invoices won’t help this query, and will splitting the one invoice across 5 chunks could harm its performance. In this case, a larger chunk size and a small top-K would be a great configuration. You’ll still end up returning a reasonable amount of data, as you’ve lowered top-K.
 
 **Option 2: Lower Chunk Size and Increase Top-K** Sometimes you know the model will need many of chunks to get a good answer; for example “Which protein structures were rated as ‘promising’ in experiments from June to July 2025?” might need to return hundreds of data chunks. In this case a small chunk size and higher top-K could work well.
 
