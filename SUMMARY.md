@@ -24,6 +24,7 @@
   * [Prompt Generators](docs/prompts/prompt-generators.md)
 * [Documents & Search (RAG)](docs/documents-and-search-rag.md)
 * [Agents](docs/agents.md)
+* [Skills](docs/skills.md)
 * [Synthetic Data Generation](docs/synthetic-data-generation.md)
 * [Issues](docs/issues.md)
 * [Reasoning & Chain of Thought](docs/reasoning-and-chain-of-thought.md)
