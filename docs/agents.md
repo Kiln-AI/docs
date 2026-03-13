@@ -54,7 +54,7 @@ The easiest way to create a run configuration is from the "Run" tab in Kiln. You
 
 **Step 3: Create a Kiln Task as Tool**
 
-To turn your task and run config into a tool other tasks can call, open "Settings" > "Manage Tools" > "Add Tools" > "Kiln Task as Tool".
+To turn your task and run config into a tool other tasks can call, open "Tools" > "Add Tools" > "Kiln Task as Tool".
 
 When creating you'll be asked to provide a number of options
 

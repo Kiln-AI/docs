@@ -19,6 +19,7 @@
   * [Evaluate Appropriate Tool Use](docs/evals-and-specs/evaluate-appropriate-tool-use.md)
 * [Tools & MCP](docs/tools-and-mcp/README.md)
   * [Connect to Existing Agents](docs/tools-and-mcp/connect-to-existing-agents.md)
+* [Skills](docs/skills.md)
 * [Prompts](docs/prompts.md)
   * [Automatic Prompt Optimizer](docs/prompts/automatic-prompt-optimizer.md)
   * [Prompt Generators](docs/prompts/prompt-generators.md)

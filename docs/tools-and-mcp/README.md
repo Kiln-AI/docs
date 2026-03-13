@@ -15,7 +15,7 @@ Kiln allows connecting to tools such as [Kiln Search Tools (RAG)](../documents-a
 
 First, connect some tools to your Kiln project. Tools are connected at the project level, and become available to all tasks in the project.
 
-To connect a new set of tools, open "Settings" > "Manage Tools" > "Add Tools".
+To connect a new set of tools, open "Tools" > "Add Tools".
 
 ### Quickstart: Math Tools
 
@@ -58,7 +58,7 @@ You can discover new MCP servers to use in registries like [MCP Pulse (external)
 
 #### Connecting Local MCP Servers
 
-Once you’ve found a local MCP server you want to connect, click “Settings” > “Manage Tools” > “Add Tools” > “Local MCP” > “Connect”, and provide the appropriate information in the setup:
+Once you've found a local MCP server you want to connect, click "Tools" > "Add Tools" > "Local MCP" > "Connect", and provide the appropriate information in the setup:
 
 * Name and Description: fields for you and your team to identify the server
 * Command: The command to run. Just the actual command, not including arguments. For example: `npx`, `uvx`, `deno`, or similar. It should not include spaces.
@@ -83,7 +83,7 @@ Kiln will attempt to use your standard PATH to find the appropriate commands. If
 
 #### Connecting Remote MCP Servers
 
-Once you’ve found a remote MCP server you want to connect, click “Settings” > “Manage Tools” > “Add Tools” > “Remote MCP” > “Connect”, and provide the appropriate information in the setup:
+Once you've found a remote MCP server you want to connect, click "Tools" > "Add Tools" > "Remote MCP" > "Connect", and provide the appropriate information in the setup:
 
 * Name and Description: fields for you and your team to identify the server
 * Server URL: The URL to the remote MCP server, for example https://api.githubcopilot.com/mcp/
