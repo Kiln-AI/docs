@@ -54,7 +54,7 @@ The easiest way to create a run configuration is from the "Run" tab in Kiln. You
 
 **Step 3: Create a Kiln Task as Tool**
 
-To turn your task and run config into a tool other tasks can call, open "Settings" > "Manage Tools" > "Add Tools" > "Kiln Task as Tool".
+To turn your task and run config into a tool other tasks can call, open "Tools" > "Add Tools" > "Kiln Task as Tool".
 
 When creating you'll be asked to provide a number of options
 
@@ -104,7 +104,7 @@ A common issue with agentic systems is that the context window (chat history) ge
 Let's look at a visual example of an agent which requires many web-searches to build a final answer:
 
 * **Without Sub-Agents**: the context becomes very large very quickly. Entire webpages are loaded into context and stay there. Data we don't need, like web pages that didn't yield useful information, keep taking context room forever. Later calls need to process a large number of tokens to generate the next new token (increasing cost).
-* **With Sub-Agents**: each web-research task is performed in its own sub-agent. The results of the webpages are summarized and only the important details are returned to the main task. The context of the main task stays focused and small. Each subtask is also smaller and more focused. Irrelevant data is dropped when the subtask ends. Costs are lower by approximately a factor of 4.&#x20;
+* **With Sub-Agents**: each web-research task is performed in its own sub-agent. The results of the webpages are summarized and only the important details are returned to the main task. The context of the main task stays focused and small. Each subtask is also smaller and more focused. Irrelevant data is dropped when the subtask ends. Costs are lower by approximately a factor of 4.
 
 <figure><img src="../.gitbook/assets/contextmgmt.png" alt=""><figcaption></figcaption></figure>
 

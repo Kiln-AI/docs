@@ -13,6 +13,7 @@ Kiln AI is the easiest tool for:
 * 🔍 [**Docs & Search (RAG)**](docs/documents-and-search-rag.md): Add knowledge to your AI systems with Retrieval-Augmented Generation (RAG)
 * 🤖 [**Agents**](docs/agents.md) Build agentic systems with multiple actors
 * 🛠 [**Tools & MCP**](docs/tools-and-mcp/): Connect powerful tools to your Kiln tasks
+* 🧩 [**Skills**](docs/skills.md): Load more instructions, depending on the goal.
 * 🪄 [**Synthetic Data Generation**](docs/synthetic-data-generation.md): Generate training data with our interactive visual tooling.
 * 🧠 [**Reasoning Models**](docs/fine-tuning/guide-train-a-reasoning-model.md): Train or distill your own custom reasoning models.
 * 🤝 [**Team Collaboration**](docs/collaboration.md): Git-based version control for your AI datasets. Intuitive UI makes it easy to collaborate with QA, PM, and subject matter experts on structured data (examples, prompts, ratings, feedback, issues, etc.).

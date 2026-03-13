@@ -1,5 +1,5 @@
 ---
-description: Progressive Prompt Enhancement
+description: Load more instructions, depending on the goal (Progressive Prompt Enhancement)
 icon: puzzle-piece
 ---
 
