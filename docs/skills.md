@@ -5,12 +5,6 @@ icon: puzzle-piece
 
 # Skills
 
-{% hint style="warning" %}
-**Preview Feature**
-
-Skills will be in the next release of Kiln. To get an early preview, reach out to the team on Discord!
-{% endhint %}
-
 Skills are reusable instructions that your agents can load on-demand. Unlike prompts which are always included in your agent's context, skills are only retrieved when the agent decides they're needed. This makes skills perfect for specialized knowledge, detailed procedures, or domain expertise that you don't want cluttering every single run.
 
 ### Creating Skills
