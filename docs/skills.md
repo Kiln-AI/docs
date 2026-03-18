@@ -56,6 +56,7 @@ The model may or may not choose to use the skills you provide. If you find the m
 1. Making the skill description more specific and actionable
 2. Updating your prompt to explicitly mention when certain skills should be used
 3. Ensuring the skill name clearly indicates its purpose
+4. Using a more modern model: models that came out before Agent Skills were released have not seen skills in their training data, and are less likely to leverage them.
 {% endhint %}
 
 #### Viewing Skill Usage
