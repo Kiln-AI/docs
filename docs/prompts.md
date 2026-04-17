@@ -22,7 +22,7 @@ The "Prompts" tab in the UI lets you see and manage all of the prompts for the c
 * Manage prompts (rename, delete)
 * View prompt generators
 
-Anyone you [collaborate](collaboration.md) with will automatically have access to the same set of prompts.
+Anyone you [collaborate](collaboration/) with will automatically have access to the same set of prompts.
 
 ## Prompt Fields
 

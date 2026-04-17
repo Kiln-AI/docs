@@ -133,7 +133,7 @@ At this time, Kiln doesn’t support tool calling for synthetic data and fine-tu
 
 ### Secret Management
 
-Often MCP servers require secrets, like API keys. However, Kiln projects are designed to be [shared across teams with Git](../collaboration.md) and you don’t want to commit secrets in a Git repo.
+Often MCP servers require secrets, like API keys. However, Kiln projects are designed to be [shared across teams with Git](../collaboration/) and you don’t want to commit secrets in a Git repo.
 
 To address this, Kiln allows you to mark headers and environment variables as secrets. Secrets are never stored in the Kiln project files, which are designed to be shared/synced. If a team member adds a tool which requires secrets, anyone who syncs it will have to re-enter the secrets in settings before using the tool. Non-secret headers and environment variables will be synced automatically.
 

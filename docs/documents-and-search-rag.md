@@ -30,7 +30,7 @@ To add documents, simply click “Add Documents” in the Document Library, then
 <figure><img src="../.gitbook/assets/Screenshot 2025-09-17 at 8.00.42 PM.png" alt="" width="375"><figcaption><p>The Add Documents dialog</p></figcaption></figure>
 
 {% hint style="info" %}
-Documents are added to your Kiln project; if you’re using Kiln to [collaborate with a team](collaboration.md), documents will be available to everyone.
+Documents are added to your Kiln project; if you’re using Kiln to [collaborate with a team](collaboration/), documents will be available to everyone.
 {% endhint %}
 
 #### Supported File Types
@@ -169,7 +169,7 @@ This is usually an easy fix with one of the following:
 
 #### Step 2: Improve Document Extraction
 
-The first step of RAG is extracting your documents (PDFs, images, videos) into text which we can index, search, and provide to tasks after retrieval.&#x20;
+The first step of RAG is extracting your documents (PDFs, images, videos) into text which we can index, search, and provide to tasks after retrieval.
 
 {% hint style="info" %}
 If the data produced during extraction isn’t high quality, there’s nothing the rest of the pipeline can do to recover.
@@ -228,10 +228,10 @@ Videos, Documents and Audio have separate prompts, so you can customize each to 
 When your task calls your search tool, it will fetch a certain number of document chunks. Chunks are created by splitting long documents into smaller pieces. This is important for 2 reasons:
 
 * You don’t want to feed too much information into the task, as it will flood the context, produce poorer results, and cost more.
-* Splitting into chunks improves search relevance. A 50 page document might contain information on many topics.  Searching for smaller chunks reduces the topic per segment, which helps your search tool find the most relevant portions of the document.
+* Splitting into chunks improves search relevance. A 50 page document might contain information on many topics. Searching for smaller chunks reduces the topic per segment, which helps your search tool find the most relevant portions of the document.
 
 {% hint style="info" %}
-The chunk size is defined when creating a search tool, in the chunking method options. You can also define how much overlap there is between chunks. The default is 512 words/tokens per chunk with 64 words/tokens overlap.&#x20;
+The chunk size is defined when creating a search tool, in the chunking method options. You can also define how much overlap there is between chunks. The default is 512 words/tokens per chunk with 64 words/tokens overlap.
 
 The number of results returned is called top-k, and is defined when creating a search tool, in the search index options. The default is to return 10 chunks.
 {% endhint %}
@@ -243,7 +243,7 @@ Tuning these two variables for your use case can help produce better search resu
 **Option 2: Lower Chunk Size and Increase Top-K** Sometimes you know the model will need many of chunks to get a good answer; for example “Which protein structures were rated as ‘promising’ in experiments from June to July 2025?” might need to return hundreds of data chunks. In this case a small chunk size and higher top-K could work well.
 
 {% hint style="info" %}
-&#x20;It's almost never a good idea to set Top-K to 1. There's always a chance that an answer is split across 2 or more chunks, so returning multiple chunks is always a good idea.
+It's almost never a good idea to set Top-K to 1. There's always a chance that an answer is split across 2 or more chunks, so returning multiple chunks is always a good idea.
 {% endhint %}
 
 #### Step 4: Tune Search Index Options
@@ -274,27 +274,26 @@ Generally, we suggest exhausting the options above before tuning here.
 
 ### Deploying your RAG
 
-Once you've optimized your RAG in Kiln, you're ready to deploy it!&#x20;
+Once you've optimized your RAG in Kiln, you're ready to deploy it!
 
 You have several deployment options to choose from, depending on your use case:
 
 #### **Kiln UI: For Personal Use**
 
-You can continue to use the Search Tool inside Kiln, using the "Run" UI. This option is great for a single user or small teams. See our [collaboration docs](collaboration.md) for how to share a search tool with your team.
+You can continue to use the Search Tool inside Kiln, using the "Run" UI. This option is great for a single user or small teams. See our [collaboration docs](collaboration/) for how to share a search tool with your team.
 
 #### **MCP: For Local LLM Clients**
 
-If you prefer another LLM frontend like LMStudio or Jan, you can run your Kiln Search Tool as an MCP server, then connect to it from your client of choice. See our [MCP server documentation for instructions](https://github.com/Kiln-AI/Kiln/tree/main/libs/server/kiln_server/mcp#readme) on running an MCP server exposing Kiln Search Tools.&#x20;
+If you prefer another LLM frontend like LMStudio or Jan, you can run your Kiln Search Tool as an MCP server, then connect to it from your client of choice. See our [MCP server documentation for instructions](https://github.com/Kiln-AI/Kiln/tree/main/libs/server/kiln_server/mcp#readme) on running an MCP server exposing Kiln Search Tools.
 
 #### **LlamaIndex: For Production Applications**
 
-You can load your Kiln RAG dataset into a production-ready [LlamaIndex](https://www.llamaindex.ai/) stack. See our [Python library docs](https://kiln-ai.github.io/Kiln/kiln_core_docs/kiln_ai.html#taking-kiln-rag-to-production) for how to load a Kiln Search Tool into any LlamaIndex vector store.&#x20;
+You can load your Kiln RAG dataset into a production-ready [LlamaIndex](https://www.llamaindex.ai/) stack. See our [Python library docs](https://kiln-ai.github.io/Kiln/kiln_core_docs/kiln_ai.html#taking-kiln-rag-to-production) for how to load a Kiln Search Tool into any LlamaIndex vector store.
 
 <a href="https://kiln-ai.github.io/Kiln/kiln_core_docs/kiln_ai.html#taking-kiln-rag-to-production" class="button primary">Deploy a Kiln Search Tool</a>
 
-_**We recommend**_ [_**LanceDB Cloud**_](https://lancedb.com/) _**for production hosting**_. The Kiln app and library use LanceDB; using LanceDB in prod ensures your production stack matches the RAG you optimized in Kiln perfectly. It is a  performant vector database for any scale.
+_**We recommend**_ [_**LanceDB Cloud**_](https://lancedb.com/) _**for production hosting**_. The Kiln app and library use LanceDB; using LanceDB in prod ensures your production stack matches the RAG you optimized in Kiln perfectly. It is a performant vector database for any scale.
 
 {% hint style="success" %}
-Note: Loading a production index will not need to repeat extraction, chunking, and embeddings. Those steps are already completed in Kiln, and their results are saved in your Kiln dataset.&#x20;
+Note: Loading a production index will not need to repeat extraction, chunking, and embeddings. Those steps are already completed in Kiln, and their results are saved in your Kiln dataset.
 {% endhint %}
-

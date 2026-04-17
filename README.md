@@ -16,7 +16,7 @@ Kiln AI is the easiest tool for:
 * 🧩 [**Skills**](docs/skills.md): Load more instructions, depending on the goal.
 * 🪄 [**Synthetic Data Generation**](docs/synthetic-data-generation.md): Generate training data with our interactive visual tooling.
 * 🧠 [**Reasoning Models**](docs/fine-tuning/guide-train-a-reasoning-model.md): Train or distill your own custom reasoning models.
-* 🤝 [**Team Collaboration**](docs/collaboration.md): Git-based version control for your AI datasets. Intuitive UI makes it easy to collaborate with QA, PM, and subject matter experts on structured data (examples, prompts, ratings, feedback, issues, etc.).
+* 🤝 [**Team Collaboration**](docs/collaboration/): Git-based version control for your AI datasets. Intuitive UI makes it easy to collaborate with QA, PM, and subject matter experts on structured data (examples, prompts, ratings, feedback, issues, etc.).
 
 ### Jump right in
 

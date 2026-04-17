@@ -11,7 +11,7 @@ Kiln projects are simply a directory of files (mostly JSON files with the extens
 
 This dataset design was chosen for several reasons:
 
-* Git compatibility: Kiln project folders are easy to collaborate on with Git (or a shared drive). See our [collaboration guide](../docs/collaboration.md#technical-collaboration-architecture) for additional details of how we avoid conflicts and format to support diff tools.
+* Git compatibility: Kiln project folders are easy to collaborate on with Git (or a shared drive). See our [collaboration guide](../docs/collaboration/#technical-collaboration-architecture) for additional details of how we avoid conflicts and format to support diff tools.
 * JSON allows you to easily load and manipulate the data using standard tools (pandas, polars, etc.).
 
 ### Data Model Overview

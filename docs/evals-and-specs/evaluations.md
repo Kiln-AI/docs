@@ -228,7 +228,7 @@ You can create this set now, or generate it later.
 
 #### Add Human Ratings
 
-Next we'll add human ratings, so we can measure how well our eval judge performs compared to a human. If you have a subject matter expert for your task, get them to perform this step. See our [collaboration guide](../collaboration.md) for how to work together on a Kiln project.
+Next we'll add human ratings, so we can measure how well our eval judge performs compared to a human. If you have a subject matter expert for your task, get them to perform this step. See our [collaboration guide](../collaboration/) for how to work together on a Kiln project.
 
 The `Rate Golden Dataset` button in the eval screen will take you to the dataset view filtered to your golden dataset (the items which need ratings). Once fully rated, this will get a checkmark and you can proceed to the next step
 

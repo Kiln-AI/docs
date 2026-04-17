@@ -19,6 +19,6 @@ The video covers:
 * [Finding the best way to run your task](evals-and-specs/evaluations.md#finding-the-ideal-run-method) by evaluating prompt/model pairs
 * [Fine-tuning models](fine-tuning/fine-tuning-guide.md) including synthetic training data and evaluating tunes
 * [Iterating as project evolves](https://kiln.tech/blog/you_need_many_small_evals_for_ai_products#setup-team-evals) new evals and prompts
-* [Set up collaboration with git & GitHub](collaboration.md)
+* [Set up collaboration with git & GitHub](collaboration/)
 
 {% embed url="https://vimeo.com/1104945621" %}

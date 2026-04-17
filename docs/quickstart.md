@@ -69,7 +69,7 @@ Our documents explain each feature, and how to use it:
 * [Evaluations](evals-and-specs/evaluations.md)
 * [Synthetic Data Generation](synthetic-data-generation.md)
 * [Fine Tuning Guide](fine-tuning/fine-tuning-guide.md)
-* [Collaboration](collaboration.md)
+* [Collaboration](collaboration/)
 * [Reviewing and Rating](reviewing-and-rating.md)
 * [Organizing Datasets](organizing-datasets.md)
 * See all docs in the navigation bar
