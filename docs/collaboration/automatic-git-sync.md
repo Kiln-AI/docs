@@ -8,9 +8,7 @@ icon: github
 <figure><img src="../../.gitbook/assets/git_collab.png" alt=""><figcaption></figcaption></figure>
 
 {% hint style="info" %}
-**Automatic Git Sync is coming in our next release.**&#x20;
-
-Contact the team on Discord for an early preview
+**Automatic Git Sync is in Beta**&#x20;
 {% endhint %}
 
 There have been historically been two method of collaboration for data teams: Git or cloud services. Both had tradeoffs.&#x20;
