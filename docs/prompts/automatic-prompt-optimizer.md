@@ -27,7 +27,7 @@ We can't optimize something unless we can measure it, so the heart of our prompt
 Follow our guides to create evals that measure your task's quality. The better your evals are at assessing quality, the better the prompt optimizer will work. Some guidance:
 
 * [Create many small evals](https://kiln.tech/blog/you_need_many_small_evals_for_ai_products): it's typically easier to create several small evals focused on one area, than to try to create an all-encompassing eval
-* Use the [Kiln Eval Builder](../evals-and-specs/specifications.md) to make better evals: our eval builder uses AI to refine your LLM-as-Judge for better alignment to human preference
+* Use the [Kiln Eval Builder](../evals-and-specs/specifications.md) to make better evals: it uses AI to refine your LLM-as-Judge for better alignment to human preference
 
 #### Synthetic Training Data and Withheld Eval Data
 

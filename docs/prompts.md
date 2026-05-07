@@ -5,7 +5,7 @@ icon: pen-to-square
 
 # Prompts
 
-Kiln offers several methods to build an manage prompts
+Kiln offers several methods to build and manage prompts
 
 * [Automatic Prompt Generator](prompts/automatic-prompt-optimizer.md): Our state-of-the-art automatic prompt optimizer. We run iterative experiments and use evals to pinpoint and fix failure modes — **no manual prompting required**.
 * [Prompt Generators](prompts.md#prompt-generators): Kiln can automatically generate many popular prompt styles from your task and dataset (few-shot, many-shot, chain of thought, chain of thought multi-shot, and more). The more you use your task, and rate the results, the richer your prompts become.
