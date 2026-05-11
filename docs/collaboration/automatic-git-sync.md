@@ -26,7 +26,7 @@ Historically, there have been two methods of collaboration for data teams: Git o
 
 Kiln allows you to choose how you work:
 
-* **PMs / Subject Matter Experts / Designers:** connect an existing Kiln project in a repository in seconds via Kiln's UI. Any work you do (ratings, specs, data annotation) is automatically and instantly synced to Git, without any manual intervention. They never see a terminal, or have to learn Git.
+* **PMs / Subject Matter Experts / Designers:** connect an existing Kiln project in a repository in seconds via Kiln's UI. Any work you do (ratings, evals, data annotation) is automatically and instantly synced to Git, without any manual intervention. They never see a terminal, or have to learn Git.
 * **Developers**: use manual Git tools, or automatically sync, or a mix. It's up to you!
 
 #### Step 1: Set up your project repository

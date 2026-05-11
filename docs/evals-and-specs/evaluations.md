@@ -7,9 +7,9 @@ description: Evaluate the quality of your models/tasks using state-of-the-art ev
 <figure><img src="../../.gitbook/assets/eval_header.png" alt=""><figcaption></figcaption></figure>
 
 {% hint style="success" %}
-[**Kiln Specs**](specifications.md) are an even easier way to build evals. It reduces 6 manual steps into one interactive flow.
+The [**Kiln Eval Builder**](specifications.md) is an even easier way to build evals. It reduces 6 manual steps into one interactive flow.
 
-<a href="specifications.md" class="button secondary">Try Kiln Specs</a>
+<a href="specifications.md" class="button secondary">Try the Kiln Eval Builder</a>
 {% endhint %}
 
 ### Overview
@@ -63,7 +63,7 @@ Working with Evals in Kiln is easy. We'll walk through the flow of creating your
 
 ### Creating an Eval
 
-From the "Eval" tab in Kiln's UI, you can easily create a new evaluator.
+From the "Evals" tab in Kiln's UI, you can easily create a new evaluator.
 
 #### Pick a Goal / Select a Template
 
@@ -382,7 +382,7 @@ Kiln's compare view makes it easy to compare run methods across many evals. It a
 
 <figure><img src="../../.gitbook/assets/Screenshot 2025-07-17 at 1.39.06 PM (1).png" alt="" width="375"><figcaption><p>Comparing several run methods across all evals</p></figcaption></figure>
 
-Click "Compare" in the evals tab to launch this feature:
+Click "Compare" in the "Evals" tab to launch this feature:
 
 <figure><img src="../../.gitbook/assets/Screenshot 2025-07-17 at 2.16.51 PM.png" alt="" width="375"><figcaption></figcaption></figure>
 
@@ -421,7 +421,7 @@ You can always add additional evals to your Kiln project/task. Try some of our b
 
 Most commonly, you'll collect a list of ["Issue" evals](../issues.md) over time. This set of evals helps you work with confidence that new changes aren't regressing old issues.
 
-Read out blog [Many Small Evals Beat One Big Eval, Every Time](https://kiln.tech/blog/you_need_many_small_evals_for_ai_products) for a quality strategy that scales as your product and team grow.
+Read our blog [Many Small Evals Beat One Big Eval, Every Time](https://kiln.tech/blog/you_need_many_small_evals_for_ai_products) for a quality strategy that scales as your product and team grow.
 
 ### Optional: Python Library Usage
 

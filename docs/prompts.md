@@ -5,7 +5,7 @@ icon: pen-to-square
 
 # Prompts
 
-Kiln offers several methods to build an manage prompts
+Kiln offers several methods to build and manage prompts
 
 * [Automatic Prompt Generator](prompts/automatic-prompt-optimizer.md): Our state-of-the-art automatic prompt optimizer. We run iterative experiments and use evals to pinpoint and fix failure modes — **no manual prompting required**.
 * [Prompt Generators](prompts.md#prompt-generators): Kiln can automatically generate many popular prompt styles from your task and dataset (few-shot, many-shot, chain of thought, chain of thought multi-shot, and more). The more you use your task, and rate the results, the richer your prompts become.
@@ -46,7 +46,7 @@ You can start typing to filter this list, which can make it easy to find a promp
 
 Ultimately it's up to you when to use each style. The best approach varies from task to task, and model to model.&#x20;
 
-It's worth evaluating a range of prompt/model pairs to find one that works best for your task, while considering speed/cost tradeoffs of longer prompts and larger models. [Kiln Evals & Specs](evals-and-specs/) give you a scientific way to find the best prompt for your task.
+It's worth evaluating a range of prompt/model pairs to find one that works best for your task, while considering speed/cost tradeoffs of longer prompts and larger models. [Kiln Evals](evals-and-specs/) give you a scientific way to find the best prompt for your task.
 
 {% hint style="success" %}
 **LLMs are often better at writing prompts than humans.** Given a good evaluator, they can test hundreds of unique prompts on thousands of test cased to find the ideal prompt.
