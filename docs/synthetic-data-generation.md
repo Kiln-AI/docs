@@ -51,11 +51,13 @@ Selecting the goal will set up two properties:
 * **Template:** A Kiln prompt template to guide the data gen. You can edit this template before running data gen.
 * **Tag Assignments:** which dataset tags will be assigned to generated data. This could be a single tag like `fine_tuning_data` or a randomly assigned split like `eval_data: 80%, golden_data: 20%`.
 
-<figure><img src="../.gitbook/assets/Screenshot 2025-07-16 at 10.21.14 AM (1).png" alt="" width="375"><figcaption><p>Goals drive the template and tag assignments</p></figcaption></figure>
+<figure><img src="../.gitbook/assets/Screenshot 2025-07-16 at 10.21.14 AM.png" alt="" width="375"><figcaption><p>Goals drive the template and tag assignments</p></figcaption></figure>
 
 #### Set Up A Data Guide
 
 A Data Guide is a per-task prompt that tells Kiln what realistic data for your task actually looks like — the shape, structure, and content of inputs, and the shape of outputs. Without one, the data gen model has to guess what your domain looks like from the system prompt alone. With one, generated topics, inputs, and outputs are shaped to your actual data.
+
+<figure><img src="../.gitbook/assets/data_guide.png" alt="" width="329"><figcaption><p>Data Guide Creation</p></figcaption></figure>
 
 Data Guides are interactive: you provide a few real examples, Kiln generates a preview, and you rate the samples. Anything you flag as "Needs Work" feeds a metaprompter that rewrites the guide. After a couple of cycles you have a guide that produces realistic data, which you can then attach to every topic, input, and output generation pass in the same task.
 

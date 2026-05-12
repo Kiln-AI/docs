@@ -380,7 +380,7 @@ When you want to try a new model or prompt, you'll want to make sure the new met
 
 Kiln's compare view makes it easy to compare run methods across many evals. It also lets you compare the cost difference of each method:
 
-<figure><img src="../../.gitbook/assets/Screenshot 2025-07-17 at 1.39.06 PM (1).png" alt="" width="375"><figcaption><p>Comparing several run methods across all evals</p></figcaption></figure>
+<figure><img src="../../.gitbook/assets/Screenshot 2025-07-17 at 1.39.06 PM.png" alt="" width="375"><figcaption><p>Comparing several run methods across all evals</p></figcaption></figure>
 
 Click "Compare" in the "Evals" tab to launch this feature:
 

@@ -4,10 +4,10 @@ description: Test your model's ability to appropriately invoke tools
 
 # Evaluate Appropriate Tool Use
 
-<figure><img src="../../.gitbook/assets/tool_use.png" alt=""><figcaption></figcaption></figure>
+<figure><img src="../../.gitbook/assets/Repair.png" alt=""><figcaption></figcaption></figure>
 
 {% hint style="success" %}
-**It doesn't matter how well a tool works if it isn't invoked when needed.**&#x20;
+**It doesn't matter how well a tool works if it isn't invoked when needed.**
 
 Kiln can evaluate your agent's tool use to help find issues early.
 {% endhint %}

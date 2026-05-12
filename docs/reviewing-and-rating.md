@@ -7,7 +7,7 @@ icon: star
 
 Kiln includes a rating interface for rating dataset entries. This can be used to score the quality of the generated data, or to evaluate the quality of a model.
 
-<figure><img src="../.gitbook/assets/Screenshot 2025-01-05 at 12.12.38 PM (1).png" alt="" width="341"><figcaption><p>Rating UI in Kiln Desktop</p></figcaption></figure>
+<figure><img src="../.gitbook/assets/Screenshot 2025-01-05 at 12.12.38 PM.png" alt="" width="341"><figcaption><p>Rating UI in Kiln Desktop</p></figcaption></figure>
 
 ### When Rating Options Appear
 
@@ -16,12 +16,12 @@ You'll see rating options on your dataset items:
 * The "Overall Rating" will option will always appear
 * After creating an [Eval](evals-and-specs/evaluations.md), rating options will be visible for each sample in its golden dataset.
 
-Not every rating will appear on every data sample, and that's okay! They only appear when they are useful, such as aligning a LLM-as-judge to human preference with a golden dataset. If a specific rating doesn't appear, it means it wouldn't be used and isn't necessary to rate this item by that criteria.&#x20;
+Not every rating will appear on every data sample, and that's okay! They only appear when they are useful, such as aligning a LLM-as-judge to human preference with a golden dataset. If a specific rating doesn't appear, it means it wouldn't be used and isn't necessary to rate this item by that criteria.
 
 Want to rate an item that isn't showing a rating field? Add a [tag](organizing-datasets.md#using-tags-to-organize-your-dataset) like "eval\_NAME\_golden" which tells the system how that rating should be used. Once tagged, the necessary ratings will appear.
 
 {% hint style="info" %}
-### Legacy Task Requirements
+#### Legacy Task Requirements
 
 Older version of Kiln had the concept of "task requirements": a rating criteria for all dataset samples. We've removed these going forward. Rating every single data sample by a criteria isn't necessary or helpful. As described above we now show the right ratings on the right items, and nothing more.
 {% endhint %}

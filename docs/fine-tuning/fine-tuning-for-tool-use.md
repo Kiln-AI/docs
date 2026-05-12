@@ -2,7 +2,7 @@
 description: Build fine-tuned models for calling a set of tools, like MCP
 ---
 
-# Fine-Tuning for Tool Use
+# Fine Tuning for Tool Use
 
 Kiln can fine-tune a model for calling a specific set of tools. The fine-tuned models can improve over the base model by:
 
@@ -14,7 +14,7 @@ Together, this means you can improve agent performance and lower costs.
 
 #### Building a Fine-Tuning Training Dataset for Tool Calling
 
-To create a fine-tune targeting tool calling, you must generate a training set specifically for tool calling.&#x20;
+To create a fine-tune targeting tool calling, you must generate a training set specifically for tool calling.
 
 {% hint style="info" %}
 The tool set available during training data generation must exactly match the tool set your fine-tune targets.
@@ -30,14 +30,10 @@ Kiln makes building a tool-calling training dataset easy:
 2. Click “Create Fine Tune”.
 3.  Select the set of tools that the model should learn to call.
 
-    <figure><img src="../../.gitbook/assets/Screenshot 2026-01-08 at 8.07.16 PM (2).png" alt="" width="375"><figcaption><p>Selecting tools available to the fine-tuned model</p></figcaption></figure>
-
-
+    <figure><img src="../../.gitbook/assets/Screenshot 2026-01-08 at 8.07.16 PM.png" alt="" width="375"><figcaption><p>Selecting tools available to the fine-tuned model</p></figcaption></figure>
 4.  Click “Add Fine-Tuning Data” to launch Kiln's synthetic data generation tool.
 
     <figure><img src="../../.gitbook/assets/image.png" alt="" width="375"><figcaption></figcaption></figure>
-
-
 5. Generate synthetic training data using Kiln's [synthetic data gen](../synthetic-data-generation.md) tool. It will automatically select the correct tools for you when generating sample outputs.
 
 #### Distilling Larger Models and Longer Prompts for Better Tool Calling
@@ -46,15 +42,15 @@ Beyond learning tool-call formatting, your fine-tuned model must learn _when_ to
 
 The answer is typically [_distillation_](https://en.wikipedia.org/wiki/Knowledge_distillation): training a model on the outputs of another model. By using larger models with carefully designed prompts that specify how tools should be used, you can generate a high-quality dataset that demonstrates correct tool usage. You can then fine-tune a smaller, faster, and cheaper model to reproduce similar quality.
 
-|                                                                                                                             | Training Set Generation                                                                                                           | Fine-Tuned Model                                                                        |
-| --------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
-| Model                                                                                                                       | Large Model                                                                                                                       | Smaller Model                                                                           |
+|                                                                                                                             | Training Set Generation                                                                                                | Fine-Tuned Model                                                                        |
+| --------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| Model                                                                                                                       | Large Model                                                                                                            | Smaller Model                                                                           |
 | Prompt                                                                                                                      | Long prompt detailing tool calling strategy. This includes when each tool should be used and which parameters to pass. | Short prompt focused on task. Does not need to address tool-calling strategy in detail. |
-| Reasoning Mode                                                                                                              | Recommended to Enable                                                                                                             | Optional                                                                                |
-| Cost per Token                                                                                                              | Expensive                                                                                                                         | Cheap                                                                                   |
-| Speed                                                                                                                       | Slower                                                                                                                            | Faster                                                                                  |
-| <p>Tool Usage Evals<br><a href="fine-tuning-for-tool-use.md#evaluating-tool-use"><em>Always measure to confirm</em></a></p> | High quality                                                                                                                      | High quality                                                                            |
-| Origin of Tool Calling Logic                                                                                                | Base model + detailed strategy in prompt                                                                                          | Learned during fine-tuning                                                              |
+| Reasoning Mode                                                                                                              | Recommended to Enable                                                                                                  | Optional                                                                                |
+| Cost per Token                                                                                                              | Expensive                                                                                                              | Cheap                                                                                   |
+| Speed                                                                                                                       | Slower                                                                                                                 | Faster                                                                                  |
+| <p>Tool Usage Evals<br><a href="fine-tuning-for-tool-use.md#evaluating-tool-use"><em>Always measure to confirm</em></a></p> | High quality                                                                                                           | High quality                                                                            |
+| Origin of Tool Calling Logic                                                                                                | Base model + detailed strategy in prompt                                                                               | Learned during fine-tuning                                                              |
 
 #### Create a Tool Calling Fine-Tune
 
@@ -72,9 +68,9 @@ Kiln will convert your training data into the base model's tool calling format a
 
 #### Running a Tool Calling Fine-Tune
 
-When running a Tool Calling Fine-Tune in Kiln, we’ll automatically populate the same set of tools it was trained on.&#x20;
+When running a Tool Calling Fine-Tune in Kiln, we’ll automatically populate the same set of tools it was trained on.
 
-Adding or removing tools will show a warning, as this model is unlikely to perform well with tools that were not in its training dataset.&#x20;
+Adding or removing tools will show a warning, as this model is unlikely to perform well with tools that were not in its training dataset.
 
 {% hint style="info" %}
 If deploying a fine-tune created in Kiln, always provide the same tools as it was trained to use.

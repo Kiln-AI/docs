@@ -7,7 +7,7 @@ icon: crystal-ball
 
 # Models and AI Providers
 
-<figure><img src="../.gitbook/assets/Models (1).png" alt=""><figcaption></figcaption></figure>
+<figure><img src="../.gitbook/assets/Models.png" alt=""><figcaption></figcaption></figure>
 
 ## Skip the Guesswork: Kiln Suggests Models
 

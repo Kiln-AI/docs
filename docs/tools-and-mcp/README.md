@@ -25,7 +25,7 @@ If you want to try tools as quickly as possible, enable the "Math Tools" from th
 
 Kiln allows you to build powerful search tools, which can search thousands of documents for knowledge. These behave like any other tool: each search tool you create, will be automatically available in the tools dropdown.
 
-See the [Documents & Search](../documents-and-search-rag.md) docs for details.&#x20;
+See the [Documents & Search](../documents-and-search-rag.md) docs for details.
 
 ### Powerful Example Tools: Web Search, Python Interpreter, and more
 
@@ -41,7 +41,7 @@ Kiln has several popular MCP servers pre-configured. You can get started with th
 * [Stock Quotes by Twelve Data](https://github.com/twelvedata/mcp): Realtime access to stock quotes and other market data. Requires a Twelve Data API key.
 * [Control Github by Github](https://github.com/github/github-mcp-server): Manage repos, issues, PRs and workflows. Requires a GitHub Access Token.
 
-<figure><img src="../../.gitbook/assets/Screenshot 2025-09-04 at 1.47.57 PM (1).png" alt=""><figcaption><p>Example tools on the "Add Tools" screen</p></figcaption></figure>
+<figure><img src="../../.gitbook/assets/Screenshot 2025-09-04 at 1.47.57 PM.png" alt=""><figcaption><p>Example tools on the "Add Tools" screen</p></figcaption></figure>
 
 You may need to install developer tools like Node.js or Deno before running these MCP servers. In each case, there’s a header at the top with a link to the appropriate dependency:
 
@@ -141,7 +141,7 @@ To address this, Kiln allows you to mark headers and environment variables as se
 
 ## Kiln MCP Server
 
-The documentation above is for using Kiln as a MCP client (where Kiln calls other MCP servers to use tools). Kiln can also function as a MCP server (where Kiln exposes tools to other MCP clients).&#x20;
+The documentation above is for using Kiln as a MCP client (where Kiln calls other MCP servers to use tools). Kiln can also function as a MCP server (where Kiln exposes tools to other MCP clients).
 
 Kiln can expose tools for:
 
@@ -150,5 +150,5 @@ Kiln can expose tools for:
 
 To use Kiln as a tool server
 
-* Install Kiln CLI server tools: `uv tool install kiln_server`&#x20;
+* Install Kiln CLI server tools: `uv tool install kiln_server`
 * Run the `kiln_mcp` command, pointing it to the Kiln project you want to host. See [the docs on the Kiln MCP Server](https://github.com/Kiln-AI/Kiln/tree/main/libs/server/kiln_server/mcp#readme) for details.
