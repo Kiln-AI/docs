@@ -64,12 +64,11 @@ Synthetic Data Generation
 
 ### Step 3: Select Models to Fine Tune
 
-Kiln supports over 60 fine-tuneable models using three different service based tuning providers:
+Kiln supports fine-tuning across three service-based tuning providers:
 
-* Open AI: GPT 4.1, 4o, 4.1-mini and 4o-mini
-* Google Gemini: Gemini 2.0 flash and Gemini 2.0 Pro
-* Fireworks.ai: over 60 open weight models including Qwen 2.5, Llama 2/3.x, Deepseek V3/R1, QwQ, and more. See the [full list here](../models-and-ai-providers.md#additional-fine-tuneable-models).
-* Together AI: Llama 3.1 8b/70b, Llama 3.2 1b/3b, Qwen2.5 14b/72b
+* Google Vertex: Gemini 2.0 Flash and Gemini 2.0 Flash Lite
+* Fireworks.ai: over 20 open weight models including Qwen 3, Llama 3.3, Deepseek V3/R1, Gemma, and more. See the [full list here](../models-and-ai-providers.md#additional-fine-tuneable-models).
+* Together AI: 120+ models including Llama 3.1/3.3/4, Qwen 2.5/3/3.5, DeepSeek R1/V3, Gemma 3/4, and more
 
 {% hint style="success" %}
 To see more options on the "Create Fine Tune" screen, connect API keys for the providers listed above in Settings.
