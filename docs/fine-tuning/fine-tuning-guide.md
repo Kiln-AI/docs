@@ -18,7 +18,7 @@ A Demo Project:
 
 * \[2 mins]: [Define task, goals, and schema](fine-tuning-guide.md#step-1-define-your-task-and-goals)
 * \[9 mins]: [Synthetic data generation](../synthetic-data-generation.md): create 920 high-quality examples for training
-* \[5 mins]: Dispatch 9 fine tuning jobs: [Fireworks](fine-tuning-guide.md#step-4-dispatch-training-jobs) (Llama 3.2 1b/3b/11b, Llama 3.1 8b/70b, Mixtral 8x7b), [OpenAI](fine-tuning-guide.md#step-4-dispatch-training-jobs) (GPT 4o, 4o-Mini), and [Unsloth](fine-tuning-guide.md#step-6-optional-training-on-your-own-infrastructure) (Llama 3.2 1b/3b). Note: since this guide was written we've added over 60 new models for fine tuning!
+* \[5 mins]: Dispatch fine tuning jobs: [Fireworks](fine-tuning-guide.md#step-4-dispatch-training-jobs), [Together](fine-tuning-guide.md#step-4-dispatch-training-jobs), [Vertex](fine-tuning-guide.md#step-7-optional-vertex-ai--gemini-fine-tuning), and [Unsloth](fine-tuning-guide.md#step-6-optional-training-on-your-own-infrastructure). Note: since this guide was written we've added over 60 new models for fine tuning!
 * \[2 mins]: [Deploy your new models and test they work](fine-tuning-guide.md#step-5-deploy-and-run-your-models)
 
 Analysis:
@@ -95,9 +95,9 @@ Dispatching Training Jobs. Note: video does not match current UI
 
 Kiln will automatically deploy your fine-tunes when they are complete. You can use them from the Kiln UI without any additional configuration. Simply select a fine-tune by name from the model dropdown in the "Run" tab.
 
-Together, Fireworks and OpenAI tunes are deployed "serverless". You only pay for usage (tokens), with no recurring costs.
+Together and Fireworks tunes are deployed "serverless". You only pay for usage (tokens), with no recurring costs.
 
-You can use your models outside of Kiln by calling Fireworks or OpenAI APIs with the model ID from the "Fine Tune" tab.
+You can use your models outside of Kiln by calling Fireworks or Together APIs with the model ID from the "Fine Tune" tab.
 
 **Early Results**: Our fine-tuned models show some immediate promise. Previously models smaller than Llama 70b failed to produce the correct structured data for our task. After fine tuning even the smallest model, Llama 3.2 1b, consistently works.
 
@@ -139,8 +139,8 @@ Our demo use case was quite reasonably priced.
 | ------------------------------------- | -------------------------- | ---------- |
 | Training Data Generation              | OpenRouter                 | $2.06      |
 | Fine-tuning 5x Llama models + Mixtral | Fireworks                  | $1.47      |
-| Fine-tuning GPT-4o Mini               | OpenAI                     | $2.03      |
-| Fine-tuning GPT-4o                    | OpenAI                     | $16.91     |
+| ~~Fine-tuning GPT-4o Mini~~           | ~~OpenAI (no longer supported)~~ | ~~$2.03~~ |
+| ~~Fine-tuning GPT-4o~~                | ~~OpenAI (no longer supported)~~ | ~~$16.91~~ |
 | Fine-tuning Llama 3.2 (1b & 3b)       | Unsloth on Google Colab T4 | $0.00      |
 
 If it wasn't for GPT-4o, the whole project would have cost less than $6!
@@ -149,7 +149,7 @@ Meanwhile our fastest fine-tune (Llama 3.2 1b) is about 10x faster and 150x chea
 
 ### Track Training Metrics with Weights & Biases
 
-Kiln supports tracking training metrics with the tool [Weights & Biases](https://wandb.ai/site/) . Configure your W\&B API key in `Settings > AI Providers & Models > Weights & Biases` before starting your fine-tuning job. Metrics will appear for any training jobs on Fireworks or Together. OpenAI doesn't support W\&B, but provides similar metrics in their own dashboard, which is linked from the Kiln Fine Tune page.
+Kiln supports tracking training metrics with the tool [Weights & Biases](https://wandb.ai/site/) . Configure your W\&B API key in `Settings > AI Providers & Models > Weights & Biases` before starting your fine-tuning job. Metrics will appear for any training jobs on Fireworks or Together.
 
 <figure><img src="../../.gitbook/assets/Screenshot 2025-03-19 at 7.27.16 PM.png" alt="" width="287"><figcaption><p>Weights and Biases Metrics</p></figcaption></figure>
 
