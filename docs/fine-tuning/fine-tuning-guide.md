@@ -162,7 +162,7 @@ We now have 9 fine-tuned models, but which is best for our task? We should evalu
 
 Kiln has [powerful evaluation tools](../evals-and-specs/evaluations.md) to help you though this process. Check out the [evaluation guide](../evals-and-specs/evaluations.md) for details.
 
-If your task is deterministic (classification), Kiln AI will provide the validation set to OpenAI or Together during tuning, and they will report val\_loss on their dashboard. For non-deterministic tasks (including generative tasks) you can use our [evaluation tools](../evals-and-specs/evaluations.md) to evaluate quality.
+If your task is deterministic (classification), Kiln AI will provide the validation set to Together during tuning, and they will report val\_loss on their dashboard. For non-deterministic tasks (including generative tasks) you can use our [evaluation tools](../evals-and-specs/evaluations.md) to evaluate quality.
 
 #### **Exporting Models**
 
@@ -171,7 +171,6 @@ You can export your models for use on your machine, deployment to the cloud, or 
 * Fireworks: you can [download the weights](https://docs.fireworks.ai/fine-tuning/fine-tuning-models#downloading-model-weights) in Hugging Face PEFT format, and convert as needed.
 * Together: you can [download the weights](https://docs.together.ai/docs/finetuning#running-your-model-locally), run locally or convert as needed.
 * Unsloth: your fine-tunes can be directly exported to GGUF or other formats which make these model easy to deploy. A GGUF can be [imported to Ollama](https://github.com/ollama/ollama/blob/main/docs/import.md) for local use. Once added to Ollama, the models will become available in Kiln UI as well.
-* OpenAI: sadly OpenAI won’t let you download their models.
 
 #### **Iterate to Improve Quality**
 
