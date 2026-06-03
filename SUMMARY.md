@@ -26,6 +26,7 @@
 * [Agents](docs/agents.md)
 * [Skills](docs/skills.md)
 * [Synthetic Data Generation](docs/synthetic-data-generation.md)
+* [Input Templates & Feature Engineering](docs/input-templates-and-feature-engineering.md)
 * [Issues](docs/issues.md)
 * [Reasoning & Chain of Thought](docs/reasoning-and-chain-of-thought.md)
 * [Reviewing and Rating](docs/reviewing-and-rating.md)
