@@ -31,9 +31,9 @@ Project Title: {{ input.title }}
 Summary: {{ input.summary }}
 ```
 
-To create an input transformer, go to the **Run** tab in Kiln, expand **Advanced**, and select **Add** under **Input Transformer**. You'll be prompted for a Jinja template. You can then run your task as usual.
+To create an input transformer, go to the **Run** tab in Kiln, expand **Advanced**, and select **Create Template** under **Input Transformer**. You'll be prompted for a Jinja template. You can then run your task as usual.
 
-You can optionally save this run config (including your template) for use in evals, which will give you metrics on how much it helps (or hurts) task performance.
+You can optionally save this run config (including your template) for use in [evals](evals-and-specs/), which will give you metrics on how much it helps (or hurts) task performance.
 
 #### Template Inputs
 
