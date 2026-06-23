@@ -18,7 +18,7 @@ A Demo Project:
 
 * \[2 mins]: [Define task, goals, and schema](fine-tuning-guide.md#step-1-define-your-task-and-goals)
 * \[9 mins]: [Synthetic data generation](../synthetic-data-generation.md): create 920 high-quality examples for training
-* \[5 mins]: Dispatch 9 fine tuning jobs: [Fireworks](fine-tuning-guide.md#step-4-dispatch-training-jobs) (Llama 3.2 1b/3b/11b, Llama 3.1 8b/70b, Mixtral 8x7b), [OpenAI](fine-tuning-guide.md#step-4-dispatch-training-jobs) (GPT 4o, 4o-Mini), and [Unsloth](fine-tuning-guide.md#step-6-optional-training-on-your-own-infrastructure) (Llama 3.2 1b/3b). Note: since this guide was written we've added over 60 new models for fine tuning!
+* \[5 mins]: Dispatch fine tuning jobs: [Fireworks](fine-tuning-guide.md#step-4-dispatch-training-jobs), [Together](fine-tuning-guide.md#step-4-dispatch-training-jobs), [Vertex](fine-tuning-guide.md#step-7-optional-vertex-ai--gemini-fine-tuning), and [Unsloth](fine-tuning-guide.md#step-6-optional-training-on-your-own-infrastructure). Note: since this guide was written we've added over 60 new models for fine tuning!
 * \[2 mins]: [Deploy your new models and test they work](fine-tuning-guide.md#step-5-deploy-and-run-your-models)
 
 Analysis:
@@ -64,12 +64,11 @@ Synthetic Data Generation
 
 ### Step 3: Select Models to Fine Tune
 
-Kiln supports over 60 fine-tuneable models using three different service based tuning providers:
+Kiln supports fine-tuning across three service-based tuning providers:
 
-* Open AI: GPT 4.1, 4o, 4.1-mini and 4o-mini
-* Google Gemini: Gemini 2.0 flash and Gemini 2.0 Pro
-* Fireworks.ai: over 60 open weight models including Qwen 2.5, Llama 2/3.x, Deepseek V3/R1, QwQ, and more. See the [full list here](../models-and-ai-providers.md#additional-fine-tuneable-models).
-* Together AI: Llama 3.1 8b/70b, Llama 3.2 1b/3b, Qwen2.5 14b/72b
+* Google Vertex: Gemini 2.0 Flash and Gemini 2.0 Flash Lite
+* Fireworks.ai: over 20 open weight models including Qwen 3, Llama 3.3, Deepseek V3/R1, Gemma, and more. See the [full list here](../models-and-ai-providers.md#additional-fine-tuneable-models).
+* Together AI: 120+ models including Llama 3.1/3.3/4, Qwen 2.5/3/3.5, DeepSeek R1/V3, Gemma 3/4, and more
 
 {% hint style="success" %}
 To see more options on the "Create Fine Tune" screen, connect API keys for the providers listed above in Settings.
@@ -95,9 +94,9 @@ Dispatching Training Jobs. Note: video does not match current UI
 
 Kiln will automatically deploy your fine-tunes when they are complete. You can use them from the Kiln UI without any additional configuration. Simply select a fine-tune by name from the model dropdown in the "Run" tab.
 
-Together, Fireworks and OpenAI tunes are deployed "serverless". You only pay for usage (tokens), with no recurring costs.
+Together and Fireworks tunes are deployed "serverless". You only pay for usage (tokens), with no recurring costs.
 
-You can use your models outside of Kiln by calling Fireworks or OpenAI APIs with the model ID from the "Fine Tune" tab.
+You can use your models outside of Kiln by calling Fireworks or Together APIs with the model ID from the "Fine Tune" tab.
 
 **Early Results**: Our fine-tuned models show some immediate promise. Previously models smaller than Llama 70b failed to produce the correct structured data for our task. After fine tuning even the smallest model, Llama 3.2 1b, consistently works.
 
@@ -139,8 +138,8 @@ Our demo use case was quite reasonably priced.
 | ------------------------------------- | -------------------------- | ---------- |
 | Training Data Generation              | OpenRouter                 | $2.06      |
 | Fine-tuning 5x Llama models + Mixtral | Fireworks                  | $1.47      |
-| Fine-tuning GPT-4o Mini               | OpenAI                     | $2.03      |
-| Fine-tuning GPT-4o                    | OpenAI                     | $16.91     |
+| ~~Fine-tuning GPT-4o Mini~~           | ~~OpenAI (no longer supported)~~ | ~~$2.03~~ |
+| ~~Fine-tuning GPT-4o~~                | ~~OpenAI (no longer supported)~~ | ~~$16.91~~ |
 | Fine-tuning Llama 3.2 (1b & 3b)       | Unsloth on Google Colab T4 | $0.00      |
 
 If it wasn't for GPT-4o, the whole project would have cost less than $6!
@@ -149,7 +148,7 @@ Meanwhile our fastest fine-tune (Llama 3.2 1b) is about 10x faster and 150x chea
 
 ### Track Training Metrics with Weights & Biases
 
-Kiln supports tracking training metrics with the tool [Weights & Biases](https://wandb.ai/site/) . Configure your W\&B API key in `Settings > AI Providers & Models > Weights & Biases` before starting your fine-tuning job. Metrics will appear for any training jobs on Fireworks or Together. OpenAI doesn't support W\&B, but provides similar metrics in their own dashboard, which is linked from the Kiln Fine Tune page.
+Kiln supports tracking training metrics with the tool [Weights & Biases](https://wandb.ai/site/) . Configure your W\&B API key in `Settings > AI Providers & Models > Weights & Biases` before starting your fine-tuning job. Metrics will appear for any training jobs on Fireworks or Together.
 
 <figure><img src="../../.gitbook/assets/Screenshot 2025-03-19 at 7.27.16 PM.png" alt="" width="287"><figcaption><p>Weights and Biases Metrics</p></figcaption></figure>
 
@@ -163,7 +162,7 @@ We now have 9 fine-tuned models, but which is best for our task? We should evalu
 
 Kiln has [powerful evaluation tools](../evals-and-specs/evaluations.md) to help you though this process. Check out the [evaluation guide](../evals-and-specs/evaluations.md) for details.
 
-If your task is deterministic (classification), Kiln AI will provide the validation set to OpenAI or Together during tuning, and they will report val\_loss on their dashboard. For non-deterministic tasks (including generative tasks) you can use our [evaluation tools](../evals-and-specs/evaluations.md) to evaluate quality.
+If your task is deterministic (classification), Kiln AI will provide the validation set to Together during tuning, and they will report val\_loss on their dashboard. For non-deterministic tasks (including generative tasks) you can use our [evaluation tools](../evals-and-specs/evaluations.md) to evaluate quality.
 
 #### **Exporting Models**
 
@@ -172,7 +171,6 @@ You can export your models for use on your machine, deployment to the cloud, or 
 * Fireworks: you can [download the weights](https://docs.fireworks.ai/fine-tuning/fine-tuning-models#downloading-model-weights) in Hugging Face PEFT format, and convert as needed.
 * Together: you can [download the weights](https://docs.together.ai/docs/finetuning#running-your-model-locally), run locally or convert as needed.
 * Unsloth: your fine-tunes can be directly exported to GGUF or other formats which make these model easy to deploy. A GGUF can be [imported to Ollama](https://github.com/ollama/ollama/blob/main/docs/import.md) for local use. Once added to Ollama, the models will become available in Kiln UI as well.
-* OpenAI: sadly OpenAI won’t let you download their models.
 
 #### **Iterate to Improve Quality**
 
