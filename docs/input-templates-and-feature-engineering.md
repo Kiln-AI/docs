@@ -5,12 +5,6 @@ icon: filter
 
 # Input Templates & Feature Engineering
 
-{% hint style="warning" %}
-Input templates are in beta, and will be in our next release
-{% endhint %}
-
-## Input Templates & Feature Engineering
-
 Feature engineering is the process of controlling which data (features) you expose to a model. When you expose only what's needed — without irrelevant data or duplication — models often perform better. With LLMs, even the order and formatting of your data matters.
 
 ### Input Templates
