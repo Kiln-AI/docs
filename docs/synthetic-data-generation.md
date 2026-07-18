@@ -55,30 +55,65 @@ Selecting the goal will set up two properties:
 
 #### Set Up A Data Guide
 
-A Data Guide is a per-task prompt that tells Kiln what realistic data for your task actually looks like — the shape, structure, and content of inputs, and the shape of outputs. Without one, the data gen model has to guess what your domain looks like from the system prompt alone. With one, generated topics, inputs, and outputs are shaped to your actual data.
+A Data Guide is a per-task prompt that tells Kiln what realistic **inputs** to your task look like — their structure, style, terminology, and value ranges. Without one, the data gen model has to guess what your domain looks like from the system prompt alone. With one, generated topics and inputs are shaped to your actual data.
 
-<figure><img src="../.gitbook/assets/data_guide.png" alt="" width="329"><figcaption><p>Data Guide Creation</p></figcaption></figure>
-
-Data Guides are interactive: you provide a few real examples, Kiln generates a preview, and you rate the samples. Anything you flag as "Needs Work" feeds a metaprompter that rewrites the guide. After a couple of cycles you have a guide that produces realistic data, which you can then attach to every topic, input, and output generation pass in the same task.
+<!-- TODO IMAGE: The "Create a Data Guide" intro card on the Synthetic Data Generation page, showing the "Set Up Data Guide" and "Continue Without Data Guide" buttons. -->
 
 Most tasks benefit from a Data Guide, especially when:
 
 * Your inputs have a specific structure (forms, JSON, transcripts, tickets, code) the model would otherwise have to invent
 * Your domain uses terminology or value ranges a generic model wouldn't know
 * The default synthetic data looks plausible but not quite like production
-* You already have a few example task runs you trust and want generation grounded in them
+* You already have real examples — documents, past runs, or a spreadsheet of inputs — and want generation grounded in them
 
-The first time you open Synthetic Data Generation for a task, Kiln offers to set up a Data Guide. The setup is three steps:
+The first time you open Synthetic Data Generation for a task, Kiln offers to set up a Data Guide. Click **Set Up Data Guide** and Kiln will ask how you'd like to build it: **Manually**, or with **Kiln Pro**.
 
-1. **Add examples:** provide at least one real `(input, output)` pair — type it in, or pick from your existing task runs. These are treated as ground truth and preserved verbatim throughout refinement.
-2. **Pick generation models:** select a model for input generation and a model for output generation. Use capable models here — data gen benefits from larger models, and the output model should be able to perform your actual task.
-3. **Generate a preview:** Kiln produces 5 synthetic samples using your guide so far. Rate each one "Realistic" or "Needs Work". For anything you flag as Needs Work, add a short note describing what's off (e.g., "outputs are too verbose", "inputs are missing the patient ID field", "all examples are US-centric — we need global cases").
+<table><thead><tr><th valign="middle"></th><th valign="middle">Manual</th><th valign="middle">Kiln Pro</th><th data-hidden></th></tr></thead><tbody><tr><td valign="middle"><strong>AI Guided Authoring</strong></td><td valign="middle">Manual</td><td valign="middle">Automatic</td><td></td></tr><tr><td valign="middle"><strong>Style &#x26; Constraints Discovery</strong></td><td valign="middle">Manual</td><td valign="middle">Automatic</td><td></td></tr><tr><td valign="middle"><strong>Learn From Documents</strong></td><td valign="middle">—</td><td valign="middle">✅</td><td></td></tr><tr><td valign="middle"><strong>Approx. Effort</strong></td><td valign="middle">~15 mins</td><td valign="middle">~5 mins</td><td></td></tr><tr><td valign="middle"><strong>Kiln Account</strong></td><td valign="middle">Optional</td><td valign="middle">Required</td><td></td></tr></tbody></table>
 
-When you click "Continue" with feedback, Kiln runs a metaprompter that rewrites your guide to address what you flagged, then regenerates 5 fresh preview samples so you can see whether the change took effect. Repeat until the samples all look realistic, then click "Save Data Guide" to persist it on the task.
+Both paths end in the same place: a saved guide you've reviewed and refined. The difference is how the first draft gets written.
 
-You can also click "Edit" at any preview step to hand-edit the guide directly, then choose "Verify Edit" to regenerate samples against your edited guide, or "Save" to fold the edit into the next refine pass.
+#### Kiln Pro Data Guides
 
-Once a guide is saved, a "Use Data Guide" toggle appears on the Synthetic Data Generation page (and inside the generate-topics, generate-inputs, and generate-outputs dialogs). With the toggle on, the guide is sent alongside the active template guidance for every generation stage. You can toggle it off for individual runs without deleting the guide. To view, edit, or delete the saved guide, use the "Data Guide" button on the Synthetic Data Generation page.
+With Kiln Pro, you hand Kiln a pile of real example inputs and it analyzes them into a complete draft guide for you. It's the fastest path, and the only one that can learn directly from documents.
+
+**1. Connect Kiln Pro** (if you haven't already).
+
+**2. Add example inputs.** Click **Add Inputs** and pick a source: upload documents from your computer or reuse them from your [Document Library](documents-and-search-rag.md) (plaintext tasks only; Kiln converts them to text with an [extractor](documents-and-search-rag.md)), pull inputs from real past runs in your [dataset](organizing-datasets.md), bulk-import from a CSV, or write one by hand (structured tasks only). You can mix sources and add more later.
+
+{% hint style="info" %}
+Real data works best. A Data Guide is only as realistic as the examples it's built from, so prefer real inputs over synthetic ones.
+{% endhint %}
+
+**3. Check your generation settings.** Use the **Generation Settings** card to pick the model that generates your preview inputs ([which model?](synthetic-data-generation.md#choose-a-data-gen-model)).
+
+**4. Click Continue.** Kiln analyzes your examples and drafts your guide, then generates preview inputs and drops you into [Review and Refine](synthetic-data-generation.md#review-and-refine).
+
+#### Manual Data Guides
+
+Manual guides need no Kiln account. You write the starting examples yourself and let the refine cycle do the rest.
+
+1. **Add example inputs:** provide at least one real input — type it in, or pick from your existing task runs. Your examples are treated as ground truth and preserved verbatim in the guide throughout refinement.
+2. **Check your generation settings:** use the **Generation Settings** card to pick the model that generates your preview inputs ([which model?](synthetic-data-generation.md#choose-a-data-gen-model)).
+3. **Generate a preview:** Kiln produces a set of synthetic inputs from your guide so far, and you refine from there.
+
+#### Review and Refine
+
+Both paths converge here. Kiln generates synthetic inputs from your guide and asks whether input generation is working as expected. Rate each one **Realistic** or **Needs Work**, and for anything you flag, add a short note on what's off (e.g. "inputs are missing the patient ID field" or "these are far shorter than our real tickets").
+
+Click **Continue** and Kiln refines the guide with your feedback, then generates fresh inputs so you can see whether the change took effect. Repeat until they all look realistic, then click **Save Data Guide**.
+
+You can also expand **Preview Data Guide** to read or hand-edit the guide directly; after an edit, choose **Verify Edit** to regenerate inputs against it, or **Save Without Refining Further** to keep it as-is.
+
+#### Using A Saved Data Guide
+
+Once saved, your guide is used automatically during synthetic data generation. A **Use Data Guide** toggle in the **Generate Inputs** dialog lets you turn it off for individual runs.
+
+If you're also using template guidance from an eval, that guidance takes priority over the Data Guide where the two conflict.
+
+To view, edit, or delete a saved guide, use the **Data Guide** button on the Synthetic Data Generation page. Clicking **Edit** offers two options:
+
+* **Edit Manually** — edit the guide text directly, then verify your changes or save without verifying.
+* **Review & Refine** — generate fresh example inputs from your guide to re-check quality, and refine it if any need work.
 
 #### Choose A Data Gen Model
 
