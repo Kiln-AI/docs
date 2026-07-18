@@ -182,7 +182,7 @@ Models and products are rarely perfect on their first try. When you find bugs or
 * Experiment with fine-tuning hyperparameters (see the "Advanced Options" section of the UI)
 * Experiment with shorter training prompts, which can reduce costs
 * For one-off bugs you encounter use Kiln to “[repair](../repairing-responses.md)” the issues. These get added to your training data for future iterations.
-* For recurring bugs/patterns, use [synthetic data generation](../synthetic-data-generation.md) to generate many samples of common bugs, ensure they have correct responses with [human guidance](../synthetic-data-generation.md#human-guidance), and add the results to the training set to prevent this class of issues in the future.
+* For recurring bugs/patterns, use [synthetic data generation](../synthetic-data-generation.md) to generate many samples of common bugs, ensure they have correct responses with [human guidance](../synthetic-data-generation.md#templates-and-custom-guidance), and add the results to the training set to prevent this class of issues in the future.
 * Rate your dataset using Kiln’s [rating system](../reviewing-and-rating.md), then build fine-tunes using only highly rated content.
 * Regenerate fine-tunes as your dataset grows and evolves
 * Try new foundation models (directly and with fine tuning) when new state of the art models are released.
