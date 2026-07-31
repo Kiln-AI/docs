@@ -183,11 +183,11 @@ If you're creating multiple evals for task, it's usually beneficial to maintain 
 
 #### Populating the Dataset with Synthetic Data
 
-Most commonly, you'll want to populate the datasets using synthetic data. Clicking `Add Eval Data` then `Synthetic Data` from the Evals UI; this will launch the synthetic data gen tool with the proper [eval tags](evaluations.md#defining-your-dataset-with-tags) already populated. See our [synthetic data generation guide](../synthetic-data-generation.md) for details on generating synthetic data.
+Most commonly, you'll want to populate the datasets using synthetic data. Clicking `Add Eval Data` then `Synthetic Data` from the Evals UI; this will launch the synthetic data gen tool with the proper [eval tags](evaluations.md#defining-your-dataset-with-tags) already populated. See our [synthetic data generation guide](../synthetic-data-generation/) for details on generating synthetic data.
 
 We suggest at least 160 data samples per eval. Difficult or subjective tasks may require more.
 
-An appropriate data gen template will be populated when you enter data-gen via an eval. You can customize this template to guide data generation. See [the docs](../synthetic-data-generation.md#templates-and-custom-guidance) for details.
+An appropriate data gen template will be populated when you enter data-gen via an eval. You can customize this template to guide data generation. See [the docs](../synthetic-data-generation/#templates-and-custom-guidance) for details.
 
 {% hint style="info" %}
 Golden eval datasets work best if they have a range of ratings (some pass, some fail, some of each star-score).
@@ -337,7 +337,7 @@ Like mean squared error, but scores are normalized to the range 0-1. For example
 If you see "N/A" scores in your correlation table, it means more data is needed. This can be one of two cases
 
 * _**Simply not enough data**_: if your golden dataset is very small (<10 items) it can be impossible to produce confident correlation scores. Add more data to resolve this case.
-* _**Not enough variation of human ratings in the golden dataset**_: if you have a larger dataset, but still get N/A, it's likely there isn't enough variation in your dataset for the given score. For example, if all of the golden samples of a score pass, the evaluator won't produce a confident correlation score, as it has no failing examples and everything is a tie. Add more content to your golden dataset, designing the content to fill out the missing score ranges. You can use synthetic data gen [human guidance](../synthetic-data-generation.md#templates-and-custom-guidance) to generate examples that fail.
+* _**Not enough variation of human ratings in the golden dataset**_: if you have a larger dataset, but still get N/A, it's likely there isn't enough variation in your dataset for the given score. For example, if all of the golden samples of a score pass, the evaluator won't produce a confident correlation score, as it has no failing examples and everything is a tie. Add more content to your golden dataset, designing the content to fill out the missing score ranges. You can use synthetic data gen [human guidance](../synthetic-data-generation/#templates-and-custom-guidance) to generate examples that fail.
 
 </details>
 

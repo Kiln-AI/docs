@@ -54,7 +54,7 @@ If you have any issues installing on Windows, check the solutions below:
 
 Launch the app and get started!
 
-The app will guide you through creating a project, creating a task, and connecting to AI providers like Ollama and OpenAI.&#x20;
+The app will guide you through creating a project, creating a task, and connecting to AI providers like Ollama and OpenAI.
 
 Try our sample task for a quick exploration, or define your own custom task for your project.
 
@@ -67,10 +67,9 @@ Our end to end demo walks you through all the major features of Kiln in a 20 min
 Our documents explain each feature, and how to use it:
 
 * [Evaluations](evals-and-specs/evaluations.md)
-* [Synthetic Data Generation](synthetic-data-generation.md)
+* [Synthetic Data Generation](synthetic-data-generation/)
 * [Fine Tuning Guide](fine-tuning/fine-tuning-guide.md)
 * [Collaboration](collaboration/)
 * [Reviewing and Rating](reviewing-and-rating.md)
 * [Organizing Datasets](organizing-datasets.md)
 * See all docs in the navigation bar
-

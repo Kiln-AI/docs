@@ -78,7 +78,7 @@ After creating your eval, populate your eval dataset using synthetic data genera
 {% hint style="info" %}
 **Tool-Specific Behaviour**: When generating outputs in the synthetic data generation flow, **the tool you're evaluating is automatically enabled** for this step, ensuring your model has the opportunity to call it when appropriate. The system captures the full conversation trace, including whether the tool was called and what parameters were used.
 
-See our [Synthetic Data Generation docs](../synthetic-data-generation.md) for more guidance.
+See our [Synthetic Data Generation docs](../synthetic-data-generation/) for more guidance.
 {% endhint %}
 
 ### Add Human Ratings

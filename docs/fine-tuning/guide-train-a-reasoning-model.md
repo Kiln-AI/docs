@@ -22,7 +22,7 @@ Video walkthrough of creating a custom reasoning LLM
 
 ### Ensure your training data includes "reasoning"
 
-When developing your training data with our [synthetic data generation](../synthetic-data-generation.md) tool, be sure to use either a reasoning model or chain-of-thought prompting. Using either of these will ensure your dataset has reasoning data to learn from. See our [model list](../models-and-ai-providers.md#included-models-recommended) for which models have native reasoning support.
+When developing your training data with our [synthetic data generation](../synthetic-data-generation/) tool, be sure to use either a reasoning model or chain-of-thought prompting. Using either of these will ensure your dataset has reasoning data to learn from. See our [model list](../models-and-ai-providers.md#included-models-recommended) for which models have native reasoning support.
 
 See below for [how to choose between reasoning and chain of thought](guide-train-a-reasoning-model.md#choosing-between-reasoning-and-chain-of-thought).
 
@@ -86,6 +86,6 @@ Human curation feedback can add the nuance that makes a truly great model/produc
 
 * Have a subject matter expert [rate the synthetic training set](../reviewing-and-rating.md), and filter your training data to only use high quality samples.
 * Have subject matter experts [repair poorly rated outputs](../repairing-responses.md), giving the model important examples of places it likely would have failed without fine-tuning.
-* Use human-led chain of thought prompts as described [here](guide-train-a-reasoning-model.md#choosing-between-reasoning-and-chain-of-thought), to generate [large synthetic data sets](../synthetic-data-generation.md) for fine-tuning.
-* When you find a pattern of bugs, use [synthetic data generation with human guidance](../synthetic-data-generation.md) to create samples of correct input/output pairs. Add these to your training set to fix the behaviour the next time you train.
+* Use human-led chain of thought prompts as described [here](guide-train-a-reasoning-model.md#choosing-between-reasoning-and-chain-of-thought), to generate [large synthetic data sets](../synthetic-data-generation/) for fine-tuning.
+* When you find a pattern of bugs, use [synthetic data generation with human guidance](../synthetic-data-generation/) to create samples of correct input/output pairs. Add these to your training set to fix the behaviour the next time you train.
 * Use Kiln's [collaboration system](../collaboration/) to allow anyone on your team to contribute to model quality with feedback, data generation and quality. Our UI is designed for anyone, and does not require command line or coding skills.

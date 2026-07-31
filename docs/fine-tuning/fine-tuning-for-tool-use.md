@@ -34,7 +34,7 @@ Kiln makes building a tool-calling training dataset easy:
 4.  Click “Add Fine-Tuning Data” to launch Kiln's synthetic data generation tool.
 
     <figure><img src="../../.gitbook/assets/image.png" alt="" width="375"><figcaption></figcaption></figure>
-5. Generate synthetic training data using Kiln's [synthetic data gen](../synthetic-data-generation.md) tool. It will automatically select the correct tools for you when generating sample outputs.
+5. Generate synthetic training data using Kiln's [synthetic data gen](../synthetic-data-generation/) tool. It will automatically select the correct tools for you when generating sample outputs.
 
 #### Distilling Larger Models and Longer Prompts for Better Tool Calling
 

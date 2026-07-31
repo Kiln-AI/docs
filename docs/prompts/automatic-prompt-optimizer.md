@@ -36,7 +36,7 @@ When you create an eval with the Eval Builder, we generate two separate datasets
 {% hint style="info" %}
 **Legacy Evals May be Missing Training Data**
 
-If you have an eval created before the Eval Builder was added, it may not have a training dataset. You'll need to use [synthetic data generation](../synthetic-data-generation.md) to generate a training dataset, [tag the results](../organizing-datasets.md#using-tags-to-organize-your-dataset), and save the tag as your eval's training dataset tag.
+If you have an eval created before the Eval Builder was added, it may not have a training dataset. You'll need to use [synthetic data generation](../synthetic-data-generation/) to generate a training dataset, [tag the results](../organizing-datasets.md#using-tags-to-organize-your-dataset), and save the tag as your eval's training dataset tag.
 {% endhint %}
 
 #### Reflective Prompt Evolution

@@ -17,7 +17,7 @@ You can follow this guide to create your own LLM fine-tunes. We'll cover:
 A Demo Project:
 
 * \[2 mins]: [Define task, goals, and schema](fine-tuning-guide.md#step-1-define-your-task-and-goals)
-* \[9 mins]: [Synthetic data generation](../synthetic-data-generation.md): create 920 high-quality examples for training
+* \[9 mins]: [Synthetic data generation](../synthetic-data-generation/): create 920 high-quality examples for training
 * \[5 mins]: Dispatch 9 fine tuning jobs: [Fireworks](fine-tuning-guide.md#step-4-dispatch-training-jobs) (Llama 3.2 1b/3b/11b, Llama 3.1 8b/70b, Mixtral 8x7b), [OpenAI](fine-tuning-guide.md#step-4-dispatch-training-jobs) (GPT 4o, 4o-Mini), and [Unsloth](fine-tuning-guide.md#step-6-optional-training-on-your-own-infrastructure) (Llama 3.2 1b/3b). Note: since this guide was written we've added over 60 new models for fine tuning!
 * \[2 mins]: [Deploy your new models and test they work](fine-tuning-guide.md#step-5-deploy-and-run-your-models)
 
@@ -44,12 +44,12 @@ Create a task to fine-tune for
 
 To fine tune, you’ll need a dataset to learn from.
 
-Kiln offers an interactive UI for quickly and easily building synthetic datasets. In the video below we use it to generate 920 training examples in 9 minutes of hands-on work. See our [data gen guide](../synthetic-data-generation.md) for more details.
+Kiln offers an interactive UI for quickly and easily building synthetic datasets. In the video below we use it to generate 920 training examples in 9 minutes of hands-on work. See our [data gen guide](../synthetic-data-generation/) for more details.
 
 {% hint style="info" %}
 All fine tuning data must be tagged with a [tag](../organizing-datasets.md#using-tags-to-organize-your-dataset) starting with `fine_tune` (e.g. fine\_tune, fune\_tune\_thinking, fine\_tune\_experiment\_42).
 
-If you launch synthetic data gen from within the "Create a New Fine Tune" screen, the tag `fine_tune` will automatically be added to all generated samples.&#x20;
+If you launch synthetic data gen from within the "Create a New Fine Tune" screen, the tag `fine_tune` will automatically be added to all generated samples.
 
 If you already created tuning data, use the dataset tab to add the `fine_tune` tag to the samples you want to use for tuning.
 {% endhint %}
@@ -182,7 +182,7 @@ Models and products are rarely perfect on their first try. When you find bugs or
 * Experiment with fine-tuning hyperparameters (see the "Advanced Options" section of the UI)
 * Experiment with shorter training prompts, which can reduce costs
 * For one-off bugs you encounter use Kiln to “[repair](../repairing-responses.md)” the issues. These get added to your training data for future iterations.
-* For recurring bugs/patterns, use [synthetic data generation](../synthetic-data-generation.md) to generate many samples of common bugs, ensure they have correct responses with [human guidance](../synthetic-data-generation.md#templates-and-custom-guidance), and add the results to the training set to prevent this class of issues in the future.
+* For recurring bugs/patterns, use [synthetic data generation](../synthetic-data-generation/) to generate many samples of common bugs, ensure they have correct responses with [human guidance](../synthetic-data-generation/#templates-and-custom-guidance), and add the results to the training set to prevent this class of issues in the future.
 * Rate your dataset using Kiln’s [rating system](../reviewing-and-rating.md), then build fine-tunes using only highly rated content.
 * Regenerate fine-tunes as your dataset grows and evolves
 * Try new foundation models (directly and with fine tuning) when new state of the art models are released.
