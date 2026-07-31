@@ -7,6 +7,8 @@ icon: robot
 
 Anyone can create thousands of synthetic data samples in just a few minutes using our interactive UI.
 
+<figure><img src="../.gitbook/assets/synth_data-2.png" alt=""><figcaption></figcaption></figure>
+
 ## Use Cases
 
 Synthetic data is helpful for many reasons:
@@ -23,8 +25,8 @@ Kiln doesn't require you to write complex custom synthetic data gen prompts. Sin
 
 Kiln offers two ways to build the dataset itself:
 
-* **[Kiln Pro Batch Planning](synthetic-data-generation.md#kiln-pro-plan-the-batch):** describe the dataset you want and Kiln plans the whole batch for you, writing one tailored prompt per sample to cover your task's use cases and edge cases.
-* **[Manual Generation](synthetic-data-generation.md#manual-build-a-topic-tree):** plan the coverage yourself by building a tree of topics for breadth.
+* [**Kiln Pro Batch Planning**](synthetic-data-generation.md#kiln-pro-plan-the-batch)**:** describe the dataset you want and Kiln plans the whole batch for you, writing one tailored prompt per sample to cover your task's use cases and edge cases.
+* [**Manual Generation**](synthetic-data-generation.md#manual-build-a-topic-tree)**:** plan the coverage yourself by building a tree of topics for breadth.
 
 Both flows start the same way: choose a goal, optionally set up a Data Guide, then pick how to build the dataset. Only the first build step differs (planning vs topics); from there both generate inputs and outputs and save into your dataset.
 
@@ -35,20 +37,14 @@ First select a goal for your dataset generation: **Evals** or **Fine-Tuning**. T
 * **Fine-Tuning**: generate high quality outputs across a broad range of possible inputs, to help your model learn how to respond to a range of requests. This can include generating inputs that commonly produce issues, and outputs that avoid that issue.
 * **Evals**: Intentionally generate a mix of good and bad inputs and outputs. We'll use the bad outputs to ensure the judge model can properly assess failures, and we'll use the bad inputs to ensure your task no longer has the issue.
 
-<figure><img src="../.gitbook/assets/Screenshot 2025-07-16 at 10.15.49 AM.png" alt="" width="375"><figcaption><p>Select a Goal</p></figcaption></figure>
-
 Selecting the goal will set up two properties:
 
 * **Template:** A starting point for the generation guidance, chosen from your goal. For Fine-Tuning it's the built-in fine-tuning template; for Evals, Kiln matches the eval you're generating for. In manual mode you can switch or edit it (see [Templates and Custom Guidance](synthetic-data-generation.md#templates-and-custom-guidance)); in Kiln Pro it prefills the batch [Guidance box](synthetic-data-generation.md#kiln-pro-plan-the-batch).
 * **Tag Assignments:** which dataset tags will be assigned to generated data. This could be a single tag like `fine_tuning_data` or a randomly assigned split like `eval_data: 80%, golden_data: 20%`.
 
-<figure><img src="../.gitbook/assets/Screenshot 2025-07-16 at 10.21.14 AM.png" alt="" width="375"><figcaption><p>Goals drive the template and tag assignments</p></figcaption></figure>
-
 ## Set Up A Data Guide
 
 A Data Guide is a per-task prompt that tells Kiln what realistic **inputs** to your task look like: their structure, style, terminology, and value ranges. Without one, the data gen model has to guess what your domain looks like from the system prompt alone. With one, generated topics and inputs are shaped to your actual data.
-
-<!-- TODO IMAGE: The "Create a Data Guide" intro card on the Synthetic Data Generation page, showing the "Set Up Data Guide" and "Continue Without Data Guide" buttons. -->
 
 Most tasks benefit from a Data Guide, especially when:
 
@@ -114,8 +110,6 @@ To view, edit, or delete a saved guide, use the **Data Guide** button on the Syn
 
 We highly recommend choosing a large capable model for data gen. While your task may work on smaller models, data gen is more complex. It requires reasoning about a range of possible inputs, probing edge cases, and more. It benefits from a large model with a long context.
 
-<!-- TODO IMAGE: The data-gen model dropdown, with recommended models tagged. -->
-
 If generating content to evaluate how your model responds to inappropriate requests (bias, jailbreaking, maliciousness, etc.), choose an uncensored model like Grok or Dolphin. Censored models like GPT-5 will refuse to generate some types of content.
 
 ## Building The Dataset
@@ -144,19 +138,15 @@ Both modes produce a batch of data. The difference is the planning. Instead of b
 **2. Describe the batch you want.** The **Generate Synthetic Data Batch** page has three controls:
 
 * **Sample Count:** how many samples to plan.
-* **Guidance:** free text describing the dataset you want, e.g. _"10% of the dataset should be in Spanish."_ Kiln prefills this from your goal: a representative training set with ~20% edge cases for **Fine-Tuning**, or a batch that exercises the measured behavior (embedding the eval's definition) for **Evals**. Edit it however you like.
+* **Guidance:** free text describing the dataset you want, e.g. _"10% of the dataset should be in Spanish."_ Kiln prefills this from your goal: a representative training set with \~20% edge cases for **Fine-Tuning**, or a batch that exercises the measured behavior (embedding the eval's definition) for **Evals**. Edit it however you like.
 * **Use Data Guide:** include your task's [Data Guide](synthetic-data-generation.md#set-up-a-data-guide), so both the plan and the generated inputs match the shape of your real data.
 
 This single **Guidance** box is where you steer the whole batch; unlike manual mode, there's no separate per-stage guidance.
-
-<!-- TODO IMAGE: The "Generate Synthetic Data Batch" form, showing Sample Count, Guidance, and the Use Data Guide toggle. -->
 
 **3. Review the batch plan.** Click **Generate Batch** and Kiln drafts a **Batch Plan** showing what it intends to generate, before it generates anything:
 
 * **Batch Overview:** a short summary of what the batch covers and how it's distributed.
 * **All Dataset Items:** expand this to read every planned prompt, one per sample. Remove any you don't want from the row's "..." menu.
-
-<!-- TODO IMAGE: The "Batch Plan" page, showing the Batch Overview summary and the expanded "All Dataset Items" table. -->
 
 ### Manual: Build a Topic Tree
 
@@ -172,15 +162,9 @@ Synthetic Data Generation Walkthrough
 
 A common issue with synthetic data generation is that if you ask a model to generate synthetic data 1000 times, you get 1000 very similar outputs. Kiln addresses this by first generating a tree of diverse topics, then generating data targeting individual topics.
 
-<figure><img src="../.gitbook/assets/Screenshot 2025-01-05 at 12.06.43 PM.png" alt="" width="302"><figcaption><p>Example Topic Tree for a "Newspaper Headline" Task</p></figcaption></figure>
-
 Kiln can use AI models to generate a topic tree for you from your task's prompt. It uses the prompt to ensure the topics are relevant to your goal. See the example above: the model knew it was building topics for newspaper headlines and generated appropriate topics. To generate topics, click **Add Topics**:
 
-<figure><img src="../.gitbook/assets/Screenshot 2025-09-11 at 1.45.58 PM.png" alt="" width="375"><figcaption><p>Generate Topics Dialog</p></figcaption></figure>
-
 You can nest sub-topics under any topic, forming the tree. Adding layers allows you to quickly generate a significant amount of diverse data. Open any topic's "..." menu to expose an **Add Subtopics** button:
-
-<figure><img src="../.gitbook/assets/Screenshot 2025-09-22 at 7.17.28 PM.png" alt="" width="219"><figcaption><p>"Add Subtopics" from ... menu</p></figcaption></figure>
 
 You can manually add topics instead of using synthetic topic generation. Select the "or manually add topics" option at the bottom of the "Generate Topics" dialog.
 
@@ -192,21 +176,13 @@ Model inputs are the data passed into your task. When normally running your task
 
 In manual mode, click **Generate Inputs** to produce inputs in your data table (under each topic, if you're using them). In Kiln Pro, click **Generate Batch** on your reviewed plan and Kiln generates every sample's input in parallel.
 
-<figure><img src="../.gitbook/assets/Screenshot 2025-09-11 at 1.37.16 PM.png" alt="" width="375"><figcaption><p>Generate Model Inputs Dialog</p></figcaption></figure>
-
-<figure><img src="../.gitbook/assets/Screenshot 2025-09-22 at 7.19.49 PM.png" alt="" width="375"><figcaption><p>Generated model inputs for the "Joke Generator" task</p></figcaption></figure>
-
 Review the quality of inputs and ensure you're happy with them before proceeding. You can remove individual inputs for manual curation or reset the session to change the guidance and generate again to get better quality data.
 
 ### Generate Outputs
 
 Once you have generated all of the inputs you want, click **Generate Outputs** to run your task on each input:
 
-<figure><img src="../.gitbook/assets/Screenshot 2025-07-16 at 10.56.16 AM.png" alt="" width="375"><figcaption></figcaption></figure>
-
 Generating will result in an output for each input:
-
-<figure><img src="../.gitbook/assets/Screenshot 2025-09-22 at 7.21.43 PM.png" alt="" width="375"><figcaption><p>Synthetic Input/Output pairs under a topic</p></figcaption></figure>
 
 Review the quality of outputs and ensure you're happy with them before proceeding. You can remove individual outputs for manual curation or reset the session to change the guidance and generate again to get better quality data.
 
@@ -214,19 +190,13 @@ Review the quality of outputs and ensure you're happy with them before proceedin
 
 Use the Kiln synthetic data UI to review your data. Once you're happy with the data, click **Save All** to save it into your dataset for use in evals and fine-tuning.
 
-<figure><img src="../.gitbook/assets/Screenshot 2025-09-22 at 7.27.27 PM.png" alt="" width="375"><figcaption><p>Saving All Data</p></figcaption></figure>
-
 The data will automatically be tagged with appropriate tags, based on the goal you selected ([see details](synthetic-data-generation.md#tagging)):
-
-<figure><img src="../.gitbook/assets/Screenshot 2025-09-11 at 1.41.25 PM.png" alt=""><figcaption><p>The tags which will be assigned are shown in the UI</p></figcaption></figure>
 
 Once saved, you can view all of your saved data in the Dataset tab.
 
 ### Templates and Custom Guidance
 
 In manual mode, you steer each stage with its own **Guidance**: separate instructions for topic, input, and output generation. Kiln starts each from a template chosen from your goal (or the eval you came from), so you don't have to write a data-gen prompt from scratch. Switch templates or write custom guidance before running any stage.
-
-<figure><img src="../.gitbook/assets/Screenshot 2025-07-16 at 10.42.02 AM.png" alt="" width="375"><figcaption><p>Selecting a Template</p></figcaption></figure>
 
 The guidance dropdown offers a few families:
 
@@ -235,8 +205,6 @@ The guidance dropdown offers a few families:
 * **Custom:** write your own guidance from scratch.
 
 These templates are a starting point. Edit one before running a stage, or write your own guidance from scratch, to get exactly the data you want.
-
-<figure><img src="../.gitbook/assets/Screenshot 2025-07-16 at 10.48.14 AM.png" alt="" width="375"><figcaption><p>Editing a template</p></figcaption></figure>
 
 Some examples of custom guidance:
 
@@ -269,8 +237,6 @@ All synthetic data will be assigned a series of [tags](organizing-datasets.md#us
 * The tag `synthetic` (manual and imported runs have their own tags)
 * A unique tag to identify the data session (e.g. `synthetic_session_12345`)
 * Custom tags. These are set up automatically when you select a goal, but you can edit them before generating data:
-
-<figure><img src="../.gitbook/assets/Screenshot 2025-07-16 at 11.13.57 AM.png" alt="" width="375"><figcaption><p>Editing Tag Assignments</p></figcaption></figure>
 
 ## Resolving Bugs & Issues with Synthetic Data
 
