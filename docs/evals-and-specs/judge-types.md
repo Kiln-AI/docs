@@ -72,7 +72,7 @@ Tool Call Check and Step Count Check always read the trace, so they don't offer 
 
 ### LLM as Judge
 
-A model reads the output and grades it against criteria you write, producing a score for each of your eval's output scores. You choose the judge model and provider, write the judge prompt and evaluation steps, and can optionally enable G-Eval for more nuanced scores.
+A model reads the output and grades it against criteria you write, producing a score for each of your eval's output scores. You choose the judge model and provider, write the judge prompt and evaluation instructions, and can optionally enable G-Eval for more nuanced scores.
 
 See our [LLM Judges](llm-judges.md) guide for each of these options.
 
@@ -92,8 +92,9 @@ Best for tasks with a single correct answer: classification labels, yes/no answe
 
 Passes when the output matches a regular expression — or when it doesn't, if you set the mode to "must not match".
 
-* **Pattern**: any Python regular expression.
-* **Mode**: must match, or must not match.
+* **Expected Pattern (Regex)**: any Python regular expression.
+* **Match Mode**: must match, or must not match.
+* **Output to Check**: see [above](judge-types.md#output-to-check).
 
 Best for format rules. A "must not match" pattern is a cheap way to catch an output that keeps leaking something it shouldn't, like a placeholder string or an internal ID format.
 
@@ -101,9 +102,10 @@ Best for format rules. A "must not match" pattern is a cheap way to catch an out
 
 Passes when the output contains a substring — or when it doesn't, if you set the mode to "must not contain".
 
-* **Substring**: the text to look for.
+* **Expected Substring**: the text to look for.
 * **Case Sensitive**: on by default.
-* **Mode**: must contain, or must not contain.
+* **Match Mode**: must contain, or must not contain.
+* **Output to Check**: see [above](judge-types.md#output-to-check).
 
 Simpler than Pattern Match, and usually clearer to a teammate reading your eval later. Reach for Pattern Match only when a plain substring won't do.
 
@@ -111,8 +113,9 @@ Simpler than Pattern Match, and usually clearer to a teammate reading your eval 
 
 Parses a set of values from the output and compares it to an expected set.
 
-* **Expected Set**: the values to compare against.
-* **Mode**: `subset` (everything found must be in the expected set), `superset` (everything expected must be found), or `equal` (exactly the same values).
+* **Expected Values**: the values to compare against.
+* **Comparison Mode**: `subset` (everything found must be in the expected set), `superset` (everything expected must be found), or `equal` (exactly the same values).
+* **Output to Check**: see [above](judge-types.md#output-to-check).
 
 Best for multi-label classification, tag extraction, or any task where the output is a list and the order doesn't matter.
 
@@ -122,11 +125,11 @@ Inspects the agent's trace to check it called the tools you expected.
 
 * **Expected Tools**: one or more tools, each optionally with expected arguments. Each argument can be matched exactly, by substring, or by regular expression.
 * **Match Mode**:
-  * `all`: every expected tool was called
-  * `any`: at least one expected tool was called
-  * `ordered`: the expected tools were called, in the order listed
-  * `never`: none of the listed tools were called
-* **Unexpected Tools**: ignore other tool calls, or fail the check if the agent calls anything not on your list.
+  * All (any order): every expected tool was called
+  * Any: at least one expected tool was called
+  * Ordered (in list order): the expected tools were called, in the order listed
+  * Never: none of the listed tools were called
+* **Unlisted Tool Calls**: allow any other tool the agent calls, or fail the check if it calls anything not on your list. Not shown when Match Mode is "Never".
 
 This is the deterministic way to test tool use. It answers "did the agent do the right thing?" for free, where an LLM judge would need to read the whole trace and form an opinion. See [Evaluate Appropriate Tool Use](evaluate-appropriate-tool-use.md) for the full workflow, including when you still want an LLM judge.
 
@@ -134,8 +137,8 @@ This is the deterministic way to test tool use. It answers "did the agent do the
 
 Counts steps in the agent's trace and passes when the count is within bounds you set.
 
-* **Count Type**: tool calls, model responses, or conversation turns.
-* **Min Count / Max Count**: at least one is required.
+* **What to Count**: tool calls, model responses, or conversation turns.
+* **Bounds**: a **Minimum**, a **Maximum**, or both — at least one is required.
 
 Best for agent efficiency. Cap an agent at 5 tool calls to catch runaway loops, or require at least 1 to confirm it actually used a tool instead of answering from memory.
 

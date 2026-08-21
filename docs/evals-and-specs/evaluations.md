@@ -88,21 +88,17 @@ The Eval you created defines the goal of the eval, but it doesn't include the sp
 
 The judge type defines how your eval is actually scored. Kiln offers two families:
 
-* **LLM Judges**: a model reads the output and grades it against a rubric you write. Best for subjective qualities like tone, helpfulness, or factual correctness. See our [LLM Judges](llm-judges.md) guide for the options you can configure.
+* **LLM Judges**: a model reads the output and grades it against a rubric you write. Best for subjective qualities like tone, helpfulness, toxicity, etc. See our [LLM Judges](llm-judges.md) guide for the options you can configure.
 * **Programmatic Judges**: code inspects the output or the trace and returns a pass/fail — exact matches, regular expressions, tool call trajectories, step counts, or a custom Python function. There's no model call, so they're fast, free, and return the same answer every time.
 
 If your eval goal can be stated as a rule, prefer a programmatic judge. If it needs judgement, use an LLM judge. See our [Judge Types](judge-types.md) guide for all of the options, and help choosing between them.
-
-#### Python Library Usage \[optional]
-
-It's possible to create evals in code as well. Just be aware judges are called EvalConfigs in our library.
 
 ### Create your Eval Datasets
 
 An eval in Kiln has several datasets, each defining a subset of the items in your task's dataset:
 
 * **Test Dataset**: held-out data for measuring final quality. This is the data used when evaluating different methods of running your task, and the scores shown in the "Compare" view. Every eval needs one.
-* **Golden Dataset**: the data used when trying to find the best judge for this eval. These items have human ratings, so we can compare judges to human preference.
+* **Golden Dataset**: the data used when trying to find the best judge for this eval. These items have human ratings, so we can compare judges to human preference. Only needed if you're using an [LLM judge](llm-judges.md) — a programmatic judge has nothing to align.
 * **Training Dataset** \[optional]: used by optimizers, such as the [automatic prompt optimizer](../prompts/automatic-prompt-optimizer.md).
 * **Validation Dataset** \[optional]: also used by optimizers, to confirm a result generalizes beyond the data it was tuned on.
 
@@ -114,7 +110,7 @@ When first creating your eval, you will specify a "tag" which defines each of th
 
 Don't worry if your dataset is empty when creating your eval, we'll guide you through adding data after its creation.
 
-By default, Kiln will suggest appropriate tags and we suggest keeping the defaults. For example, the overall-score template will use the tags "eval\_set" and "golden", while the toxicity template will use the tags "toxicity\_eval\_set" and "toxicity\_golden".
+By default, Kiln will suggest appropriate tags and we suggest keeping the defaults. Tags are named after your eval: an eval named "toxicity" gets the tags "test\_toxicity", "golden\_toxicity", "train\_toxicity" and "val\_toxicity". Evals created by earlier versions of Kiln keep the tags they were created with.
 
 {% hint style="info" %}
 "Golden" is a term often used in data science, to describe a "gold standard" dataset, used to compare different methods/approaches.
@@ -155,9 +151,9 @@ If your dataset items weren't automatically tagged for any reason, you can also 
 1. Add your data to Kiln using one of the import options ([CSV import](../organizing-datasets.md#importing-data-into-your-dataset), [python library import](../../developers/python-library-quickstart.md))
 2. Open the "Dataset" tab in kiln
 3. Filter your dataset to only the content you want to tag. For example, synthetic data is tagged with an automatic tag such as synthetic\_session\_12345, CSV imports have similar tags.
-4. Use the "Select" UI to select a portion of your dataset for your eval-dataset. 80% is a good starting point. Add the tag for your eval dataset, which is "eval\_config" if you kept the default tag name. Note: if you generated data using synthetic "topics", make sure to include a mix of each topic in each sub-dataset.
-5. Select only the remaining items, and add the tag for your golden dataset, which is "golden" if you kept the default tag name (or something like "toxicity\_golden" if you used a different template than the default).
-6. Filter the dataset to both tags (eval\_config and golden) to double check you didn't accidentally add any items to both datasets.
+4. Use the "Select" UI to select a portion of your dataset for your eval-dataset. 80% is a good starting point. Add the tag for your test dataset, which is "test\_&lt;eval name&gt;" if you kept the default tag names. Note: if you generated data using synthetic "topics", make sure to include a mix of each topic in each sub-dataset.
+5. Select only the remaining items, and add the tag for your golden dataset, which is "golden\_&lt;eval name&gt;" if you kept the default tag names.
+6. Filter the dataset to both tags (your test tag and your golden tag) to double check you didn't accidentally add any items to both datasets.
 
 </details>
 
@@ -178,7 +174,7 @@ The `Rate Golden Dataset` button in the eval screen will take you to the dataset
 <figure><img src="../../.gitbook/assets/Screenshot 2025-06-27 at 11.13.51 AM.png" alt="" width="375"><figcaption></figcaption></figure>
 
 {% hint style="success" %}
-You can use the left/right keyboard keys to quickly move between items. Only the golden dataset needs ratings, not the eval\_set.
+You can use the left/right keyboard keys to quickly move between items. Only the golden dataset needs ratings, not the test dataset.
 {% endhint %}
 
 ### Finding the Ideal Judge
@@ -355,7 +351,7 @@ You can iterate by trying new prompts, more models, building custom fine-tuned m
 
 #### Expand your Dataset
 
-Your understanding of your model/product usually gets better over time. Consider adding data to your dataset over time (both eval\_set and golden). This can come from real users, bug reports, or new synthetic data that comes from a better understanding of the problem. As you add data, re-run both sub-evals (judge and run-method) to find the best judge and run-method for your task.
+Your understanding of your model/product usually gets better over time. Consider adding data to your dataset over time (both test and golden). This can come from real users, bug reports, or new synthetic data that comes from a better understanding of the problem. As you add data, re-run both sub-evals (judge and run-method) to find the best judge and run-method for your task.
 
 #### Add New Evals
 

@@ -19,7 +19,7 @@ Add a judge to your eval and select the "Code" type.
 {% hint style="warning" %}
 **Code judges run on your machine, with full access.**
 
-There are no import restrictions or resource limits beyond the timeout. The first time you add or edit code in a project, Kiln asks you to confirm you trust it — that trust gate is the security boundary. See [Code Trust](../tools-and-mcp/code-tools.md#code-trust) for details.
+There are no import restrictions or resource limits beyond the timeout. Adding or editing code in a project requires confirming you trust it — that trust gate is the security boundary. See [Code Trust](../tools-and-mcp/code-tools.md#code-trust) for details.
 {% endhint %}
 
 ### The `score()` Function
@@ -60,9 +60,11 @@ Test your judge before saving it. A test run checks the dict you return against 
 Code judges can call two built-in tools, selectable from the judge's tool picker like any other tool:
 
 * **`llm`**: a general-purpose model call. Pass a prompt, model and provider. Provide an optional JSON schema to force structured output; without one you get text back.
-* **`llm_judge`**: the same, but it automatically applies your eval's own output score schema and returns mapped float scores — so you can return its result directly.
+* **`llm_judge`**: the same, but it automatically applies your eval's own output score schema, so the scores come back keyed the way your eval expects.
 
-Both run outside the code sandbox, so your API keys are never exposed to your judge's code.
+Both take a `prompt` that is rendered as a **Jinja2 template** against an `input` dict. Put your instructions in the template and pass the run's data through `input` — never build the prompt by interpolating trace text directly, or a `{{ }}` appearing in that text will be parsed as Jinja and fail the call.
+
+Both run in Kiln itself rather than in your judge's subprocess, so your API keys are never exposed to your code.
 
 This combination solves the long-trace problem. An agent run can produce a 500k token trace, and handing all of it to an LLM judge is slow and expensive. Instead, filter it down in code to the handful of messages that actually matter, then ask a cheap model about just those:
 
@@ -81,7 +83,8 @@ def score(trace: list) -> dict:
     transcript = "\n\n".join(user_facing)
 
     result = tools.llm_judge(
-        prompt=f"Was the assistant helpful in this conversation?\n\n{transcript}",
+        prompt="Was the assistant helpful in this conversation?\n\n{{ transcript }}",
+        input={"transcript": transcript},
         model="gpt_4_1_mini",
         provider="openai",
     )
@@ -94,9 +97,9 @@ The LLM tools aren't special: a code judge can call any tool in its allowlist, u
 
 See [Calling Other Tools](../tools-and-mcp/code-tools.md#calling-other-tools) for the full API, including async calls and error handling.
 
-### Advanced Options
+### Timeout and Tools
 
-* **Timeout**: wall-clock timeout for scoring one item, including any nested tool calls. Defaults to 180 seconds.
+* **Timeout**: wall-clock timeout for scoring one item, including any nested tool calls. Defaults to 180 seconds, with a 300 second maximum.
 * **Tools**: an explicit allowlist of the tools your code may call. Code with no tools selected can't make tool calls at all.
 
 ### Your Code is a Real Python File
@@ -133,10 +136,6 @@ def test_rejects_empty_summary():
 ```
 
 Then run `pytest` from that folder. Kiln doesn't store, display, or run these tests — they live in a normal Python environment with `kiln_ai` installed.
-
-{% hint style="info" %}
-`scorer.py` is a fixed filename, so running `pytest` across several eval config folders at once hits a module name collision. Run `pytest` from inside a single folder, or use `pytest --import-mode=importlib`.
-{% endhint %}
 
 ### Learn More
 
