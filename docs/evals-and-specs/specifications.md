@@ -14,6 +14,10 @@ description: >-
 **Note:** The Eval Builder requires a Kiln Pro account. Registration is free and easy inside the Kiln app.
 {% endhint %}
 
+{% hint style="info" %}
+The Eval Builder currently only supports the creation of LLM as Judge evals.
+{% endhint %}
+
 ### What is the Kiln Eval Builder?&#x20;
 
 <figure><img src="../../.gitbook/assets/specs img (1).png" alt="" width="375"><figcaption></figcaption></figure>

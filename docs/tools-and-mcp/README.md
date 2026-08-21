@@ -5,7 +5,7 @@ icon: hammer
 
 # Tools & MCP
 
-Kiln allows connecting to tools such as [Kiln Search Tools (RAG)](../documents-and-search-rag.md) or third party tools via via [Model Context Protocol (MCP)](https://modelcontextprotocol.io). These tools can give your Kiln tasks powerful new capabilities.
+Kiln allows connecting to tools such as [Kiln Search Tools (RAG)](../documents-and-search-rag.md) or third party tools via via [Model Context Protocol (MCP)](https://modelcontextprotocol.io). You can also write your own tools in Python with [Code Tools](code-tools.md). These tools can give your Kiln tasks powerful new capabilities.
 
 ## Video Walkthrough
 
@@ -26,6 +26,12 @@ If you want to try tools as quickly as possible, enable the "Math Tools" from th
 Kiln allows you to build powerful search tools, which can search thousands of documents for knowledge. These behave like any other tool: each search tool you create, will be automatically available in the tools dropdown.
 
 See the [Documents & Search](../documents-and-search-rag.md) docs for details.
+
+### Code Tools
+
+You can write your own tools in Python, without leaving Kiln. A code tool can call other tools it's been granted access to, which makes it ideal for batching, filtering, and cleaning up messy interfaces before the model ever sees them.
+
+Open "Tools" > "Add Tools" > "Code Tool" to create one. See the [Code Tools](code-tools.md) docs for details.
 
 ### Powerful Example Tools: Web Search, Python Interpreter, and more
 
