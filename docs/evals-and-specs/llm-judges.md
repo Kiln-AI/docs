@@ -44,13 +44,13 @@ The UI will only show the G-Eval option if you select a supported model + provid
 Unfortunately [Ollama doesn't support logprobs yet](https://github.com/ollama/ollama/issues/2415).
 {% endhint %}
 
-### Customize a Task Description
+### Advanced: Customize a Task Description
 
 The evaluator model can almost always perform better if you give it a high level summary of the task. Keep this short, usually just one sentence. We'll add more detailed asks of the evaluators in the next section.
 
 This will be pre-populated from your eval, and customizing it is optional.
 
-### Customize Evaluation Steps / Thinking Steps
+### Advanced: Customize Evaluation Steps / Thinking Steps
 
 LLM judges give the model time to "think" using chain-of-thought/reasoning before generating the output scores. Your judge defines an ordered list of evaluation instructions/steps, giving the model steps for "thinking through" the eval prior to answering. If you selected a template when creating the eval, Kiln will automatically fill in template steps for you. You can edit the templates as much as you wish, adding, removing and editing steps.
 
