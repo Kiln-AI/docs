@@ -59,8 +59,6 @@ Some examples of what these combinations express:
 | The agent must look up the right user | `get_user` with an expected argument `id` matching your value |
 | The agent must stay within its allowed tools | your tool list, with unexpected tools set to fail |
 
-Use the Test Run pane to run your check against a real dataset item before saving. Kiln will pre-select an item that actually has a trace, so there's something for the check to inspect.
-
 #### No Golden Set Required
 
 A Tool Call Check doesn't approximate human judgement, so there's no judge to align: you don't need a golden dataset, human ratings, or the [Compare Judges](evaluations.md#finding-the-ideal-judge) flow. Populate your test dataset and go straight to [comparing run methods](evaluate-appropriate-tool-use.md#finding-the-ideal-run-configuration).

@@ -68,8 +68,6 @@ Custom expressions are useful for structured outputs and agent traces. Some exam
 | Count messages in the trace | `trace \| length` |
 | Name of a tool called in the trace | `trace[-1].tool_calls[0].function.name` |
 
-The judge creation UI includes this list of examples; click "See Examples" beside the expression field to insert one.
-
 Tool Call Check and Step Count Check always read the trace, so they don't offer this option. [Code](judge-types.md#code-beta) judges receive the output and trace directly, and pick out what they need in Python.
 
 ### LLM Judges
@@ -173,30 +171,6 @@ Running judge comparison on a programmatic check is still allowed, and there's o
 If your eval only uses programmatic checks, you can skip the golden dataset and human rating steps entirely, and go straight to [comparing run methods](evaluations.md#finding-the-ideal-run-method).
 {% endhint %}
 
-### Testing a Judge Before You Save It
-
-When creating a judge, the Test Run pane lets you run it against real items from your dataset before saving. Kiln pre-selects an item that actually has a trace, so trace-based checks have something to inspect.
-
-A successful test run — one that produces scores in the shape your eval expects — is what enables the Save button. This catches the common mistakes early: a Jinja expression pointing at a field that doesn't exist, a regex that never matches, a code judge returning the wrong score keys.
-
 ### Synthetic Data for Programmatic Checks
 
 Kiln's [synthetic data generation](../synthetic-data-generation/) is judge-aware. When you generate eval data for an eval scored by a programmatic check, the data generator reads the check's definition and generates inputs designed to expose its failures — cases near the boundary of a Set Check, or inputs likely to make an agent skip a required tool call.
-
-### Adding Judges is Cheap
-
-Eval runs store a pointer to the task run that was scored, rather than bundling the trace and scores together. Adding a second judge to an existing eval scores the generations the first judge already paid for — you don't re-run your task, and you don't pay for the LLM calls again.
-
-Traces are also saved as soon as the run completes, so a judge that fails doesn't throw away expensive generations. Re-running re-scores the existing traces instead of regenerating them.
-
-This is what makes ["many small evals"](https://kiln.tech/blog/you_need_many_small_evals_for_ai_products) practical: a new check on an existing eval costs close to nothing.
-
-### Python Library Usage \[optional]
-
-Judges can be created in code as well. Be aware judges are called EvalConfigs in our library, and each judge type maps to a properties class (`ExactMatchProperties`, `ToolCallCheckProperties`, `LlmJudgeProperties`, and so on).
-
-See the [python library docs](https://kiln-ai.github.io/Kiln/kiln_core_docs/kiln_ai.html) for details.
-
-{% hint style="info" %}
-Evals created in earlier versions of Kiln keep working exactly as they did. Their judges continue to load and run unchanged, and there's nothing to migrate.
-{% endhint %}

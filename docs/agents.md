@@ -117,7 +117,7 @@ Agents typically aim to achieve a specific goal, and are given the ability to ru
 * **Planning & reasoning:** agents can break problems into steps, decide what to do next, and reason between tool calls
   * **In Kiln:** All tasks plan internally about which tools to call. You can tell your tasks to perform additional reasoning/planning by either 1) selecting a reasoning model, 2) selecting a "Chain of Thought" prompt which will explicitly ask the model to reason during the run loop.
 * **Autonomy / Looping**: the agent can choose how to achieve the goal, calling any tool in any order. They can loop, mixing thinking/reasoning and tool calls until their task is complete.
-  * **In Kiln:** Every Kiln task can loop, making many tool calls until deciding to return a final result. The task has autonomy to decide which tools to call, in which order. Kiln allows up to 100 tool calls per turn, which is enough for all but the longest agent runs.
+  * **In Kiln:** Every Kiln task can loop, making many tool calls until deciding to return a final result. The task has autonomy to decide which tools to call, in which order.
 
 {% hint style="success" %}
 **Advanced Users: 'ReAct' in Kiln**

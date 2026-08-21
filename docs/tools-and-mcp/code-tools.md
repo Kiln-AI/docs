@@ -114,7 +114,7 @@ async def run(user_ids: list[str]) -> str:
 Tool calls raise typed exceptions you can catch for retries: `ToolNotAllowed`, `ToolTimeout`, and `ToolCallError`. Import them from `kiln.tools` or `kiln.async_tools`.
 
 {% hint style="info" %}
-Code tools can call other code tools — they're just tools. A maximum nesting depth of 10 prevents runaways.
+Code tools can call other code tools — they're just tools.
 {% endhint %}
 
 ### Code Trust
@@ -171,10 +171,6 @@ Kiln doesn't store, display, or run these tests — the loop lives in your own P
 {% hint style="info" %}
 `tool.py` is a fixed filename, so running `pytest` across several tool folders at once hits a module name collision. Run `pytest` from inside a single tool folder, or use `pytest --import-mode=importlib`.
 {% endhint %}
-
-### Using Code Tools in a Task
-
-Code tools work like any other tool. On the "Run" screen, open "Advanced" and select your code tool under tools. See [Using Tools](./#using-tools) for details, and [Viewing Tool Calls](./#viewing-tool-calls) to inspect what your tool returned in a run trace.
 
 ### Code Tools vs Other Options
 

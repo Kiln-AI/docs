@@ -170,8 +170,6 @@ An eval in Kiln has several datasets, each defining a subset of the items in you
 * **Training Dataset** \[optional]: used by optimizers, such as the [automatic prompt optimizer](../prompts/automatic-prompt-optimizer.md).
 * **Validation Dataset** \[optional]: also used by optimizers, to confirm a result generalizes beyond the data it was tuned on.
 
-Your eval's screen lists all four, with an item count and a link to each. Datasets you haven't set up show as "Not configured".
-
 {% hint style="info" %}
 The test, training and validation datasets are your eval's **splits**: three slices of the same pool of data, kept separate so results from one don't contaminate another.
 
@@ -294,9 +292,7 @@ One score in isolation isn't helpful. You'll want to add additional judges to se
 {% hint style="info" %}
 **Adding judges is cheap**
 
-Kiln stores each eval run as a pointer to the task run it scored, so a second judge scores generations the first judge already paid for. Adding a judge to an existing eval doesn't re-run your task, and doesn't re-pay for those LLM calls.
-
-Traces are also saved as soon as a run completes, so a judge that errors doesn't throw away expensive generations — retrying re-scores what's already there.
+Adding a judge to an existing eval doesn't re-run your task: a new judge scores the generations your existing judges already paid for. Retrying a judge that errored re-scores too, rather than regenerating.
 {% endhint %}
 
 Once you've added multiple judges, you can compare scores to find the best evaluator for your task. You're looking for the score which appears highest in the table, which means the least deviation from human scores. On some scoring methods higher scores are better (Kendall's, Spearman) and on others lower is better (MSE, MAE); the table will be sorted so the best are at the top.

@@ -14,7 +14,7 @@ Code judges are fast and cheap compared to [LLM as Judge](judge-types.md#llm-as-
 
 ### Creating a Code Judge
 
-Add a judge to your eval and select the "Code" type. You'll get a Python editor, a tool picker, and a test panel for running your code against real dataset items before you save it.
+Add a judge to your eval and select the "Code" type.
 
 {% hint style="warning" %}
 **Code judges run on your machine, with full access.**

@@ -19,10 +19,6 @@ pip install kiln_server
 
 The [REST API docs](https://kiln-ai.github.io/Kiln/kiln_server_openapi_docs/index.html) explain the endpoints, parameters, response format, and errors.
 
-{% hint style="info" %}
-API errors return JSON, including 404s. A request to a path the API doesn't serve gets a JSON error body rather than the web app's HTML, so your client can parse the failure like any other response.
-{% endhint %}
-
 ### Client Side Libraries
 
 The REST API supports OpenAPI, which means you can generate typed client libraries for almost any language using code generators:
