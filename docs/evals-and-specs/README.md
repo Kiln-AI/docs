@@ -19,6 +19,7 @@ Kiln has two powerful ways to build evals that ensure your AI systems perform as
 * [Eval Builder Guide](specifications.md): build an eval, synthetic data, and align your judge in one interactive flow
 * [Evals 101](evaluations.md): build your first eval start to finish&#x20;
 * [Judge Types](judge-types.md): all of Kiln's judge types, from LLM as Judge to deterministic checks, and how to pick between them
+* [LLM Judges](llm-judges.md): grade output with a model and a rubric, including G-Eval and judge prompt guidance
 * [Code Judges](code-judges.md): score an eval with a custom Python function, which can call tools and LLMs of its own
 * [Many Small Evals Beat One Big Eval](https://kiln.tech/blog/you_need_many_small_evals_for_ai_products): Blog post which walks through how to setup eval tooling, and how to create an eval culture on your team.
 * [Evaluate RAG Accuracy](evaluate-rag-accuracy-q-and-a-evals.md): Kiln can generate custom Q\&A evals which test your RAG with knowledge from your documents

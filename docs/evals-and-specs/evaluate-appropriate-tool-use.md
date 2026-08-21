@@ -126,7 +126,7 @@ For your eval output rating, you should click "Pass" if the model's behaviour wa
 
 #### Finding the Ideal Judge
 
-For detailed guidance on selecting judge models, customizing evaluation steps, and comparing judges to find the one that best aligns with human preferences, see [Add a Judge to your Eval](evaluations.md#add-a-judge-to-your-eval) and [Finding the Ideal Judge](evaluations.md#finding-the-ideal-judge).
+For detailed guidance on selecting judge models and customizing evaluation steps, see our [LLM Judges](llm-judges.md) guide. For comparing judges to find the one that best aligns with human preferences, see [Finding the Ideal Judge](evaluations.md#finding-the-ideal-judge).
 
 {% hint style="success" %}
 You can add both to one eval. A Tool Call Check that asserts the mechanics, plus an LLM judge for the judgement call, gives you a cheap signal that runs on everything and a nuanced one where it matters.

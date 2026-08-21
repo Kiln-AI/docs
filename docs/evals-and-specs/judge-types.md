@@ -72,21 +72,9 @@ Tool Call Check and Step Count Check always read the trace, so they don't offer 
 
 ### LLM as Judge
 
-A model reads the output and grades it against criteria you write, producing a score for each of your eval's output scores.
+A model reads the output and grades it against criteria you write, producing a score for each of your eval's output scores. You choose the judge model and provider, write the judge prompt and evaluation steps, and can optionally enable G-Eval for more nuanced scores.
 
-Configure it with:
-
-* **Model and provider**: we suggest larger, higher quality models for judges. You're trusting their results to make product decisions, and evals run far less often than your task.
-* **Judge prompt**: pre-populated from your eval's task description and evaluation steps, and editable at creation time.
-* **G-Eval** (optional): an enhanced form of LLM as Judge which looks at token output probabilities (logprobs) to produce a weighted score. If the model had a 51% chance of passing an item and 49% chance of failing it, G-Eval gives the more nuanced score of 0.51, where LLM as Judge would simply pass it (1.0). The [G-Eval paper (Liu et al)](https://arxiv.org/abs/2303.16634) shows it can outperform alternatives like BLEU, ROUGE and embedding distance scores across a range of eval tasks.
-
-{% hint style="info" %}
-G-Eval requires logprobs, which only a limited set of models support — currently it works best with OpenAI models like GPT-4o and GPT 4.1. The option only appears when you select a supported model and provider.
-
-Unfortunately [Ollama doesn't support logprobs yet](https://github.com/ollama/ollama/issues/2415).
-{% endhint %}
-
-For guidance on judge prompts, evaluation steps, and picking a judge model, see [Add a Judge to your Eval](evaluations.md#add-a-judge-to-your-eval).
+See our [LLM Judges](llm-judges.md) guide for each of these options.
 
 ### Programmatic Judges
 

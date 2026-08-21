@@ -16,6 +16,7 @@
   * [Eval Builder](docs/evals-and-specs/specifications.md)
   * [Evaluations](docs/evals-and-specs/evaluations.md)
   * [Judge Types](docs/evals-and-specs/judge-types.md)
+  * [LLM Judges](docs/evals-and-specs/llm-judges.md)
   * [Code Judges](docs/evals-and-specs/code-judges.md)
   * [Evaluate RAG Accuracy: Q\&A Evals](docs/evals-and-specs/evaluate-rag-accuracy-q-and-a-evals.md)
   * [Evaluate Appropriate Tool Use](docs/evals-and-specs/evaluate-appropriate-tool-use.md)
