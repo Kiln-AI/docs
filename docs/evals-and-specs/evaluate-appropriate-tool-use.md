@@ -21,12 +21,13 @@ Tool use evals measure how well your model decides when to invoke a tool. They c
 * The parameters passed to the tool are correct
 * The agent doesn't take an unreasonable number of steps to get there
 
-### Two Ways to Evaluate Tool Use
+### Ways to Evaluate Tool Use
 
 Most tool use questions have a definite right answer, and Kiln can check those directly in code:
 
 * **[Tool Call Check](judge-types.md#tool-call-check)**: inspects the agent's trace and asserts which tools were called, in what order, and with what arguments. No model call, so it's free, instant, and returns the same answer every time. **Start here.**
 * **[Step Count Check](judge-types.md#step-count-check)**: asserts the agent finished within a reasonable number of tool calls or turns. A good companion to a Tool Call Check — "it called the right tool" and "it didn't call it eleven times" are different bugs.
+* **[Code Judge](code-judges.md)**: for rules that are still deterministic, but go beyond what a Tool Call Check can express — comparing arguments across several calls, checking a tool's result rather than its arguments, or any logic you'd rather write in Python.
 * **[LLM as Judge](judge-types.md#llm-as-judge)**: a model reads the whole trace and forms an opinion. Reach for this only when whether the tool *should* have been called is genuinely a judgement call.
 
 {% hint style="info" %}
@@ -56,7 +57,6 @@ Some examples of what these combinations express:
 | The agent must search before answering | `search` with match mode `all` |
 | The agent must search, then fetch the page | `search`, `fetch_url` with match mode `ordered` |
 | The agent must never email a customer directly | `send_email` with match mode `never` |
-| The agent must look up the right user | `get_user` with an expected argument `id` matching your value |
 | The agent must stay within its allowed tools | your tool list, with unexpected tools set to fail |
 
 #### No Golden Set Required
@@ -74,6 +74,10 @@ Synthetic data generation is also aware of your check: for an eval scored by a T
 {% endhint %}
 
 ### Evaluating Judgement with an LLM Judge
+
+{% hint style="info" %}
+LLM judges are more expensive and slower than Tool Call Check judges. Use them only when needed.
+{% endhint %}
 
 Some tool use questions really are subjective. "Should the agent have searched the web here, or was its own knowledge good enough?" doesn't have one right answer for every input — it depends on the request.
 
@@ -141,9 +145,3 @@ You will also be able to see the tools available to each run configuration. Keep
 <figure><img src="../../.gitbook/assets/Screenshot 2025-11-14 at 1.33.24 PM.png" alt="" width="375"><figcaption><p>Comparing Run Configurations</p></figcaption></figure>
 
 For detailed guidance on selecting and comparing task model options, see [Finding the Ideal Run Method](evaluations.md#finding-the-ideal-run-method).
-
-{% hint style="info" %}
-**Already built an "Appropriate Tool Use" eval?**
-
-Earlier versions of Kiln offered an "Appropriate Tool Use" LLM template. Those evals keep working exactly as they did, and there's nothing to migrate. New tool use evals are best built with a Tool Call Check, which is faster, free to run, and perfectly consistent.
-{% endhint %}

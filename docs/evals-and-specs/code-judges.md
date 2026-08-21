@@ -51,6 +51,10 @@ def score(output: str) -> dict:
 
 Scores are floats. For a pass/fail score, return `1.0` or `0.0`.
 
+{% hint style="info" %}
+Test your judge before saving it. A test run checks the dict you return against your eval's output scores, so a missing, misspelled or extra key is caught while you're still in the editor — not partway through an eval run.
+{% endhint %}
+
 ### Calling LLMs from a Code Judge
 
 Code judges can call two built-in tools, selectable from the judge's tool picker like any other tool:
@@ -84,7 +88,11 @@ def score(trace: list) -> dict:
     return json.loads(result)
 ```
 
-Your judge can call any other tool in its allowlist too, not just the LLM tools. See [Calling Other Tools](../tools-and-mcp/code-tools.md#calling-other-tools) for the full API.
+### Calling Other Tools
+
+The LLM tools aren't special: a code judge can call any tool in its allowlist, using the same `from kiln import tools` API that [code tools](../tools-and-mcp/code-tools.md) use. That lets a judge look up ground truth in your own systems, or reuse a tool you've already written.
+
+See [Calling Other Tools](../tools-and-mcp/code-tools.md#calling-other-tools) for the full API, including async calls and error handling.
 
 ### Advanced Options
 
