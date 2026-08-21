@@ -16,7 +16,7 @@ The [**Kiln Eval Builder**](specifications.md) is an even easier way to build ev
 
 Kiln includes a complete platform for ensuring your tasks/models are of the highest possible quality. It includes:
 
-* Access multiple SOTA evaluation algorithms (G-Eval, LLM as Judge)
+* Access a range of judge types: LLM as Judge and G-Eval for subjective quality, plus fast deterministic checks for anything you can state as a rule
 * Compare and benchmark your judges against human evals to find the best possible evaluator for your use case
 * Test a variety of different methods of running your task (prompts, models, fine-tunes) to find which perform best
 * Easily manage datasets for eval sets, golden sets, human ratings through our intuitive UI, including automatic synthetic data generation.
@@ -45,7 +45,7 @@ This is a quick summary of all of the concepts in creating evals with Kiln:
 
 * Eval (aka Evaluator): defines an evaluation goal (like "overall score" or "toxicity"), and includes dataset definitions to use for running this eval. You can add many evals to a task, each for different goals.
 * Score: an output score for an eval like "overall score", "toxicity" or "helpfulness". An eval can have 1 or more output scores. These have a score type: 1-5 star, pass/fail, or pass/fail/critical.
-* Judges: methods of running an Eval. A judge includes a judge algorithm, judge instructions, and judge model/provider. An eval can have many judges, and Kiln will help you compare them to find which judge best correlates to human preferences.
+* Judges: methods of running an Eval. A judge includes a [judge type](judge-types.md), and whatever that type needs to run: judge instructions and a model/provider for an LLM judge, or a rule like a regular expression or an expected set of tool calls for a programmatic check. An eval can have many judges of different types, and for LLM judges Kiln will help you compare them to find which best correlates to human preferences.
 * Task Run Methods: methods of running your task. A task run method includes a prompt, model, model provider and options (temperature, top\_p, etc). A task can have many run methods. Once you have an Eval, you can use it to find an optimal run-method for your task: the run method which scores the highest, using your eval.
 
 ### The Workflow
@@ -82,7 +82,20 @@ Select a template, edit if desired, and save your eval.
 
 ### Add a Judge to your Eval
 
-The Eval you created defines the goal of the eval, but it doesn't include the specifics of how it's run. That's where judges come in — they define the exact approach of running an eval. This includes things like the judge algorithm, the judge model/provider, and judge prompt.
+The Eval you created defines the goal of the eval, but it doesn't include the specifics of how it's run. That's where judges come in — they define the exact approach of running an eval. This includes things like the judge type, and for LLM judges the judge model/provider and judge prompt.
+
+#### Select a Judge Type
+
+The judge type defines how your eval is actually scored. Kiln offers two families:
+
+* **LLM Judges**: a model reads the output and grades it against a rubric you write. Best for subjective qualities like tone, helpfulness, or factual correctness.
+* **Programmatic Checks**: code inspects the output or the trace and returns a pass/fail — exact matches, regular expressions, tool call trajectories, step counts, or a custom Python function. There's no model call, so they're fast, free, and return the same answer every time.
+
+If your eval goal can be stated as a rule, prefer a programmatic check. If it needs judgement, use an LLM judge. See our [Judge Types](judge-types.md) guide for all of the options, and help choosing between them.
+
+{% hint style="info" %}
+The rest of this section covers the LLM as Judge path, which is the most common place to start. If you selected a programmatic check, the judge form will ask for that check's rule instead — an expected value, a pattern, a list of tools — and you can skip ahead to [Create your Eval Datasets](evaluations.md#create-your-eval-datasets).
+{% endhint %}
 
 #### Select a judge model & provider
 
@@ -92,22 +105,14 @@ Select the model you want the judge to use (including which AI provider it shoul
 We suggest larger high quality models for judges, as you'll be trusting their results to make product improvements. You can always run a cheaper/smaller model for inference which is where the majority of compute is spent in most projects.
 {% endhint %}
 
-#### Select an Judge Algorithm
-
-Kiln supports two powerful eval algorithms:
-
-_**LLM as Judge**_
-
-Just like the name says, this approach uses LLMs to judge the output of your task. It combines a "thinking" stage (chain of thought/reasoning), followed by asking the model to produce a score rubric matching the goals you laid out in the eval.
-
-_**G-Eval**_
+#### Advanced: G-Eval
 
 G-Eval is an enhanced form of LLM as Judge. It looks at token output probabilities (logprobs) to create a weighted score. For example, if the model had a 51% chance of passing an eval and 49% chance of failing it, G-Eval will give the more nuanced score of 0.51, where LLM-as-Judge would simply pass it (1.0). The [G-Eval paper (Liu et al)](https://arxiv.org/abs/2303.16634) compares G-eval to a range of alternatives (BLEU, ROUGE, embedding distance scores), and shows it can outperform them across a range of eval tasks.
 
 {% hint style="info" %}
 Since G-Eval requires logprobs (individual token probabilities), only a limited set of models work with G-Eval. Currently it only works best with OpenAI models GPT-4o, GPT-4o mini, GPT 4.1, etc.
 
-The UI will only show G-Eval if you select a supported model + provider.
+The UI will only show the G-Eval option if you select a supported model + provider.
 
 Unfortunately [Ollama doesn't support logprobs yet](https://github.com/ollama/ollama/issues/2415).
 {% endhint %}
@@ -158,16 +163,26 @@ It's possible to create evals in code as well. Just be aware judges are called E
 
 ### Create your Eval Datasets
 
-An eval in Kiln includes two datasets:
+An eval in Kiln has several datasets, each defining a subset of the items in your task's dataset:
 
-* **Eval dataset**: specifies which part of your dataset is used when evaluating different methods of running your task.
-* **Golden dataset**: specifies which part of your dataset is used when trying to find the best judge for this task. This dataset will have human ratings, so we can compare judges to human preference.
+* **Test Dataset**: held-out data for measuring final quality. This is the data used when evaluating different methods of running your task, and the scores shown in the "Compare" view. Every eval needs one.
+* **Golden Dataset**: the data used when trying to find the best judge for this eval. These items have human ratings, so we can compare judges to human preference.
+* **Training Dataset** \[optional]: used by optimizers, such as the [automatic prompt optimizer](../prompts/automatic-prompt-optimizer.md).
+* **Validation Dataset** \[optional]: also used by optimizers, to confirm a result generalizes beyond the data it was tuned on.
 
-This section will walk you through populating both of your eval datasets.
+Your eval's screen lists all four, with an item count and a link to each. Datasets you haven't set up show as "Not configured".
+
+{% hint style="info" %}
+The test, training and validation datasets are your eval's **splits**: three slices of the same pool of data, kept separate so results from one don't contaminate another.
+
+The golden dataset is a different kind of thing, which is why it sits apart from the splits: it's the human-rated data used for judging the judge, and it always comes from your task's dataset items, since human ratings only exist there.
+{% endhint %}
+
+This section will walk you through populating your eval datasets. Most evals start with just the test and golden datasets — you can add training and validation data later, when you're ready to run an optimizer.
 
 #### Defining your Dataset with Tags
 
-When first creating your eval, you will specify a "tag" which defines each eval dataset as a subset of all the items in Kiln's Dataset tab. To add/remove items from your datasets, simply add/remove the corresponding tag. These tags can be added or removed anytime from the "Dataset" tab.
+When first creating your eval, you will specify a "tag" which defines each of these datasets as a subset of all the items in Kiln's Dataset tab. To add/remove items from your datasets, simply add/remove the corresponding tag. These tags can be added or removed anytime from the "Dataset" tab.
 
 Don't worry if your dataset is empty when creating your eval, we'll guide you through adding data after its creation.
 
@@ -219,11 +234,11 @@ If your dataset items weren't automatically tagged for any reason, you can also 
 </details>
 
 {% hint style="info" %}
-**Validation Set**
+**Training and Validation Sets**
 
-For rigorous AI evaluation, you'll want to add a third set as well: a validation set. This set is reserved until the end, so your final assessment isn't contaminated by seeing early results from the test set (eval\_set).
+If you plan to use an optimizer like the [automatic prompt optimizer](../prompts/automatic-prompt-optimizer.md), add training and validation datasets too. Keeping them separate from your test dataset is what stops an optimizer from tuning against the same data you use to measure the result.
 
-You can create this set now, or generate it later.
+You can create these now, or generate them later — they're optional until an optimizer needs them.
 {% endhint %}
 
 #### Add Human Ratings
@@ -248,6 +263,14 @@ While it is relatively easy to create a LLM-as-Judge eval, an important question
 In this section we use a human judge's ratings to ensure our LLM-as-Judge aligns to human ratings, so we have trust in our system.
 {% endhint %}
 
+{% hint style="success" %}
+**Only using programmatic checks? You can skip this section.**
+
+A [programmatic check](judge-types.md) doesn't approximate human judgement — it either encodes the rule you meant or it doesn't, and it returns the same answer every time. There's usually nothing to align, so you can go straight to [Finding the Ideal Run Method](evaluations.md#finding-the-ideal-run-method) without a golden dataset or human ratings.
+
+The exception is worth knowing: if you want to confirm the rule you wrote matches what your subject matter experts actually care about, judge comparison will tell you that too.
+{% endhint %}
+
 You added a Judge to your eval above. However, we don't actually know how well this judge works. Kiln includes tools to compare multiple judges, and find which one is the closest to a real human evaluator.
 
 It may seem strange, but yes… one of the first steps of building an eval is to judge judges (not a typo). It sounds complicated, but Kiln makes it easy.
@@ -264,9 +287,17 @@ Once complete, you'll have a set of metrics about how well the judge's scoring m
 
 One score in isolation isn't helpful. You'll want to add additional judges to see which one performs best. Kiln makes it easy to compare judges. We suggest trying a range of options:
 
-* Try both judge types: G-Eval and LLM as Judge
+* Try both LLM judge options: LLM as Judge, and G-Eval
 * Try a range of different models: you may be surprised which model works best as an evaluator for your task. Be sure to try SOTA models, like the latest models from OpenAI and Anthropic. Even if you prefer open models, it can be good to know how far you are from these benchmarks.
 * Try custom eval instructions, not just the template contents.
+
+{% hint style="info" %}
+**Adding judges is cheap**
+
+Kiln stores each eval run as a pointer to the task run it scored, so a second judge scores generations the first judge already paid for. Adding a judge to an existing eval doesn't re-run your task, and doesn't re-pay for those LLM calls.
+
+Traces are also saved as soon as a run completes, so a judge that errors doesn't throw away expensive generations — retrying re-scores what's already there.
+{% endhint %}
 
 Once you've added multiple judges, you can compare scores to find the best evaluator for your task. You're looking for the score which appears highest in the table, which means the least deviation from human scores. On some scoring methods higher scores are better (Kendall's, Spearman) and on others lower is better (MSE, MAE); the table will be sorted so the best are at the top.
 
@@ -360,7 +391,7 @@ Return to the "Evaluator" screen for your eval, and add a variety of run methods
 
 Once you've defined a set of run methods, click "Run Eval" to kick off the eval. Behind the scenes, this is performing the following steps:
 
-* Fetching the input data from your eval dataset (eval\_set tag)
+* Fetching the input data from your eval's test dataset
 * Generating new output for each input, using each run method you defined for each input
 * Running your evaluator on each result, collecting scores
 

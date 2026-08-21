@@ -36,6 +36,7 @@ We currently support the following AI providers:
 * Google Vertex AI
 * Azure OpenAI
 * HuggingFace
+* Featherless AI
 * SiliconFlow.cn (for users in China)
 * Any OpenAI compatible API like LiteLLM, vLLM, LMStudio, llama.cpp server, and many more
 
