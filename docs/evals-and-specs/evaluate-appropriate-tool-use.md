@@ -38,7 +38,7 @@ The rule of thumb: if you can write down the tool calls you expect, use a Tool C
 
 #### Creating the Eval
 
-From the "Evals" tab in Kiln's UI, create a new eval and select "Tool Call Check" under "Programmatic Checks".
+From the "Evals" tab in Kiln's UI, create a new eval and select "Tool Call Check" under "Programmatic Judges".
 
 You'll configure:
 
@@ -70,7 +70,7 @@ Populate your test dataset using synthetic data generation. Click "Add Eval Data
 {% hint style="info" %}
 **Tool-Specific Behaviour**: when generating outputs, the tools available to your task are enabled for this step, ensuring your model has the opportunity to call them when appropriate. The system captures the full conversation trace, including whether the tool was called and what parameters were used.
 
-Synthetic data generation is also aware of your check: for an eval scored by a Tool Call Check, the generator reads the check's definition and creates inputs designed to expose its failures. See our [Synthetic Data Generation docs](../synthetic-data-generation/) for more guidance.
+See our [Synthetic Data Generation docs](../synthetic-data-generation/) for more guidance.
 {% endhint %}
 
 ### Evaluating Judgement with an LLM Judge

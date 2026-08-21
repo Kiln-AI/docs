@@ -10,15 +10,15 @@ A judge is a method of running an eval: it takes the output of a task run, and p
 
 Kiln offers two families of judge types:
 
-* **LLM Judges**: a model reads the output and grades it against criteria you write. Best for subjective qualities: tone, helpfulness, factual correctness, toxicity.
-* **Programmatic Checks**: code inspects the output or the trace and returns a pass/fail. No model call, so they're fast, free, and return the same answer every time. Best for anything you can state as a rule.
+* **LLM Judges**: a model reads the output and grades it against criteria you write. Best for subjective qualities like tone, helpfulness, toxicity, etc.
+* **Programmatic Judges**: code inspects the output or the trace and returns a pass/fail. No model call, so they're fast, free, and return the same answer every time. Best for anything you can state as a rule.
 
 {% hint style="success" %}
-**Prefer a programmatic check when one fits.**
+**Prefer a programmatic judge when one fits.**
 
 An LLM judge that decides "did the agent call `get_weather` before answering?" costs money on every run and can change its mind. A [Tool Call Check](judge-types.md#tool-call-check) answers the same question for free, identically, every time.
 
-Save LLM judges for the questions that genuinely require judgement.
+Save LLM judges for the questions that genuinely require subjective judgement.
 {% endhint %}
 
 ### The Judge Types
@@ -26,21 +26,21 @@ Save LLM judges for the questions that genuinely require judgement.
 | Judge Type | Family | What it scores |
 | ---------- | ------ | -------------- |
 | [LLM as Judge](judge-types.md#llm-as-judge) | LLM Judge | A model grades the output against a rubric you write |
-| [Code](judge-types.md#code-beta) | Programmatic | A custom Python `score()` function you write |
-| [Tool Call Check](judge-types.md#tool-call-check) | Programmatic | The agent called the right tools, in the right order, with the right arguments |
-| [Exact Match](judge-types.md#exact-match) | Programmatic | The output equals an expected value |
-| [Pattern Match](judge-types.md#pattern-match) | Programmatic | The output matches (or doesn't match) a regular expression |
-| [Contains](judge-types.md#contains) | Programmatic | The output contains (or omits) a substring |
-| [Set Check](judge-types.md#set-check) | Programmatic | A set of values from the output matches an expected set |
-| [Step Count Check](judge-types.md#step-count-check) | Programmatic | The agent finished within an expected number of steps |
+| [Code](judge-types.md#code-beta) | Programmatic Judge | A custom Python `score()` function you write |
+| [Tool Call Check](judge-types.md#tool-call-check) | Programmatic Judge | The agent called the right tools, in the right order, with the right arguments |
+| [Exact Match](judge-types.md#exact-match) | Programmatic Judge | The output equals an expected value |
+| [Pattern Match](judge-types.md#pattern-match) | Programmatic Judge | The output matches (or doesn't match) a regular expression |
+| [Contains](judge-types.md#contains) | Programmatic Judge | The output contains (or omits) a substring |
+| [Set Check](judge-types.md#set-check) | Programmatic Judge | A set of values from the output matches an expected set |
+| [Step Count Check](judge-types.md#step-count-check) | Programmatic Judge | The agent finished within an expected number of steps |
 
-To add a judge, open your eval and create a new judge, or pick a type directly from the "Select an Eval Type" screen when creating a new eval. Programmatic checks are listed under the "Programmatic Checks" heading.
+To add a judge, open your eval and create a new judge, or pick a type directly from the "Select an Eval Type" screen when creating a new eval. Programmatic judges are listed under the "Programmatic Judges" heading.
 
 ### Choosing a Judge Type
 
 Work down this list and stop at the first one that fits:
 
-1. **Is there exactly one right answer?** Use [Exact Match](judge-types.md#exact-match), or [Set Check](judge-types.md#set-check) if the answer is a set of values.
+1. **Is there exactly one right answer?** Use [Exact Match](judge-types.md#exact-match) (or [Set Check](judge-types.md#set-check) if the answer is a set of values).
 2. **Can you state the rule as text matching?** Use [Contains](judge-types.md#contains) or [Pattern Match](judge-types.md#pattern-match). Good for format rules ("always ends with a citation", "never mentions a competitor").
 3. **Is it about what the agent did, not what it said?** Use [Tool Call Check](judge-types.md#tool-call-check) for which tools ran, or [Step Count Check](judge-types.md#step-count-check) for how many steps it took.
 4. **Is the rule real, but too complex for the above?** Use a [Code](judge-types.md#code-beta) judge. It can also call an LLM for the subjective part, so you can filter a huge trace down in code and only pay for a judgement on what's left. See [Code Judges](code-judges.md).
@@ -70,9 +70,7 @@ Custom expressions are useful for structured outputs and agent traces. Some exam
 
 Tool Call Check and Step Count Check always read the trace, so they don't offer this option. [Code](judge-types.md#code-beta) judges receive the output and trace directly, and pick out what they need in Python.
 
-### LLM Judges
-
-#### LLM as Judge
+### LLM as Judge
 
 A model reads the output and grades it against criteria you write, producing a score for each of your eval's output scores.
 
@@ -90,7 +88,7 @@ Unfortunately [Ollama doesn't support logprobs yet](https://github.com/ollama/ol
 
 For guidance on judge prompts, evaluation steps, and picking a judge model, see [Add a Judge to your Eval](evaluations.md#add-a-judge-to-your-eval).
 
-### Programmatic Checks
+### Programmatic Judges
 
 #### Exact Match
 
@@ -163,14 +161,10 @@ See the [Code Judges](code-judges.md) guide for details.
 
 Kiln's [judge comparison](evaluations.md#finding-the-ideal-judge) tools measure how closely a judge's scores match human ratings from your golden dataset. This is essential for LLM judges: an LLM judge is an approximation of human preference, and you need to know how good the approximation is.
 
-Programmatic checks are a different kind of thing. They don't approximate anything — a Pattern Match either encodes the rule you meant or it doesn't, and it will return the same answer forever. You generally don't need a golden set or human ratings to trust one.
+Programmatic judges are a different kind of thing. They don't approximate anything — a Pattern Match either encodes the rule you meant or it doesn't, and it will return the same answer forever. You generally don't need a golden set or human ratings to trust one.
 
-Running judge comparison on a programmatic check is still allowed, and there's one case where it's genuinely useful: confirming that the rule you wrote actually captures what humans care about. If your Tool Call Check passes items your subject matter expert would fail, the check is wrong, not the human — and comparison will show you that.
+Running judge comparison on a programmatic judge is still allowed, and there's one case where it's genuinely useful: confirming that the rule you wrote actually captures what humans care about. If your Tool Call Check passes items your subject matter expert would fail, the check is wrong, not the human — and comparison will show you that.
 
 {% hint style="success" %}
-If your eval only uses programmatic checks, you can skip the golden dataset and human rating steps entirely, and go straight to [comparing run methods](evaluations.md#finding-the-ideal-run-method).
+If your eval only uses programmatic judges, you can skip the golden dataset and human rating steps entirely, and go straight to [comparing run methods](evaluations.md#finding-the-ideal-run-method).
 {% endhint %}
-
-### Synthetic Data for Programmatic Checks
-
-Kiln's [synthetic data generation](../synthetic-data-generation/) is judge-aware. When you generate eval data for an eval scored by a programmatic check, the data generator reads the check's definition and generates inputs designed to expose its failures — cases near the boundary of a Set Check, or inputs likely to make an agent skip a required tool call.
