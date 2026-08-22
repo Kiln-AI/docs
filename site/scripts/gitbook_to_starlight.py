@@ -17,6 +17,7 @@ import json
 import os
 import re
 import shutil
+import sys
 import urllib.parse
 
 SITE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -228,11 +229,8 @@ def build_sidebar():
     return groups
 
 
-def main():
-    if os.path.isdir(DOCS_OUT):
-        shutil.rmtree(DOCS_OUT)
-    os.makedirs(DOCS_OUT)
-
+def find_sources():
+    """Every GitBook markdown file that becomes a page."""
     sources = []
     for root, dirs, files in os.walk(REPO):
         # Prune in place so os.walk does not descend into these at all. Matching
@@ -247,8 +245,32 @@ def main():
             if rel in ("SUMMARY.md", "README.md"):
                 continue
             sources.append(rel)
+    return sorted(sources)
 
-    for rel in sorted(sources):
+
+def main():
+    # `--list` prints what would be converted, without writing anything. Use it
+    # when the page count looks wrong to see exactly which files are picked up.
+    if "--list" in sys.argv:
+        sources = find_sources()
+        try:
+            print("Repo root: %s" % REPO)
+            print("%d source pages:" % len(sources))
+            for rel in sources:
+                print("  " + rel)
+            sys.stdout.flush()
+        except BrokenPipeError:
+            # Piping into `head` and friends closes stdout early.
+            os.dup2(os.open(os.devnull, os.O_WRONLY), sys.stdout.fileno())
+        return
+
+    if os.path.isdir(DOCS_OUT):
+        shutil.rmtree(DOCS_OUT)
+    os.makedirs(DOCS_OUT)
+
+    sources = find_sources()
+
+    for rel in sources:
         text = open(os.path.join(REPO, rel)).read()
         out_path = os.path.join(DOCS_OUT, out_for(rel))
         os.makedirs(os.path.dirname(out_path), exist_ok=True)
