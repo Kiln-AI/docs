@@ -78,16 +78,53 @@ Re-run it on its own with `npm run convert`.
 
 What it converts automatically:
 
-- 81 `{% hint style="…" %}` blocks into Starlight asides (`:::note`, `:::tip`,
+- 96 `{% hint style="…" %}` blocks into Starlight asides (`:::note`, `:::tip`,
   `:::caution`, `:::danger`)
-- 14 `{% embed %}` blocks into Vimeo/YouTube iframes and local `<video>` tags
+- 9 `{% embed %}` blocks into Vimeo/YouTube iframes and local `<video>` tags,
+  wrapped in a `<figure>` when the embed carries a caption
 - `{% code %}` wrappers stripped (Expressive Code handles those options)
 - `SUMMARY.md` into the sidebar, including nested groups
-- Relative `.md` links into absolute site URLs, resolved per file
-- The leading `# Heading` into Starlight's `title` frontmatter
+- Relative `.md` links into absolute site URLs, in markdown `](…)` links and in
+  raw HTML `href`/`src` attributes alike, resolved per file. Fenced code blocks
+  are left alone, so links inside code samples stay as written.
+- Asset references resolved against the real filenames in `.gitbook/assets`.
+  macOS screenshots are stored with a narrow no-break space that the markdown
+  referencing them spells as an ordinary space; GitBook's CDN hid the
+  difference and a static host does not. A reference that resolves to nothing
+  fails the run rather than shipping a broken image.
+- GitBook anchors onto Starlight heading ids. GitBook spelled `&` as `and` in
+  a slug and github-slugger does not, so `#state-and-memory` becomes
+  `#state--memory`. Only anchors that do not already match a real id are
+  touched; anything left unresolved is printed as a warning, because those are
+  stale in the GitBook source too.
+- The leading `# Heading` into Starlight's `title` frontmatter, and the
+  GitBook `description` — including the folded (`>-`) and quoted YAML forms.
 
 The ~90 `<figure>` blocks are left as raw HTML and render as-is, `width`
 attributes included.
+
+### Flags
+
+| Flag | Effect |
+| --- | --- |
+| `--list` | Print the source pages that would be converted; write nothing. Use it when the page count looks wrong. |
+| `--out DIR` | Write the converted pages to `DIR` and nothing else — no landing page, no assets, no `sidebar.json`, and no deletions. |
+
+`--out` is how late content gets reconciled once `src/content/docs/` is
+hand-maintained: convert into a scratch directory and copy in only the pages
+that are actually new. A plain `npm run convert` still clears and rewrites
+`src/content/docs/`, so it must not be run against hand-edited content.
+
+### Tests
+
+```sh
+npm test
+```
+
+Unit tests for the converter live in `scripts/test_gitbook_to_starlight.py`
+(stdlib `unittest`, no extra dependencies). They cover the parts that are easy
+to get subtly wrong and hard to eyeball: the github-slugger port, anchor
+remapping, link and asset rewriting, and YAML frontmatter scalars.
 
 ## What is not done yet
 
@@ -155,7 +192,7 @@ npm run serve    # build + preview
 ```
 
 **Converted far more pages than expected** (the count printed by
-`npm run convert` should match the number of docs, currently 41) means the
+`npm run convert` should match the number of docs, currently 45) means the
 converter picked up markdown it should have skipped, such as a stray
 `node_modules` at the repo root. `SKIP_DIRS` in the converter controls this.
 
