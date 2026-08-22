@@ -1,0 +1,17 @@
+{
+  "name": "kiln-docs-starlight",
+  "type": "module",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "convert": "python3 scripts/gitbook_to_starlight.py",
+    "dev": "npm run convert && astro dev",
+    "build": "npm run convert && astro build",
+    "preview": "astro preview"
+  },
+  "dependencies": {
+    "@astrojs/starlight": "^0.41.7",
+    "astro": "^7.2.4",
+    "sharp": "^0.34.4"
+  }
+}

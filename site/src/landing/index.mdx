@@ -1,0 +1,54 @@
+---
+title: Kiln AI
+description: Rapid AI Prototyping and Dataset Collaboration Tool
+template: splash
+hero:
+  tagline: The easiest tool for fine-tuning, evals, synthetic data generation, and shipping AI systems that actually work.
+  image:
+    file: ../../assets/hero.png
+  actions:
+    - text: Quickstart
+      link: /docs/quickstart/
+      icon: right-arrow
+      variant: primary
+    - text: View on GitHub
+      link: https://github.com/Kiln-AI/Kiln
+      icon: external
+      variant: minimal
+---
+
+import { Card, CardGrid, LinkCard } from '@astrojs/starlight/components';
+
+## Jump right in
+
+<CardGrid>
+  <LinkCard title="Quickstart" description="Download our app, set up a task, and run AI models." href="/docs/quickstart/" />
+  <LinkCard title="Automatic Prompt Optimizer" description="Find the best possible prompt for your task." href="/docs/prompts/automatic-prompt-optimizer/" />
+  <LinkCard title="Models and AI Providers" description="Manage which models you can use in Kiln." href="/docs/models-and-ai-providers/" />
+  <LinkCard title="Fine Tuning" description="Our guide for fine tuning AI models." href="/docs/fine-tuning/fine-tuning-guide/" />
+  <LinkCard title="Evals" description="Evaluate the quality of your models and tasks." href="/docs/evals-and-specs/" />
+  <LinkCard title="Tools & MCP" description="Connect powerful tools to your Kiln tasks." href="/docs/tools-and-mcp/" />
+  <LinkCard title="Documents & Search (RAG)" description="Add documents and create search indexes." href="/docs/documents-and-search-rag/" />
+  <LinkCard title="Agents" description="Build multi-action agentic systems." href="/docs/agents/" />
+  <LinkCard title="Synthetic Data Generation" description="Generate training data for models with AI." href="/docs/synthetic-data-generation/" />
+  <LinkCard title="Skills" description="Dynamically load prompts for the current goal." href="/docs/skills/" />
+  <LinkCard title="Python Library Setup" description="Install and use our Python library." href="/developers/python-library-quickstart/" />
+  <LinkCard title="Build a Reasoning Model" description="Create your own reasoning model, like o3 or R1." href="/docs/fine-tuning/guide-train-a-reasoning-model/" />
+</CardGrid>
+
+## What you can build
+
+<CardGrid stagger>
+  <Card title="Fine Tuning" icon="setting">
+    Zero-code fine-tuning for Llama, GPT-4o, and more. Automatic serverless deployment of models.
+  </Card>
+  <Card title="Evals" icon="approve-check">
+    Evaluate the quality of your models and tasks using state of the art evaluators.
+  </Card>
+  <Card title="Optimizers" icon="rocket">
+    Find the best model, prompt or fine-tune for your task. Improve quality and lower costs.
+  </Card>
+  <Card title="Team Collaboration" icon="puzzle">
+    Git-based version control for your AI datasets. Collaborate with QA, PM, and subject matter experts.
+  </Card>
+</CardGrid>
