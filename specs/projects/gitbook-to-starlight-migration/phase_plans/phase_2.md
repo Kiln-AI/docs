@@ -36,6 +36,13 @@ fences, headings, list items, markdown and HTML tables, `<details>` blocks,
 asset references resolving to real files, and every internal link and anchor
 resolving in the built site.
 
+**Its blind spot:** a source diff proves nothing was *dropped*; it says nothing
+about whether Starlight *renders* what survived. Markup GitBook interpreted and
+Starlight passes through as a plain HTML table counts as intact by every check
+here while looking wrong on the page. The card tables below are exactly that
+case, and they are why the visual half of phase 7 still needs the baseline
+screenshots.
+
 ## Audit results
 
 Run against all 45 pages plus a real `npm run build`. Prose is not being lost:
@@ -43,12 +50,14 @@ a word-level diff of source vs output shows the only removals are the H1 (lifted
 into frontmatter, correct), the `embed url="…"` directive text, and `:desktop:`.
 Structural counts (fences, headings, list items, table rows, `<details>`,
 `<figure>`, `<img>`) match exactly on all 45 pages, and all 96 hints become 96
-asides. The losses are concentrated in links, assets, and titles.
+asides. Matching counts mean nothing was dropped, not that everything renders —
+see the card tables under recorded findings. The losses fixed here are
+concentrated in links, assets, titles, and frontmatter.
 
 ### Defects to fix (transformer)
 
 1. **HTML `<a href="…">` links are never rewritten.** `rewrite_links` only
-   matches markdown `](…)`. 15 relative `href`s across 9 pages — `.md` targets
+   matches markdown `](…)`. 15 relative `href`s across 8 pages — `.md` targets
    and directory targets — ship verbatim into the output and 404 on the built
    site (verified by walking `site/dist`). Affects `docs/optimizers.md`,
    `docs/quickstart.md`, `docs/skills.md`, `docs/evals-and-specs/README.md`,
@@ -150,6 +159,26 @@ asides. The losses are concentrated in links, assets, and titles.
   `#custom-prompts-saved-prompts`, which look like they were meant for the
   separate `docs/prompts/prompt-generators.md` page — worth checking rather than
   inventing a heading.
+- **GitBook's card tables render as plain 4-column tables.**
+  `<table data-view="cards">` was a GitBook grid widget; Starlight passes the
+  HTML through unchanged, so `docs/fine-tuning/README.md` and
+  `docs/optimizers.md` now show an ordinary table with a visible `Cover image`
+  header column and raw filenames (`tuning2.png`, `fine-tuning-guide.md`) as the
+  link text. Confirmed in `site/dist/docs/fine-tuning/index.html`. The same
+  inertness affects 10 `data-hidden` columns across 5 pages (they render as
+  visible empty columns), `data-full-width` on two tables in `docs/skills.md`,
+  and `data-search="false"` in `docs/evals-and-specs/README.md`. Nothing is
+  lost — it is a rendering job, and it is the one class of problem the
+  substituted source diff structurally cannot see. Phase 7, alongside the
+  hand-written landing page that replaced the third card table.
+
+- **Two pages have no `description` at all.** `docs/structured-data-json.md`
+  and `docs/keyboard-shortcuts.md` have none in the GitBook source, so the
+  converted pages have none either and fall back to the site description. The
+  functional spec's fidelity bar requires one per page — the same requirement
+  that motivated defect 7 — so these two need copy written for them in phase 5
+  or 7. The transformer cannot invent them.
+
 - **`/favicon.svg` 404s on all 47 pages.** There is no `site/public/favicon.svg`.
   Needs a real asset decision; belongs with the OG image work in phase 5.
 - **`docs/tools-and-mcp/README.md` links to `https://app.gitbook.com/u/…`**, a
@@ -167,30 +196,40 @@ asides. The losses are concentrated in links, assets, and titles.
    (`&` → `and`, collapsed whitespace). Verified against the built HTML: the
    port reproduces all 307 heading ids across the 45 pages.
 
-2. **Anchor index.** Add `build_anchor_index(sources)` returning, per page URL,
-   the set of real Starlight slugs plus a `legacy -> starlight` alias map, built
-   from the source headings with fenced code skipped.
+2. **One fence scanner.** Add `code_regions(text)`, returning the character
+   ranges of fenced code blocks. It tracks the *opening* fence rather than
+   toggling on any fence-looking line, so a ```` ``` ````-fence nested inside a
+   ```` ```` ````-block does not close it — the corpus has two such blocks
+   (`docs/structured-data-json.md`, `docs/documents-and-search-rag.md`).
+   `heading_matches`, `headings`, `lift_title` and `outside_code` all build on
+   it, so there is one definition of "this is code, leave it alone" (defect 6).
 
-3. **Asset index.** Add `build_asset_index()` mapping a whitespace-normalised
+3. **Anchor index.** `Conversion` holds, per page URL, the set of real Starlight
+   slugs plus a `legacy -> starlight` alias map. It indexes the body **after**
+   `lift_title` has removed the H1, matching what `convert` writes: Starlight
+   renders the H1 from frontmatter with `id="_top"`, so indexing it would mint
+   one anchor per page that does not exist and shift the duplicate-slug
+   numbering off by one (`docs/prompts/prompt-generators.md` has both
+   `# Prompt Generators` and `### Prompt Generators`).
+
+4. **Asset index.** Add `build_asset_index()` mapping a whitespace-normalised
    filename (U+00A0/U+202F/U+2009 → space) to the real filename on disk, and
-   `resolve_asset(name)` returning the real name or `None`.
-
-4. **Leave code blocks alone.** Add `outside_code(text, transform)`, which
-   splits the body on fences and applies the directive and link pipeline only
-   to the prose between them (defect 6).
+   `Conversion.resolve_asset`, which checks the exact name against a set first
+   and falls back to the normalised lookup.
 
 5. **One link-rewriting path.** Replace `rewrite_assets` and `rewrite_links`
-   with `rewrite_target(target, srcdir, ctx)` plus two callers:
+   with `rewrite_target(target, relpath, ctx, page_url)` plus two callers inside
+   `rewrite_references`:
 
    ```python
-   def rewrite_target(target, srcdir, ctx):
+   def rewrite_target(target, relpath, ctx, page_url):
        """Link destination -> rewritten URL, or None to leave it untouched."""
    ```
 
-   - `rewrite_html_attrs(text, …)` over `(src|href)="([^"]*)"`, so HTML links
-     get the same treatment as markdown links (fixes defect 1).
-   - `rewrite_markdown_links(text, …)` over a destination pattern that accepts
-     `<…>` and balanced parens (fixes defect 2).
+   - an `(src|href)="([^"]*)"` pass, so HTML links get the same treatment as
+     markdown links (fixes defect 1);
+   - a markdown-destination pass whose pattern accepts `<…>` and one level of
+     balanced parens (fixes defect 2).
 
    `rewrite_target` resolves `.gitbook/assets/…` through the asset index (defect
    3), leaves external/absolute targets alone, maps `.md` and directory targets
@@ -199,9 +238,10 @@ asides. The losses are concentrated in links, assets, and titles.
    working anchor can never be rewritten into a broken one. Same-page `#anchor`
    links go through the same remap against the current page.
 
-6. **Unescape the title** in `convert` using the same `heading_text` helper
-   (defect 4). `build_sidebar` reuses it in place of its own
-   `label.replace("\\", "")`.
+6. **Unescape the title.** `lift_title` runs the H1 through `heading_text`, and
+   `build_sidebar` reuses it in place of `label.replace("\\", "")` (defect 4).
+   Frontmatter is written with `ensure_ascii=False` so curly quotes and dashes
+   survive as themselves.
 
 7. **Frontmatter scalars.** Replace the line-splitting parser with
    `parse_frontmatter(text)` handling the YAML subset GitBook writes: plain
@@ -210,21 +250,30 @@ asides. The losses are concentrated in links, assets, and titles.
    the standard library and adding a dependency to a script that gets deleted
    in phase 9 is not worth it.
 
-8. **Embed blocks.** Convert `{% embed url="…" %}…{% endembed %}` as a whole. A
-   non-empty body becomes `<figure>…<figcaption>caption</figcaption></figure>`
-   around the iframe/video, matching the `<figure>` convention already used by
-   the GitBook image blocks (defect 5). A bodyless embed is unchanged.
+8. **Embed blocks.** Convert `{% embed url="…" %}…{% endembed %}` as a whole.
+   The caption pattern requires **one or more** non-blank lines, so a caption
+   becomes `<figure>…<figcaption>caption</figcaption></figure>` around the
+   iframe/video (defect 5) while `{% embed %}{% endembed %}` — GitBook's shape
+   for an uncaptioned video — stays a bare embed rather than growing an empty
+   `<figcaption>`.
 
 9. **Unresolved-reference reporting.** Convert every page in memory first, then
-   report. Unresolved assets print with their page and exit non-zero (spec:
-   blocker). Unresolved anchors print as warnings and do not fail — they are the
-   stale-source class, and the functional spec ranks anchor work priority 2.
+   report; each distinct problem is recorded once. Unresolved assets print with
+   their page and exit non-zero (spec: blocker). Unresolved anchors get one
+   summary line, with the full list behind `--anchors` — they are the
+   stale-source class the functional spec ranks priority 2, and printing 24 of
+   them on every build would train people to ignore the channel the fatal error
+   uses.
 
-10. **`--out DIR` flag.** Add `parse_args(argv)` returning `(mode, out_dir)`.
-   With `--out`, write the converted tree under `DIR`, never `rmtree` anything,
-   and skip the landing page copy, the hero image, the `public/assets` copy and
-   `sidebar.json`. Without it, behaviour is unchanged. Document it in the module
-   docstring and in `site/README.md`.
+10. **`--out DIR` flag, via `argparse`.** With `--out`, write the converted tree
+   under `DIR`, never `rmtree` anything, and skip the landing page copy, the
+   hero image, the `public/assets` copy and `sidebar.json`. Without it,
+   behaviour is unchanged. `argparse` rather than hand-rolled matching because
+   the failure mode is the point: an unrecognised argument — `--out=DIR` against
+   a bare `--out` check, or a typo like `--outt` — must be an error, never a
+   fall-through to the default run, which begins by deleting
+   `src/content/docs/`. The functional spec forbids that once content is
+   hand-edited. Documented in the module docstring and in `site/README.md`.
 
 11. **`site/package.json`** gains `"test": "python3 -m unittest discover -s
    scripts -p 'test_*.py' -t scripts"`.
@@ -235,43 +284,102 @@ New `site/scripts/test_gitbook_to_starlight.py` (stdlib `unittest`, no new
 dependencies). One case per defect plus the invariants that keep the fixes
 honest:
 
+**Slugs and headings**
+
 - `test_starlight_slug_matches_github_slugger` — the punctuation, `&`, hyphen,
-  escaped-bracket and HTML-entity heading forms taken from the real docs slug to
-  the ids Starlight actually emitted.
-- `test_heading_text_strips_inline_markup` — code spans, links, emphasis,
-  trailing GitBook `<a id>` anchor overrides, `&#x20;`.
-- `test_legacy_slug_alias_for_ampersand_heading` — `State & Memory` yields the
-  legacy `state-and-memory` alias alongside `state--memory`.
-- `test_anchor_remapped_only_when_broken` — a link to `#state-and-memory` is
-  rewritten to `#state--memory`; a link to an anchor that already matches a real
-  slug is left untouched; an anchor matching nothing is left untouched.
-- `test_html_anchor_href_to_md_is_rewritten` — `<a href="prompts.md">` becomes
-  `<a href="/docs/prompts/">`.
-- `test_html_anchor_href_to_directory_is_rewritten` — `<a href="fine-tuning/">`
-  becomes `<a href="/docs/fine-tuning/">`.
-- `test_external_and_absolute_targets_untouched` — `https:`, `mailto:`, `/…`.
-- `test_angle_bracket_asset_link` — `](<../.gitbook/assets/filter 2.png>)`
-  produces `/assets/filter%202.png` with no stray `>`.
-- `test_asset_link_with_parens_in_filename` — `Screenshot … (1).png` survives.
-- `test_asset_name_whitespace_normalised` — a reference written with a plain
-  space resolves to the U+202F filename on disk.
-- `test_unresolved_asset_is_reported` — a reference to a nonexistent file is
-  collected rather than silently emitted.
-- `test_title_unescapes_markdown` — `# … Q\&A Evals` yields `Q&A` in the title.
+  escaped-bracket, HTML-entity and trailing-anchor-tag heading forms taken from
+  the real docs slug to the ids Starlight actually emitted.
+- `test_heading_text_strips_inline_markup` — code spans, links, emphasis, and
+  `kiln_ai` surviving with its underscore.
+- `test_legacy_slugs_spell_ampersand_as_and`.
+- `test_repeated_heading_gets_numeric_suffix`.
+- `test_hand_written_anchor_ids_count_as_anchors`.
+- `test_lift_title_removes_the_h1_and_leaves_the_rest`,
+  `test_lift_title_ignores_a_hash_inside_a_code_fence`.
+- `test_h1_is_not_indexed_as_an_anchor` — the
+  `docs/prompts/prompt-generators.md` shape: the H3 keeps the bare slug instead
+  of being pushed to `prompt-generators-1`.
+
+**Fences**
+
+- `test_headings_inside_code_fences_are_not_anchors`.
+- `test_nested_fence_does_not_close_a_longer_block` and
+  `test_links_inside_a_nested_fence_are_untouched` — a ```` ``` ````-fence
+  inside a ```` ```` ````-block leaves neither a phantom anchor nor a rewritten
+  link.
+- `test_closing_fence_must_match_the_opening_character`.
+- `test_unclosed_fence_swallows_the_rest_of_the_page`.
 - `test_links_inside_code_fences_are_untouched` — the `docs/skills.md` example
   link survives verbatim.
+
+**Anchors**
+
+- `test_legacy_anchor_is_remapped`, `test_current_anchor_is_left_alone`,
+  `test_unknown_anchor_is_reported_but_not_rewritten` (and recorded once for two
+  identical links), `test_same_page_anchor_is_remapped`.
+
+**Links and assets**
+
+- `test_html_anchor_href_to_md_is_rewritten`,
+  `test_html_anchor_href_to_directory_is_rewritten`,
+  `test_html_anchor_href_with_parent_segments_is_rewritten`,
+  `test_markdown_link_to_md_is_rewritten`.
+- `test_external_and_absolute_targets_are_untouched`,
+  `test_link_to_missing_page_is_untouched`.
+- `test_angle_bracket_asset_link` — `](<../.gitbook/assets/filter 2.png>)`
+  produces `/assets/filter%202.png` with no stray `>`.
+- `test_asset_filename_containing_parentheses`.
+- `test_asset_name_whitespace_is_normalised_to_the_real_file` — a reference
+  written with a plain space resolves to the U+202F filename on disk.
+- `test_missing_asset_is_reported`, `test_the_same_missing_asset_is_recorded_once`,
+  `test_report_raises_on_missing_asset`.
+- `test_report_tolerates_unresolved_anchors` (summary line only) and
+  `test_anchors_flag_lists_each_unresolved_anchor`.
+
+**Frontmatter and titles**
+
 - `test_folded_block_description_is_joined`,
   `test_literal_block_description_keeps_line_breaks`,
   `test_single_quoted_description_keeps_inner_quotes`,
   `test_plain_description_is_passed_through`,
   `test_page_without_description_omits_the_field`.
-- `test_embed_with_caption_becomes_figure` — vimeo, youtube and the GitBook CDN
-  `.mp4` forms each produce a `<figure>` with the caption in `<figcaption>`.
-- `test_embed_without_caption_has_no_figcaption`.
-- `test_hint_styles_map_to_asides` — all four styles, and that an unknown style
-  falls back to `note`.
-- `test_parse_args_out_dir` — `--out` sets the output directory and clears the
-  asset/sidebar/landing-page side effects; absence restores the defaults.
+- `test_title_unescapes_markdown` — `# … Q\&A Evals` yields `Q&A` in the title.
+- `test_h1_is_lifted_out_of_the_body`, `test_title_falls_back_to_the_filename`.
+
+**Hints and embeds**
+
+- `test_every_hint_style_maps_to_an_aside`,
+  `test_unknown_hint_style_falls_back_to_note`,
+  `test_code_directive_is_dropped_and_the_fence_survives`.
+- `test_captioned_embed_becomes_a_figure` (vimeo),
+  `test_captioned_youtube_embed_becomes_a_figure`,
+  `test_gitbook_cdn_video_points_at_the_local_copy` — all three forms.
+- `test_embed_caption_is_html_escaped`.
+- `test_bodyless_embed_has_no_empty_figcaption` and
+  `test_embed_without_endembed_has_no_figure` — the two uncaptioned shapes,
+  tested separately because they take different paths.
+
+**Arguments and the `--out` safety property**
+
+- `test_default_mode_writes_the_site`, `test_list_mode`,
+  `test_out_returns_an_absolute_directory`,
+  `test_out_accepts_the_equals_spelling`,
+  `test_out_without_a_directory_is_an_error`.
+- `test_unknown_arguments_are_rejected` — `--outt DIR`, bare `garbage`, and a
+  trailing unknown flag all raise rather than falling through to the run that
+  deletes `src/content/docs/`.
+- `test_out_writes_pages_only_and_touches_nothing_else` — runs `main()` for
+  real against a temp directory with `shutil.rmtree`/`copy`/`copytree` patched,
+  asserting none is called, a sentinel file survives, `sidebar.json`'s mtime is
+  unchanged, one `.md` lands per source page, and no `.mdx` landing page is
+  copied. This is the single most safety-critical behaviour in the change, so
+  it gets an end-to-end test rather than an assertion about `parse_args`.
+
+**Sidebar** — built from a fixture `SUMMARY.md` rather than the live one, so a
+content rename cannot break it: `test_group_heading_becomes_a_sidebar_group`,
+`test_readme_is_not_a_sidebar_entry`, `test_labels_are_unescaped`,
+`test_a_parent_page_becomes_an_overview_entry_in_its_own_group`, plus
+`test_url_for` and `test_out_for`.
 
 Whole-corpus checks re-run after the change (the substituted baseline diff):
 
@@ -281,4 +389,6 @@ Whole-corpus checks re-run after the change (the substituted baseline diff):
 - Walking `site/dist`, no internal link points at a missing page (currently 15
   broken → 0, `/favicon.svg` excepted and recorded above).
 - Broken anchors drop from 27 to the 24 stale-source ones, which are listed.
+- The slug port reproduces all 307 heading ids in `site/dist` exactly, and the
+  anchor index contains no slug the built page lacks.
 - Word-level source-vs-output diff still shows no prose loss on any page.

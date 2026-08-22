@@ -80,8 +80,8 @@ What it converts automatically:
 
 - 96 `{% hint style="…" %}` blocks into Starlight asides (`:::note`, `:::tip`,
   `:::caution`, `:::danger`)
-- 9 `{% embed %}` blocks into Vimeo/YouTube iframes and local `<video>` tags,
-  wrapped in a `<figure>` when the embed carries a caption
+- 14 `{% embed %}` blocks into 9 Vimeo/YouTube iframes and 5 local `<video>`
+  tags, wrapped in a `<figure>` when the embed carries a caption
 - `{% code %}` wrappers stripped (Expressive Code handles those options)
 - `SUMMARY.md` into the sidebar, including nested groups
 - Relative `.md` links into absolute site URLs, in markdown `](…)` links and in
@@ -100,15 +100,20 @@ What it converts automatically:
 - The leading `# Heading` into Starlight's `title` frontmatter, and the
   GitBook `description` — including the folded (`>-`) and quoted YAML forms.
 
-The ~90 `<figure>` blocks are left as raw HTML and render as-is, `width`
-attributes included.
+The 68 `<figure>` blocks in the source are left as raw HTML and render as-is,
+`width` attributes included; captioned embeds add 8 more, for 76 in the output.
 
 ### Flags
 
 | Flag | Effect |
 | --- | --- |
 | `--list` | Print the source pages that would be converted; write nothing. Use it when the page count looks wrong. |
-| `--out DIR` | Write the converted pages to `DIR` and nothing else — no landing page, no assets, no `sidebar.json`, and no deletions. |
+| `--out DIR` | Write the converted pages to `DIR` and nothing else — no landing page, no assets, no `sidebar.json`, and no deletions. `--out=DIR` works too. |
+| `--anchors` | List every link pointing at an anchor no heading provides. Without it they are summarised in one line. |
+
+An argument the script does not recognise is an error, not a default run: the
+default run starts by deleting `src/content/docs/`, and a typo must never reach
+it.
 
 `--out` is how late content gets reconciled once `src/content/docs/` is
 hand-maintained: convert into a scratch directory and copy in only the pages

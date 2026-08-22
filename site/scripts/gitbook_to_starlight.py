@@ -12,15 +12,12 @@ Outputs:
     site/public/assets/**      images and video copied from .gitbook/assets
     site/sidebar.json          sidebar built from SUMMARY.md
 
-Flags:
-    --list          print the source pages that would be converted, write nothing
-    --out DIR       write the converted pages to DIR instead, and skip every
-                    other output. Nothing is deleted, so this is the safe way to
-                    convert late content once site/src/content/docs is
-                    hand-maintained: convert into a scratch directory and copy
-                    in only the pages that are actually new.
+Run with --help for the flags. --out DIR is the safe one: it writes the
+converted pages to DIR and nothing else, deleting nothing, which is how late
+content gets reconciled once site/src/content/docs is hand-maintained.
 """
 
+import argparse
 import html
 import json
 import os
@@ -50,7 +47,14 @@ HERO_SOURCE = "App3.png"
 # Link targets that are already final and must be left exactly as written.
 EXTERNAL_TARGET = re.compile(r"^(?:[a-z][a-z0-9+.-]*:|//|/)", re.I)
 
-FENCE = re.compile(r"^[ \t]*(?:```+|~~~+).*$", re.M)
+# An opening or closing code fence. A fence closes only on a run of the same
+# character at least as long as the one that opened it, so a ```-fence nested
+# inside a ````-block does not end it.
+FENCE = re.compile(r"^[ \t]*(?P<fence>`{3,}|~{3,})(?P<info>.*)$")
+
+LINE = re.compile(r"^.*$", re.M)
+
+ATX_HEADING = re.compile(r"^(#{1,6})[ \t]+(.*?)[ \t]*$", re.M)
 
 
 def url_for(relpath):
@@ -139,19 +143,51 @@ def page_anchors(body):
     return slugs, {legacy: slug for legacy, slug in aliases.items() if legacy not in slugs}
 
 
-def headings(body):
-    """Every ATX heading in a body, skipping fenced code blocks."""
-    found, in_fence = [], False
-    for line in body.split("\n"):
-        if re.match(r"^[ \t]*(?:```|~~~)", line):
-            in_fence = not in_fence
-            continue
-        if in_fence:
-            continue
-        m = re.match(r"^#{1,6}\s+(.*?)\s*$", line)
-        if m:
-            found.append(m.group(1))
-    return found
+def code_regions(text):
+    """Character ranges covered by fenced code blocks.
+
+    Tracking the opening fence rather than toggling on any fence-looking line
+    keeps a ```-fence nested inside a ````-block from closing the outer block --
+    the corpus contains such blocks, and treating their contents as prose would
+    rewrite links inside documented examples.
+    """
+    regions, opener, start = [], None, 0
+    for line in LINE.finditer(text):
+        m = FENCE.match(line.group(0))
+        if opener is None:
+            if m:
+                opener, start = m.group("fence"), line.start()
+        elif m and m.group("fence")[0] == opener[0] and len(m.group("fence")) >= len(opener) \
+                and not m.group("info").strip():
+            regions.append((start, line.end()))
+            opener = None
+    if opener is not None:
+        regions.append((start, len(text)))
+    return regions
+
+
+def heading_matches(text):
+    """Every ATX heading match outside a fenced code block."""
+    regions = code_regions(text)
+    return [m for m in ATX_HEADING.finditer(text)
+            if not any(start <= m.start() < end for start, end in regions)]
+
+
+def headings(text):
+    return [m.group(2) for m in heading_matches(text)]
+
+
+def lift_title(body):
+    """(title or None, body without its H1). Starlight renders the H1 itself.
+
+    The anchor index has to see the same body the page does: Starlight gives the
+    H1 `id="_top"`, not a slug, so leaving it in would mint one anchor per page
+    that does not exist and shift the duplicate-slug numbering off by one.
+    """
+    for m in heading_matches(body):
+        if len(m.group(1)) == 1:
+            return heading_text(m.group(2)).strip(), body[: m.start()] + body[m.end():]
+    return None, body
 
 
 # --- assets -----------------------------------------------------------------
@@ -245,20 +281,21 @@ class Conversion:
     """Everything a page conversion needs to resolve references site-wide."""
 
     def __init__(self, sources=(), assets=None):
-        self.assets = build_asset_index() if assets is None else assets
+        self.assets = {} if assets is None else assets
+        self.asset_names = set(self.assets.values())
         self.anchors = {}
         for rel in sources:
-            body = strip_frontmatter(read(os.path.join(REPO, rel)))
+            _, body = lift_title(strip_frontmatter(read(os.path.join(REPO, rel))))
             self.anchors[url_for(rel)] = page_anchors(body)
         self.missing_assets = []
         self.unresolved_anchors = []
 
     def resolve_asset(self, relpath, name):
-        if name in self.assets.values():
+        if name in self.asset_names:
             return name
         real = self.assets.get(normalize_asset_name(name))
         if real is None:
-            self.missing_assets.append((relpath, name))
+            self.record(self.missing_assets, (relpath, name))
             return name
         return real
 
@@ -278,8 +315,14 @@ class Conversion:
             return anchor
         if anchor in aliases:
             return aliases[anchor]
-        self.unresolved_anchors.append((relpath, url + "#" + anchor))
+        self.record(self.unresolved_anchors, (relpath, url + "#" + anchor))
         return anchor
+
+    @staticmethod
+    def record(collected, item):
+        """Collect a diagnostic once. The same dead link often appears twice."""
+        if item not in collected:
+            collected.append(item)
 
 
 def rewrite_target(target, relpath, ctx, page_url):
@@ -340,15 +383,12 @@ def outside_code(text, transform):
     Without this, a markdown link inside a code sample gets rewritten as though
     it were a real link -- which silently edits documented example content.
     """
-    parts, last, in_fence = [], 0, False
-    for m in FENCE.finditer(text):
-        if not in_fence:
-            parts.append(transform(text[last:m.start()]))
-        else:
-            parts.append(text[last:m.start()])
-        parts.append(m.group(0))
-        last, in_fence = m.end(), not in_fence
-    parts.append(text[last:] if in_fence else transform(text[last:]))
+    parts, last = [], 0
+    for start, end in code_regions(text):
+        parts.append(transform(text[last:start]))
+        parts.append(text[start:end])
+        last = end
+    parts.append(transform(text[last:]))
     return "".join(parts)
 
 
@@ -393,10 +433,12 @@ def embed_html(url):
     return '<p><a href="%s">%s</a></p>' % (url, url)
 
 
-# A captioned embed. The caption body may not contain a blank line, which is
-# what separates it from an uncaptioned embed followed by ordinary prose.
+# A captioned embed. The caption is one or more non-blank lines: a blank line
+# separates an uncaptioned embed from the prose that follows it, and requiring
+# at least one line keeps `{% embed %}{% endembed %}` -- GitBook's shape for an
+# uncaptioned video -- from producing an empty <figcaption>.
 CAPTIONED_EMBED = re.compile(
-    r'\{%\s*embed url="([^"]+)"\s*%\}[ \t]*\n((?:[^\n]+\n)*?)\{%\s*endembed\s*%\}[ \t]*\n?'
+    r'\{%\s*embed url="([^"]+)"\s*%\}[ \t]*\n((?:[^\n]+\n)+?)\{%\s*endembed\s*%\}[ \t]*\n?'
 )
 
 
@@ -418,18 +460,12 @@ def convert_embeds(body):
 # --- page conversion --------------------------------------------------------
 
 
-def convert(text, relpath, ctx=None):
-    ctx = Conversion() if ctx is None else ctx
+def convert(text, relpath, ctx):
     page_url = url_for(relpath)
 
     frontmatter, body = parse_frontmatter(text)
 
-    # Starlight renders the title itself, so lift the H1 out of the body.
-    title = None
-    m = re.search(r"^#\s+(.+?)\s*$", body, re.M)
-    if m:
-        title = heading_text(m.group(1)).strip()
-        body = body[: m.start()] + body[m.end():]
+    title, body = lift_title(body)
     if not title:
         title = os.path.basename(relpath)[:-3].replace("-", " ").title()
 
@@ -453,17 +489,17 @@ def convert(text, relpath, ctx=None):
     body = re.sub(r"\n:::(note|tip|caution|danger)\n\n", r"\n:::\1\n", body)
     body = re.sub(r"\n\n:::\n", "\n:::\n", body)
 
-    out = ["---", "title: " + json.dumps(title)]
+    out = ["---", "title: " + json.dumps(title, ensure_ascii=False)]
     description = frontmatter.get("description")
     if description:
-        out.append("description: " + json.dumps(description))
+        out.append("description: " + json.dumps(description, ensure_ascii=False))
     out.append("---")
     return "\n".join(out) + "\n" + body.lstrip("\n")
 
 
-def build_sidebar():
-    """Build the Starlight sidebar from SUMMARY.md."""
-    lines = read(os.path.join(REPO, "SUMMARY.md")).split("\n")
+def build_sidebar(summary):
+    """Build the Starlight sidebar from the text of SUMMARY.md."""
+    lines = summary.split("\n")
     groups, current = [], None
 
     for line in lines:
@@ -526,28 +562,48 @@ def find_sources():
 
 
 def parse_args(argv):
-    """(mode, out_dir). mode is "list" or "convert"; out_dir is None by default.
+    """Parse the command line.
 
-    An explicit --out means "pages only, delete nothing": the caller wants a
-    scratch copy to cherry-pick from, not a rebuild of the site.
+    argparse rather than hand-rolled matching because the failure mode matters:
+    an unrecognised argument -- `--out=DIR` under a hand-rolled `--out` check, or
+    a typo like `--outt` -- used to fall through to the default run, which starts
+    by deleting src/content/docs. The functional spec forbids that once content
+    is hand-edited, so an argument this parser does not understand is an error,
+    never a silent full rebuild.
     """
-    if "--list" in argv:
-        return "list", None
-    if "--out" in argv:
-        i = argv.index("--out")
-        if i + 1 >= len(argv):
-            raise SystemExit("--out needs a directory")
-        return "convert", os.path.abspath(argv[i + 1])
-    return "convert", None
+    parser = argparse.ArgumentParser(
+        prog="gitbook_to_starlight.py",
+        description="Convert the GitBook docs at the repo root into Starlight content.",
+    )
+    parser.add_argument(
+        "--list", action="store_true",
+        help="print the source pages that would be converted, then exit")
+    parser.add_argument(
+        "--out", metavar="DIR",
+        help="write the converted pages to DIR and nothing else, deleting nothing")
+    parser.add_argument(
+        "--anchors", action="store_true",
+        help="list every link pointing at an anchor no heading provides")
+    args = parser.parse_args(argv)
+    if args.out:
+        args.out = os.path.abspath(args.out)
+    return args
 
 
-def report(ctx):
-    """Print unresolved references. Missing assets are fatal, anchors are not."""
-    for relpath, anchor in ctx.unresolved_anchors:
-        print("warning: %s links to %s, which no heading provides" % (relpath, anchor),
-              file=sys.stderr)
+def report(ctx, list_anchors=False):
+    """Print unresolved references. Missing assets are fatal, anchors are not.
+
+    The anchors are stale in the GitBook source and there is a known backlog of
+    them, so they get one summary line by default. Printing all of them on every
+    build would train people to ignore the channel the fatal error uses too.
+    """
     if ctx.unresolved_anchors:
-        print("%d unresolved anchor(s). These are stale in the GitBook source too."
+        if list_anchors:
+            for relpath, anchor in ctx.unresolved_anchors:
+                print("warning: %s links to %s, which no heading provides"
+                      % (relpath, anchor), file=sys.stderr)
+        print("warning: %d link(s) point at anchors no heading provides; these are "
+              "stale in the GitBook source too. Re-run with --anchors to list them."
               % len(ctx.unresolved_anchors), file=sys.stderr)
 
     if ctx.missing_assets:
@@ -557,34 +613,35 @@ def report(ctx):
                          % len(ctx.missing_assets))
 
 
+def list_sources(sources):
+    """Print what would be converted. Diagnostic for a surprising page count."""
+    try:
+        print("Repo root: %s" % REPO)
+        print("%d source pages:" % len(sources))
+        for rel in sources:
+            print("  " + rel)
+        sys.stdout.flush()
+    except BrokenPipeError:
+        # Piping into `head` and friends closes stdout early.
+        os.dup2(os.open(os.devnull, os.O_WRONLY), sys.stdout.fileno())
+
+
 def main(argv=None):
-    mode, out_dir = parse_args(sys.argv[1:] if argv is None else argv)
+    args = parse_args(sys.argv[1:] if argv is None else argv)
 
     sources = find_sources()
-
-    # `--list` prints what would be converted, without writing anything. Use it
-    # when the page count looks wrong to see exactly which files are picked up.
-    if mode == "list":
-        try:
-            print("Repo root: %s" % REPO)
-            print("%d source pages:" % len(sources))
-            for rel in sources:
-                print("  " + rel)
-            sys.stdout.flush()
-        except BrokenPipeError:
-            # Piping into `head` and friends closes stdout early.
-            os.dup2(os.open(os.devnull, os.O_WRONLY), sys.stdout.fileno())
+    if args.list:
+        list_sources(sources)
         return
 
     # Convert everything before writing anything, so a missing asset stops the
     # run instead of leaving a half-written tree behind.
-    ctx = Conversion(sources)
+    ctx = Conversion(sources, build_asset_index())
     pages = {rel: convert(read(os.path.join(REPO, rel)), rel, ctx) for rel in sources}
-    report(ctx)
+    report(ctx, args.anchors)
 
-    scratch = out_dir is not None
-    docs_out = out_dir or DOCS_OUT
-    if not scratch and os.path.isdir(docs_out):
+    docs_out = args.out or DOCS_OUT
+    if not args.out and os.path.isdir(docs_out):
         shutil.rmtree(docs_out)
     os.makedirs(docs_out, exist_ok=True)
 
@@ -594,7 +651,7 @@ def main(argv=None):
         with open(out_path, "w") as f:
             f.write(converted)
 
-    if scratch:
+    if args.out:
         print("Converted %d pages into %s. Nothing else was written or deleted."
               % (len(pages), docs_out))
         return
@@ -609,9 +666,9 @@ def main(argv=None):
         shutil.rmtree(ASSETS_OUT)
     shutil.copytree(GITBOOK_ASSETS, ASSETS_OUT)
 
-    sidebar = build_sidebar()
+    sidebar = build_sidebar(read(os.path.join(REPO, "SUMMARY.md")))
     with open(os.path.join(SITE, "sidebar.json"), "w") as f:
-        json.dump(sidebar, f, indent=2)
+        json.dump(sidebar, f, indent=2, ensure_ascii=False)
 
     entries = sum(len(g["items"]) for g in sidebar)
     print("Converted %d pages, %d sidebar entries across %d groups."
