@@ -24,3 +24,14 @@
   color: var(--sl-color-gray-3);
   margin-top: 0.5rem;
 }
+
+/* starlight-theme-black gives sidebar links a fixed 30px height against a
+   22.4px line-height, so any label wrapping to two lines overflows its box and
+   collides with the next entry. Three of our sidebar labels hit this. Let the
+   box grow instead. */
+.sidebar-content .entry-link,
+a.entry-link {
+  height: auto;
+  min-height: 30px;
+  padding-block: 0.25rem;
+}
