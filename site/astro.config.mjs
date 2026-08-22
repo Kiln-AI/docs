@@ -23,12 +23,11 @@ export default defineConfig({
         { icon: 'github', label: 'GitHub', href: 'https://github.com/Kiln-AI/Kiln' },
       ],
       editLink: { baseUrl: 'https://github.com/Kiln-AI/docs/edit/main/' },
-      components: {
-        // Restores collapsible sidebar sections; see the component for why.
-        Sidebar: './src/components/Sidebar.astro',
-      },
       plugins: [
         starlightThemeBlack({
+          // Render sidebar groups as collapsible dropdowns rather than flat,
+          // always-expanded sections. SUMMARY.md relies on expanding groups.
+          sidebar: { useDropdowns: true },
           navLinks: [
             { label: 'Docs', link: '/docs/quickstart/' },
             { label: 'Developers', link: '/developers/python-library-quickstart/' },

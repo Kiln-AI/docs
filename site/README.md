@@ -40,23 +40,27 @@ that array.
 
 ### Sidebar
 
-The theme ships its own sidebar, which is flat: every group is rendered as a
-static header with all its children always visible, and `collapsed` in the
-sidebar config is ignored. Our `SUMMARY.md` has six nested groups and relies
-on them expanding and collapsing, so `src/components/Sidebar.astro` takes that
-override back and renders Starlight's default sidebar instead.
+By default the theme renders a flat sidebar: every group becomes a static
+header with all its children always visible, and `collapsed` in the sidebar
+config is ignored. Our `SUMMARY.md` has six nested groups that need to expand
+and collapse, so the theme is configured with `sidebar: { useDropdowns: true }`
+in `astro.config.mjs`, which renders groups as collapsible dropdowns with a
+caret in the theme's own styling.
 
-This works because the theme skips any component the Starlight config already
-overrides, so setting `Sidebar` ourselves keeps the rest of the theme intact.
+A group starts open if it contains the current page or is not marked
+`collapsed`, so the section you are reading is always expanded.
+
+`src/styles/custom.css` carries one workaround for that sidebar. The theme
+gives links a fixed `30px` height against a `22.4px` line-height, so labels
+wrapping to two lines overflow their box and collide with the next entry —
+three of our labels are long enough to wrap. Letting the box grow fixes it,
+but the theme's `8px` block padding then makes every row `38px`, so the
+padding is traded down to keep the intended `30px` rhythm: single-line rows
+stay at `30px` and wrapped ones grow to `53px`.
 
 The build also logs `No data found for font family Geist Mono`, from the
 theme's font configuration. It is harmless — the monospace stack falls back —
 and unrelated to the sidebar.
-
-This also sidesteps a bug in the theme's sidebar, where links have a fixed
-`30px` height against a `22.4px` line-height, so labels wrapping to two lines
-overflow their box and collide with the next entry. Starlight's default
-sidebar wraps correctly.
 
 ## How it works
 
