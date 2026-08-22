@@ -6,14 +6,19 @@
 # marked `alias-generated` in redirects.csv: inferred from the pattern, never
 # requested against the live site, because this environment cannot reach it.
 #
-# When the phase 1 alias probe runs, it settles each one:
+# Each alias produces TWO rows, one per slash form: `/docs/x` and `/docs/x/`.
+# The probe settles them separately, because it is the slashless form GitBook
+# actually serves and the slashed form is a second inference on top of it.
 #
-#   confirmed 200 -> edit the row in redirects.csv, changing its source from
+#   confirmed 200 -> edit that row in redirects.csv, changing its source from
 #                    `alias-generated` to `alias`. Refresh preserves it and
-#                    stops regenerating over it.
-#   confirmed 404 -> delete the row from redirects.csv and add its slashless
-#                    path here, so refresh does not resurrect it. Both slash
-#                    forms are dropped by a single entry.
+#                    stops regenerating over it. Its slash sibling stays
+#                    `alias-generated` unless the probe confirmed it too —
+#                    promote both rows only if both were requested.
+#   confirmed 404 -> delete BOTH rows from redirects.csv and add the slashless
+#                    path here. One entry here covers both slash forms, so a
+#                    row you delete without adding an entry comes straight back
+#                    on the next refresh.
 #
 # One path per line. Blank lines and `#` comments are ignored.
 #

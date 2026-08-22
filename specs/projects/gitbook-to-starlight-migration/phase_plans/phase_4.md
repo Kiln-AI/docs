@@ -91,7 +91,7 @@ with 46 trailing-slash URLs — a set matching the legacy sitemap one-for-one.
 
 So the choice is already made in practice, and setting `trailingSlash: 'always'`
 plus `build.format: 'directory'` **records** it rather than changing it. Both
-were verified to leave the build byte-identical (206 files, identical
+were verified to leave the build byte-identical (207 files, identical
 checksums). The alternative — `trailingSlash: 'never'` with
 `build.format: 'file'`, which would preserve GitBook's slashless URLs exactly
 and need no redirects for the 46 — was rejected: it fights Starlight's own link
@@ -188,14 +188,21 @@ def parse_sitemap(xml_text: str) -> list[str]:
     order. Tolerates the browser prose banner ahead of the XML."""
 
 def canonical_path(url_or_path: str) -> str:
-    """'https://docs.kiln.tech/docs/x' -> '/docs/x'. Rejects other origins."""
+    """'https://docs.kiln.tech/docs/x' -> '/docs/x'. Rejects other origins,
+    and any path that is not normalised: protocol-relative '//host/x',
+    doubled slashes, '.' and '..' segments."""
 
 def flat_alias_paths(nested_path: str) -> list[str]:
     """'/docs/a/b' -> ['/docs/b', '/docs/b/']. Fewer than 3 segments -> []."""
 
 def read_rows(csv_text: str) -> list[Row]:
     """Parse and validate. Raises RedirectError on a bad status, an unknown
-    source, a path without a leading slash, or a missing column."""
+    source, a path without a leading slash, or a missing column, quoting the
+    row's real line number in the file, comments counted."""
+
+def read_annotations(csv_text: str) -> Annotations:
+    """The '#' comments in the CSV, tied to the row each sits above, so a
+    human's note travels with its row through a refresh."""
 
 def flatten_chains(rows: list[Row]) -> list[Row]:
     """A->B, B->C  =>  A->C and B->C. Raises on a cycle."""
@@ -204,15 +211,23 @@ def dedupe(rows: list[Row]) -> list[Row]:
     """Identical duplicates collapse; a repeated old_path with a different
     new_path raises RedirectError naming the path and both targets."""
 
+def check_slash_variants(rows: list[Row]) -> None:
+    """'/a' and '/a/' are one URL to a reader and two keys to Cloudflare.
+    Sharing a target is fine and deliberate; disagreeing on one raises."""
+
 def render_redirects(rows: list[Row]) -> str:
     """'/old /new 301' per line, with a generated-by header and one comment
     line per source group."""
 ```
 
 Order of operations in the build: read → validate → drop `old_path ==
-new_path` → dedupe → flatten → validate targets exist → cap check → render.
-Flattening after deduping means a conflict is reported against what the human
-wrote, not against a synthesised intermediate.
+new_path` → dedupe → check slash variants → flatten → validate targets exist →
+cap check → render. Flattening after deduping means a conflict is reported
+against what the human wrote, not against a synthesised intermediate.
+
+An inventory with no rows is an error, not an empty rule set: a truncated CSV
+should stop the build rather than quietly ship zero redirects. `--refresh-csv`
+is exempt, since a header-only CSV is how the file gets bootstrapped.
 
 Target validation resolves each final `new_path` against
 `site/src/content/docs/`, mapping `/a/b/` to `a/b.md`, `a/b.mdx`, `a/b/index.md`
@@ -230,7 +245,7 @@ Modes:
 | --- | --- |
 | `build_redirects.py` | CSV → `site/public/_redirects` |
 | `build_redirects.py --check` | Renders and compares against the committed `_redirects`; non-zero and a diff if stale. This is the CI gate. |
-| `build_redirects.py --refresh-csv` | Regenerates the machine-generated rows from `site/ref/`, merges them with the preserved human rows, rewrites the CSV, prints an added/removed summary, then rebuilds `_redirects`. |
+| `build_redirects.py --refresh-csv` | Regenerates the machine-generated rows from `site/ref/`, merges them with the preserved human rows, rewrites the CSV, prints an added/removed/changed summary, then rebuilds `_redirects`. |
 
 `--refresh-csv` merge rules:
 
@@ -242,6 +257,11 @@ Modes:
   path collides with a real page.
 - Output order: sitemap (sitemap order), aliases (sitemap order of their
   parent), structural, then preserved rows in their original file order.
+  `#` comments are re-emitted above the row they were written above.
+
+The summary diffs **whole rows**, not just the set of `old_path`s. Keying it on
+paths alone would let a hand-edited target on a generated row be reverted in
+silence, which is the likeliest way to lose a deliberate change.
 
 The "skip if a preserved row already claims this `old_path`" rule is what lets
 a human promote a confirmed alias: change its `source` from `alias-generated`
@@ -261,8 +281,15 @@ node scripts/verify_redirects.mjs --base-url http://localhost:4321 --dist dist
 
 `--dist DIR` does two jobs: it supplies the rule set (`DIR/_redirects`) and, on
 its own, it is the offline oracle — resolve the path through the rules, then
-assert the destination exists as a file in `DIR`. That is the offline CI check
-the architecture asks for, and it needs no server.
+assert the destination is **a file** in `DIR`. It has to be a file, not merely
+something that exists: `dist/docs/` is a directory and nothing is served at
+`/docs`, so an existence test would pass a path that 404s in production and let
+a dropped rule sail through CI. That is the offline check the architecture asks
+for, and it needs no server.
+
+A run that checks nothing is a failure, not a pass: an empty inventory is an
+error, and `--min-paths N` pins the floor higher for the production run before
+cutover.
 
 `--base-url URL` is the HTTP oracle. Alone, the *server* must do the
 redirecting — that is phase 6 and phase 8 against Cloudflare. Combined with
@@ -288,7 +315,7 @@ later should stop the verifier rather than let it lie.
 "verify:redirects": "node scripts/verify_redirects.mjs",
 "test": "npm run test:py && npm run test:js",
 "test:py": "python3 -m unittest discover -s scripts -p 'test_*.py' -t scripts",
-"test:js": "node --test scripts/"
+"test:js": "node --test \"scripts/*.test.mjs\""
 ```
 
 `npm run build` stays plain `astro build`. Phase 3 deliberately unwired Python
@@ -304,25 +331,27 @@ phase 1's data arrives.
 
 ## Tests
 
-`site/scripts/test_build_redirects.py` — 75 tests, stdlib `unittest`, grouped
+`site/scripts/test_build_redirects.py` — 89 tests, stdlib `unittest`, grouped
 by the function under test:
 
 | Class | Tests | What it pins down |
 | --- | --- | --- |
 | `SitemapTest` | 8 | The two real-file quirks — a `<loc>` wrapped across newlines, and the browser prose banner ahead of the XML — plus dedupe-in-document-order, a rejected sitemap *index*, malformed XML, and a regression guard asserting the committed file still holds 46 URLs with no embedded whitespace. |
-| `CanonicalPathTest` | 9 | Origin stripping, bare origin to `/`, and the rejections: a foreign origin, a missing leading slash, a query string, a fragment, an empty value. |
+| `CanonicalPathTest` | 12 | Origin stripping, bare origin to `/`, and the rejections: a foreign origin, a missing leading slash, a query string, a fragment, an empty value, and the unnormalised forms — protocol-relative `//host/x`, `/a//b`, `/a/../b`. |
 | `FlatAliasTest` | 5 | Three segments give both slash forms; two segments and `/` give none; four segments drop every middle; a trailing slash on the nested path is ignored. |
 | `ExclusionsTest` | 3 | One entry covers both slash forms; comments and blanks ignored. |
-| `ReadRowsTest` | 10 | Header, column count, status, source and path validation, each reporting its line number; round-trip through `write_rows`. |
+| `ReadRowsTest` | 11 | Header, column count, status, source and path validation, each reporting its **real** line number with comment lines counted; round-trip through `write_rows`. |
 | `DedupeTest` | 4 | Identical duplicates collapse; conflicting targets raise an error naming the path and *both* targets; conflicting statuses raise; order is preserved. |
 | `FlattenTest` | 5 | Two- and three-hop chains collapse to one hop, unrelated rows are untouched, and both a direct and a three-node cycle raise. |
 | `BuildRulesTest` | 6 | Self-redirects dropped; a target with no page raises; targets resolve through both `a/b.md` and `a/b/index.mdx`; the rule cap is enforced. |
 | `RenderTest` | 4 | One rule per line, a comment per source group, counts in the header, and no empty groups. |
 | `RefreshTest` | 10 | The merge semantics: human rows preserved verbatim, stale generated rows dropped, no regeneration over a preserved `old_path`, exclusions honoured, aliases dropped when they collide with a real page or when two nested pages would both claim them, and idempotence. |
-| `CommandTest` | 7 | The three CLI modes end to end against a scratch directory: refresh writes both files, check passes fresh and fails stale or missing, a missing CSV is an error not a traceback, and the refresh summary names what it added and what it dropped. |
-| `RepoStateTest` | 4 | The committed artifacts as they will deploy: `_redirects` matches `redirects.csv`, every sitemap URL has a row, every content page is some row's target, and the `NOT probe-confirmed` disclaimer is still in the generated file. |
+| `CommandTest` | 11 | The three CLI modes end to end against a scratch directory: refresh writes both files, check passes fresh and fails stale or missing, a missing CSV is an error not a traceback, a header-only CSV is refused by build but repopulated by refresh, a comment stays attached to its preserved row, and the summary names what was added, dropped and silently reverted. |
+| `AnnotationTest` | 3 | `#` comments are tied to the row below them and follow it when rows are reordered; an un-annotated write is unchanged. |
+| `SlashVariantTest` | 3 | Both slash forms may share a target; disagreeing on one raises; `/` has no sibling. |
+| `RepoStateTest` | 4 | The committed artifacts as they will deploy: `_redirects` matches `redirects.csv`, every sitemap URL has a row, every content page is some row's target, and the `NOT probe-confirmed` disclaimer is still in the generated file — skipped, not failed, once no `alias-generated` row is left to disclaim. |
 
-`site/scripts/verify_redirects.test.mjs` — 33 tests under `node:test`:
+`site/scripts/verify_redirects.test.mjs` — 37 tests under `node:test`:
 
 - `parseInventory`: checks sources *and* targets, dedupes a target that is also
   a source, keeps the first source seen, rejects a bad header or a short row
@@ -333,18 +362,20 @@ by the function under test:
 - `describeFailure`: 200 passes; 301 and 308 chains pass; 302 fails by default
   and passes under `--allow-temporary`; a non-200 final response and an
   unexpected 3xx are both reported
-- `parseArgs`: an oracle is required, both are accepted, unknown flags and
-  valueless flags are rejected
+- `parseArgs`: an oracle is required, both are accepted, `--min-paths` is
+  read, unknown flags and valueless flags are rejected
 - `verify`, against a fake server and a scratch `dist`: offline pass, offline
-  failure on an unbuilt target, server-side redirects, a server that 404s
-  instead of redirecting, local rules applied first so only the destination is
-  ever requested, a redirect with no `Location`, and a server-side loop
+  failure on an unbuilt target, **a directory refused as a served file**, an
+  empty inventory refused, an explicit `--min-paths` floor, server-side
+  redirects, a server that 404s instead of redirecting, local rules applied
+  first so only the destination is ever requested, a redirect with no
+  `Location`, and a server-side loop
 
 ## Verification
 
 Run against the real artifacts, not fixtures:
 
-- **The config change moves nothing.** `dist` checksummed across all 206 files
+- **The config change moves nothing.** `dist` checksummed across all 207 files
   before and after adding `trailingSlash` and `build.format`: identical. 47
   pages both times.
 - **`--refresh-csv` is idempotent on real data.** Seeded from a header-only
@@ -363,9 +394,37 @@ Run against the real artifacts, not fixtures:
   every path that has a rule, since `astro preview` implements none of them.
   That is the shape of a deployment whose `_redirects` was never applied,
   which is what phase 6 needs this to catch.
-- `npm test` — 243 tests green: 210 Python (135 inherited plus 75 new) and 33
+- `npm test` — 261 tests green: 224 Python (135 inherited plus 89 new) and 37
   under `node:test`.
 - `ruff check scripts/` clean.
+- **The offline gate catches a dropped rule.** With the `/docs` and
+  `/developers` rules removed from a copy of `dist/_redirects`, the run reports
+  exactly those two failures and exits 1. Before the file-not-directory fix
+  both passed, because `dist/docs/` and `dist/developers/` exist as
+  directories — a green CI over a production 404.
+- **Reconciliation exercised on the real file**: a hand-edited `sitemap` target
+  is reported as `changed /docs/agents: was -> /docs/skills/ … now ->
+  /docs/agents/`, and a `#` comment written above a `gsc` row is still directly
+  above that row after a refresh. `redirects.csv` and `public/_redirects`
+  restored to identical checksums afterwards.
+
+## Residual risk in the alias pattern
+
+Recorded because it is the phase's central judgement call and it stays open
+until phase 1's probe runs.
+
+The pattern is applied exactly as `phase_1.md` specifies — keep the first
+segment, drop everything between it and the leaf. All 17 candidates in the
+sitemap are three-segment, so the "drop *every* middle segment" generalisation
+is implemented and unit-tested but has never met real data. Nothing in the
+generated set looks implausible, every two-segment sitemap path is already
+flat, and no generated alias collides with a real page or is claimed by two
+nested pages.
+
+The open question the pattern cannot answer is whether GitBook also aliases at
+the site root — `/fine-tuning-guide` rather than `/docs/fine-tuning-guide`.
+Only the probe can settle that. If it does, the fix is one more generated form
+in `_alias_rows` and a refresh.
 
 ## Carried forward
 
@@ -406,6 +465,10 @@ inherit.
      records with a note to confirm it. We are at 83, so the margin is large,
      but the constant should be checked against current Cloudflare docs when
      the account is set up.
+- **`/a` and `/a/` are still two keys.** `check_slash_variants` now refuses a
+  pair that disagrees on a target, which closes the trap for hand-added rows.
+  It does not merge them: emitting both forms is deliberate, since Cloudflare
+  matches the path exactly.
 - **`npm test` now runs two suites.** `test:py` and `test:js`, wrapped by
   `test`. Phase 6's CI workflow should call `npm test`, not the Python
   discovery line directly, or it will silently skip the verifier's tests.

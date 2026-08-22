@@ -93,6 +93,14 @@ class Row(NamedTuple):
     source: str
 
 
+class Annotations(NamedTuple):
+    """`#` comments in `redirects.csv`, keyed by the row they sit above."""
+
+    header: list[str]
+    by_old_path: dict[str, list[str]]
+    trailing: list[str]
+
+
 # --------------------------------------------------------------------------
 # Paths
 # --------------------------------------------------------------------------
@@ -124,6 +132,18 @@ def canonical_path(url_or_path: str) -> str:
 
     if not path.startswith("/"):
         raise RedirectError(f"{value!r} must start with '/'")
+
+    # `//evil.com/x` starts with a slash but is protocol-relative, and `.`/`..`
+    # segments mean the rule does not match the string it appears to match.
+    # A trailing slash is the one legitimate empty segment.
+    segments = path.split("/")[1:]
+    if segments and segments[-1] == "":
+        segments = segments[:-1]
+    if any(segment in ("", ".", "..") for segment in segments):
+        raise RedirectError(
+            f"{value!r} is not a normalised path; "
+            "no empty, '.' or '..' segments, and nothing protocol-relative"
+        )
     return path
 
 
@@ -224,25 +244,60 @@ def read_exclusions(text: str) -> set[str]:
 
 
 def read_rows(csv_text: str) -> list[Row]:
-    reader = csv.reader(_significant_lines(csv_text))
-    try:
-        header = next(reader)
-    except StopIteration:
-        raise RedirectError("redirects.csv is empty") from None
+    numbered = _significant_lines(csv_text)
+    if not numbered:
+        raise RedirectError("redirects.csv is empty")
 
+    header = _parse_line(numbered[0][1])
     if [field.strip() for field in header] != CSV_HEADER:
         raise RedirectError(f"redirects.csv header must be {','.join(CSV_HEADER)}")
 
-    rows = []
-    for line_number, record in enumerate(reader, start=2):
-        rows.append(_parse_record(record, line_number))
-    return rows
-
-
-def _significant_lines(csv_text: str) -> list[str]:
     return [
-        line
-        for line in csv_text.splitlines()
+        _parse_record(_parse_line(line), line_number)
+        for line_number, line in numbered[1:]
+    ]
+
+
+def read_annotations(csv_text: str) -> Annotations:
+    """The `#` comments in a CSV, tied to the row each one sits above.
+
+    Rows get rewritten and reordered by `--refresh-csv`; a human's note about
+    a row should travel with it rather than being silently dropped.
+    """
+    header_comments: list[str] = []
+    by_old_path: dict[str, list[str]] = {}
+
+    pending: list[str] = []
+    seen_header = False
+    last_old_path: str | None = None
+
+    for line in csv_text.splitlines():
+        stripped = line.strip()
+        if not stripped:
+            continue
+        if stripped.startswith("#"):
+            pending.append(stripped)
+            continue
+        if not seen_header:
+            seen_header = True
+            header_comments = pending
+        else:
+            last_old_path = canonical_path(_parse_line(line)[0].strip())
+            by_old_path[last_old_path] = pending
+        pending = []
+
+    return Annotations(header_comments, by_old_path, pending)
+
+
+def _parse_line(line: str) -> list[str]:
+    return next(csv.reader([line]))
+
+
+def _significant_lines(csv_text: str) -> list[tuple[int, str]]:
+    """Data lines paired with their real line number in the file."""
+    return [
+        (number, line)
+        for number, line in enumerate(csv_text.splitlines(), start=1)
         if line.strip() and not line.lstrip().startswith("#")
     ]
 
@@ -278,12 +333,20 @@ def _parse_record(record: list[str], line_number: int) -> Row:
     return Row(old_path, new_path, status, source)
 
 
-def write_rows(rows: list[Row]) -> str:
+def write_rows(rows: list[Row], annotations: Annotations | None = None) -> str:
+    annotations = annotations or Annotations([], {}, [])
+
     buffer = io.StringIO(newline="")
     writer = csv.writer(buffer, lineterminator="\n")
+    for comment in annotations.header:
+        buffer.write(comment + "\n")
     writer.writerow(CSV_HEADER)
     for row in rows:
+        for comment in annotations.by_old_path.get(row.old_path, ()):
+            buffer.write(comment + "\n")
         writer.writerow([row.old_path, row.new_path, row.status, row.source])
+    for comment in annotations.trailing:
+        buffer.write(comment + "\n")
     return buffer.getvalue()
 
 
@@ -331,6 +394,25 @@ def flatten_chains(rows: list[Row]) -> list[Row]:
     return flattened
 
 
+def check_slash_variants(rows: list[Row]) -> None:
+    """`/a` and `/a/` are different keys to Cloudflare but the same URL to a
+    reader. Emitting both is deliberate; sending them to *different* places is
+    always a mistake, and nothing else would catch it."""
+    by_old = {row.old_path: row for row in rows}
+    for row in rows:
+        sibling_path = (
+            row.old_path.rstrip("/") if row.old_path.endswith("/") else row.old_path + "/"
+        )
+        if not sibling_path or sibling_path == row.old_path:
+            continue
+        sibling = by_old.get(sibling_path)
+        if sibling is not None and sibling.new_path != row.new_path:
+            raise RedirectError(
+                f"{row.old_path} and {sibling.old_path} are the same URL but go to "
+                f"different places: {row.new_path} and {sibling.new_path}"
+            )
+
+
 def validate_targets(rows: list[Row], content_dir: Path) -> None:
     missing = sorted(
         {row.new_path for row in rows if not page_exists(row.new_path, content_dir)}
@@ -346,6 +428,7 @@ def build_rules(rows: list[Row], content_dir: Path | None = CONTENT_DIR) -> list
     """CSV rows -> the rules that actually get written out."""
     rules = [row for row in rows if row.old_path != row.new_path]
     rules = dedupe(rules)
+    check_slash_variants(rules)
     rules = flatten_chains(rules)
     if content_dir is not None:
         validate_targets(rules, content_dir)
@@ -474,6 +557,11 @@ def _load_rows(csv_path: Path) -> list[Row]:
 
 def _render_from_csv(csv_path: Path, content_dir: Path) -> str:
     rows = _load_rows(csv_path)
+    if not rows:
+        raise RedirectError(
+            f"{csv_path} holds no rows; refusing to write an empty rule set. "
+            "Run --refresh-csv to rebuild it from ref/."
+        )
     return render_redirects(build_rules(rows, content_dir), len(rows))
 
 
@@ -511,7 +599,9 @@ def command_refresh(
     sitemap_path: Path,
     exclusions_path: Path,
 ) -> int:
-    existing = _load_rows(csv_path) if csv_path.is_file() else []
+    csv_text = csv_path.read_text(encoding="utf-8") if csv_path.is_file() else ""
+    existing = read_rows(csv_text) if csv_text.strip() else []
+    annotations = read_annotations(csv_text) if csv_text.strip() else None
     sitemap_urls = parse_sitemap(sitemap_path.read_text(encoding="utf-8"))
     exclusions = (
         read_exclusions(exclusions_path.read_text(encoding="utf-8"))
@@ -520,7 +610,7 @@ def command_refresh(
     )
 
     refresh = refresh_rows(existing, sitemap_urls, exclusions, content_dir)
-    csv_path.write_text(write_rows(refresh.rows), encoding="utf-8")
+    csv_path.write_text(write_rows(refresh.rows, annotations), encoding="utf-8")
 
     _report_refresh(existing, refresh)
     return command_build(csv_path, out_path, content_dir)
@@ -533,11 +623,28 @@ def _report_refresh(existing: list[Row], refresh: Refresh) -> None:
     summary = ", ".join(f"{counts[s]} {s}" for s in VALID_SOURCES if counts[s])
     print(f"refreshed redirects.csv: {len(refresh.rows)} rows ({summary})")
 
-    before = {row.old_path for row in existing}
-    after = {row.old_path for row in refresh.rows}
-    for label, paths in (("added", after - before), ("removed", before - after)):
+    before = {row.old_path: row for row in existing}
+    after = {row.old_path: row for row in refresh.rows}
+    for label, paths in (
+        ("added", after.keys() - before.keys()),
+        ("removed", before.keys() - after.keys()),
+    ):
         if paths:
             print(f"  {label} {len(paths)}: {', '.join(sorted(paths))}")
+
+    # Keying the diff on old_path alone would hide an edited target being
+    # regenerated away, which is the likeliest way to lose a hand-made change.
+    changed = sorted(
+        old_path
+        for old_path, row in after.items()
+        if old_path in before and before[old_path] != row
+    )
+    for old_path in changed:
+        was, now = before[old_path], after[old_path]
+        print(
+            f"  changed {old_path}: was -> {was.new_path} ({was.status}, {was.source}), "
+            f"now -> {now.new_path} ({now.status}, {now.source})"
+        )
 
     for label, paths in (
         ("ambiguous, two nested pages share the leaf name", refresh.dropped_ambiguous),

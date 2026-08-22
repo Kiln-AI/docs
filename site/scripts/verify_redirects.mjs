@@ -20,7 +20,7 @@
  *       destination is fetched.
  */
 
-import { readFile, access } from 'node:fs/promises';
+import { readFile, stat } from 'node:fs/promises';
 import { argv, exit } from 'node:process';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -124,11 +124,13 @@ function distCandidates(urlPath) {
   return [`${relative}/index.html`, `${relative}.html`, relative];
 }
 
-async function existsInDist(distDir, urlPath) {
+// A directory is not a served file. `dist/docs/` exists as a directory but
+// nothing is served at `/docs`, so testing for mere existence would pass a
+// path that 404s in production.
+async function servedFileExists(distDir, urlPath) {
   for (const candidate of distCandidates(urlPath)) {
     try {
-      await access(path.join(distDir, candidate));
-      return true;
+      if ((await stat(path.join(distDir, candidate))).isFile()) return true;
     } catch {
       /* try the next spelling */
     }
@@ -203,10 +205,15 @@ async function checkOne(check, options) {
   }
 
   const failure = describeFailure({ hops }, { allowTemporary })
-    ?? ((await existsInDist(distDir, start))
+    ?? ((await servedFileExists(distDir, start))
       ? null
-      : `no file in ${path.relative(SITE_DIR, distDir) || distDir} for ${start}`);
+      : `no file in ${describeDir(distDir)} for ${start}`);
   return { ...check, resolvedTo: start, hops, failure };
+}
+
+function describeDir(directory) {
+  const relative = path.relative(SITE_DIR, directory);
+  return relative && !relative.startsWith('..') ? relative : directory;
 }
 
 async function mapWithConcurrency(items, limit, worker) {
@@ -226,6 +233,17 @@ async function mapWithConcurrency(items, limit, worker) {
 export async function verify(options) {
   const csvText = await readFile(options.csvPath, 'utf8');
   const checks = parseInventory(csvText);
+
+  // Phase 8 runs this against production as the last gate before DNS cutover.
+  // An inventory that has been truncated to nothing would otherwise sail
+  // through as "all paths resolve".
+  const floor = Math.max(options.minPaths ?? 1, 1);
+  if (checks.length < floor) {
+    throw new VerifyError(
+      `only ${checks.length} paths to check, expected at least ${floor} - `
+      + `is ${path.basename(options.csvPath)} truncated?`,
+    );
+  }
 
   const rules = options.distDir
     ? parseRules(await readFile(path.join(options.distDir, '_redirects'), 'utf8'))
@@ -255,6 +273,7 @@ export function parseArgs(args) {
     baseUrl: null,
     allowTemporary: false,
     concurrency: DEFAULT_CONCURRENCY,
+    minPaths: 1,
   };
 
   for (let index = 0; index < args.length; index += 1) {
@@ -270,6 +289,7 @@ export function parseArgs(args) {
       case '--base-url': options.baseUrl = value(); break;
       case '--csv': options.csvPath = path.resolve(value()); break;
       case '--concurrency': options.concurrency = Number(value()); break;
+      case '--min-paths': options.minPaths = Number(value()); break;
       case '--allow-temporary': options.allowTemporary = true; break;
       default: throw new VerifyError(`unknown argument: ${arg}`);
     }

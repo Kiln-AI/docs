@@ -137,6 +137,18 @@ class CanonicalPathTest(unittest.TestCase):
         with self.assertRaisesRegex(B.RedirectError, "query or fragment"):
             B.canonical_path("https://docs.kiln.tech/docs/a#heading")
 
+    def test_rejects_a_protocol_relative_path(self):
+        with self.assertRaisesRegex(B.RedirectError, "not a normalised path"):
+            B.canonical_path("//evil.com/x")
+
+    def test_rejects_a_doubled_slash(self):
+        with self.assertRaisesRegex(B.RedirectError, "not a normalised path"):
+            B.canonical_path("/a//b")
+
+    def test_rejects_dot_segments(self):
+        with self.assertRaisesRegex(B.RedirectError, "not a normalised path"):
+            B.canonical_path("/a/../b")
+
     def test_rejects_an_empty_value(self):
         with self.assertRaisesRegex(B.RedirectError, "empty path"):
             B.canonical_path("   ")
@@ -212,6 +224,11 @@ class ReadRowsTest(unittest.TestCase):
         with self.assertRaisesRegex(B.RedirectError, "source 'guess'"):
             B.read_rows(csv_text(("/a", "/a/", 301, "guess")))
 
+    def test_line_numbers_count_comment_lines(self):
+        text = HEADER + "# a note\n# another\n/a,/a/,301,bogus\n"
+        with self.assertRaisesRegex(B.RedirectError, "line 4"):
+            B.read_rows(text)
+
     def test_reports_the_line_number_of_a_bad_path(self):
         text = csv_text(("/a", "/a/", 301, "sitemap"), ("b", "/b/", 301, "sitemap"))
         with self.assertRaisesRegex(B.RedirectError, "line 3"):
@@ -220,6 +237,49 @@ class ReadRowsTest(unittest.TestCase):
     def test_round_trips_through_write_rows(self):
         rows = rows_from(("/a", "/a/", 301, "sitemap"), ("/b", "/b/", 301, "manual"))
         self.assertEqual(B.read_rows(B.write_rows(rows)), rows)
+
+
+class AnnotationTest(unittest.TestCase):
+    ANNOTATED = (
+        "# what this file is\n"
+        + HEADER
+        + "# why this row exists\n"
+        + "/a,/a/,301,manual\n"
+        + "/b,/b/,301,manual\n"
+        + "# a parting thought\n"
+    )
+
+    def test_ties_each_comment_to_the_row_below_it(self):
+        annotations = B.read_annotations(self.ANNOTATED)
+        self.assertEqual(annotations.header, ["# what this file is"])
+        self.assertEqual(annotations.by_old_path["/a"], ["# why this row exists"])
+        self.assertEqual(annotations.by_old_path["/b"], [])
+        self.assertEqual(annotations.trailing, ["# a parting thought"])
+
+    def test_comments_follow_their_row_when_rows_are_reordered(self):
+        annotations = B.read_annotations(self.ANNOTATED)
+        rows = list(reversed(B.read_rows(self.ANNOTATED)))
+        rewritten = B.write_rows(rows, annotations).splitlines()
+        self.assertEqual(rewritten.index("# why this row exists") + 1,
+                         rewritten.index("/a,/a/,301,manual"))
+
+    def test_write_rows_without_annotations_is_unchanged(self):
+        rows = rows_from(("/a", "/a/", 301, "manual"))
+        self.assertEqual(B.write_rows(rows), HEADER + "/a,/a/,301,manual\n")
+
+
+class SlashVariantTest(unittest.TestCase):
+    def test_both_slash_forms_may_share_a_target(self):
+        rows = rows_from(("/a", "/x/", 301, "manual"), ("/a/", "/x/", 301, "manual"))
+        B.check_slash_variants(rows)
+
+    def test_slash_forms_pointing_at_different_places_raise(self):
+        rows = rows_from(("/a", "/x/", 301, "manual"), ("/a/", "/y/", 301, "manual"))
+        with self.assertRaisesRegex(B.RedirectError, "same URL but go to different"):
+            B.check_slash_variants(rows)
+
+    def test_root_has_no_sibling_to_conflict_with(self):
+        B.check_slash_variants(rows_from(("/", "/x/", 301, "manual")))
 
 
 class DedupeTest(unittest.TestCase):
@@ -479,6 +539,45 @@ class CommandTest(unittest.TestCase):
         )
         self.assertEqual(code, 1)
 
+    def test_build_refuses_an_inventory_with_no_rows(self):
+        self.csv_path.write_text(HEADER, encoding="utf-8")
+        code, _, err = self.run_quietly(
+            lambda: B.main_with_paths(
+                [], self.csv_path, self.out_path, self.content,
+                self.sitemap_path, self.exclusions_path,
+            )
+        )
+        self.assertEqual(code, 1)
+        self.assertIn("refusing to write an empty rule set", err)
+
+    def test_refresh_repopulates_an_empty_inventory(self):
+        self.csv_path.write_text(HEADER, encoding="utf-8")
+        code, _, _ = self.refresh()
+        self.assertEqual(code, 0)
+        self.assertTrue(B.read_rows(self.csv_path.read_text(encoding="utf-8")))
+
+    def test_refresh_keeps_a_comment_attached_to_a_preserved_row(self):
+        self.refresh()
+        annotated = self.csv_path.read_text(encoding="utf-8").rstrip("\n")
+        annotated += "\n# found in Search Console\n/docs/old,/docs/quickstart/,301,gsc\n"
+        self.csv_path.write_text(annotated, encoding="utf-8")
+        self.refresh()
+        lines = self.csv_path.read_text(encoding="utf-8").splitlines()
+        self.assertEqual(lines.index("# found in Search Console") + 1,
+                         lines.index("/docs/old,/docs/quickstart/,301,gsc"))
+
+    def test_refresh_reports_a_reverted_target(self):
+        self.refresh()
+        rows = B.read_rows(self.csv_path.read_text(encoding="utf-8"))
+        edited = [
+            row._replace(new_path="/docs/fine-tuning/fine-tuning-guide/")
+            if row.old_path == "/docs/quickstart" else row
+            for row in rows
+        ]
+        self.csv_path.write_text(B.write_rows(edited), encoding="utf-8")
+        _, out, _ = self.refresh()
+        self.assertIn("changed /docs/quickstart", out)
+
     def test_build_reports_a_missing_csv(self):
         code, _, err = self.run_quietly(
             lambda: B.main_with_paths(
@@ -536,8 +635,15 @@ class RepoStateTest(unittest.TestCase):
             self.assertIn(B.with_trailing_slash(f"/{stem}"), targets, page)
 
     def test_generated_aliases_are_marked_unverified(self):
-        rendered = B.REDIRECTS_PATH.read_text(encoding="utf-8")
-        self.assertIn("NOT probe-confirmed", rendered)
+        """While any inferred alias ships, the deployed file must say so.
+
+        Once the phase 1 probe settles all 34 — each promoted to `alias` or
+        excluded — the group disappears and there is nothing left to disclaim.
+        """
+        rows = B.read_rows(B.CSV_PATH.read_text(encoding="utf-8"))
+        if not any(row.source == "alias-generated" for row in rows):
+            self.skipTest("no alias-generated rows left; the probe has settled them")
+        self.assertIn("NOT probe-confirmed", B.REDIRECTS_PATH.read_text(encoding="utf-8"))
 
 
 if __name__ == "__main__":

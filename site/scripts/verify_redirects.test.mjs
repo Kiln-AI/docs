@@ -4,7 +4,7 @@
  * Run from `site/`:
  *
  *     npm test
- *     node --test scripts/
+ *     node --test "scripts/*.test.mjs"
  */
 
 import test from 'node:test';
@@ -174,6 +174,10 @@ test('parseArgs reads both oracles and the flags', () => {
   assert.equal(options.allowTemporary, true);
 });
 
+test('parseArgs reads --min-paths', () => {
+  assert.equal(parseArgs(['--dist', 'dist', '--min-paths', '120']).minPaths, 120);
+});
+
 test('parseArgs rejects an unknown argument', () => {
   assert.throws(() => parseArgs(['--nope']), /unknown argument/);
 });
@@ -196,6 +200,41 @@ test('verify passes offline when the built files exist', async () => {
   });
   assert.deepEqual(report.failures, []);
   assert.equal(report.locallyResolved, 1);
+});
+
+test('verify refuses to pass a directory off as a served file', async () => {
+  // `dist/docs/` exists as a directory but nothing is served at `/docs`.
+  // Accepting it would let a dropped rule sail through CI while production 404s.
+  const root = await scratch({
+    'redirects.csv': `${HEADER}/docs,/docs/quickstart/,301,structural\n`,
+    'dist/_redirects': '# every rule dropped\n',
+    'dist/docs/quickstart/index.html': '<html></html>',
+  });
+  const report = await verify({
+    csvPath: path.join(root, 'redirects.csv'),
+    distDir: path.join(root, 'dist'),
+  });
+  assert.equal(report.failures.length, 1);
+  assert.equal(report.failures[0].path, '/docs');
+});
+
+test('verify refuses an inventory with nothing in it', async () => {
+  const root = await scratch({ 'redirects.csv': `${HEADER}# everything gone\n` });
+  await assert.rejects(
+    verify({ csvPath: path.join(root, 'redirects.csv'), distDir: path.join(root, 'dist') }),
+    /expected at least 1/,
+  );
+});
+
+test('verify enforces an explicit --min-paths floor', async () => {
+  const root = await scratch({
+    'redirects.csv': `${HEADER}/a,/a/,301,sitemap\n`,
+    'dist/_redirects': '/a /a/ 301\n',
+    'dist/a/index.html': '<html></html>',
+  });
+  const options = { csvPath: path.join(root, 'redirects.csv'), distDir: path.join(root, 'dist') };
+  assert.deepEqual((await verify({ ...options, minPaths: 2 })).failures, []);
+  await assert.rejects(verify({ ...options, minPaths: 3 }), /only 2 paths to check/);
 });
 
 test('verify fails offline when a redirect target was never built', async () => {

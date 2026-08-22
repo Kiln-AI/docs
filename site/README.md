@@ -215,22 +215,30 @@ actually being tested. A path passes if it returns 200, or redirects
 permanently (301 or 308 — Cloudflare's own trailing-slash normalisation uses
 308) to something that returns 200.
 
+A verifier that checks nothing must not report success, so an empty inventory
+is an error rather than a pass. Pass `--min-paths N` to pin the floor higher —
+worth doing for the pre-cutover run against production, where a truncated
+`redirects.csv` is the failure you least want to sail through.
+
 ### Adding to the inventory
 
 Rows added by hand are never touched by the generator, so a new redirect is
 just a new line in `redirects.csv` with `source` set to `manual`, followed by
-`npm run redirects`.
+`npm run redirects`. `#` comments are allowed and travel with the row they sit
+above, so annotating a hand-added row survives a refresh.
 
 When the live-site crawl, alias probe and Search Console export land, merge
 them like this rather than rebuilding:
 
 1. Add each newly discovered URL as a row with `source` set to `gsc`, `crawl`
    or `alias`.
-2. For a flat alias the probe **confirmed**, change the existing row's `source`
-   from `alias-generated` to `alias`. Refresh then leaves it alone instead of
-   regenerating it.
-3. For a flat alias the probe **disproved**, delete the row and add its path to
-   `ref/alias_exclusions.txt` so it does not come back.
+2. For a flat alias the probe **confirmed**, change that row's `source` from
+   `alias-generated` to `alias`. Refresh then leaves it alone instead of
+   regenerating it. Each alias has two rows, one per slash form, and they are
+   settled separately — promote the sibling only if the probe requested it too.
+3. For a flat alias the probe **disproved**, delete both of its rows and add
+   the slashless path to `ref/alias_exclusions.txt`. One entry covers both
+   forms; a row deleted without an entry comes back on the next refresh.
 4. Run `python3 scripts/build_redirects.py --refresh-csv`. It regenerates the
    `sitemap`, `alias-generated` and `structural` rows from `ref/`, keeps every
    other row verbatim, prints what changed, and rewrites `public/_redirects`.
