@@ -1,0 +1,135 @@
+# The checks that only a real Cloudflare Pages deployment can answer.
+#
+# ci.yml proves the redirect rules are correct against `dist`. It cannot prove
+# Cloudflare applies them, that `_headers` reaches the wire, or which of a
+# static asset and a redirect rule wins when both could match a path. Those
+# are properties of the host, so they are checked against a deployment.
+#
+# Two triggers on purpose:
+#
+#   deployment_status  — automatic, and the one to prefer. It fires when the
+#     Cloudflare Pages GitHub integration reports a deployment, so every
+#     preview gets checked with no one remembering to. It is also the half
+#     that has never run here: this repo had no Pages project when the
+#     workflow was written, so **confirm on the first preview that this job
+#     actually ran**, and fall back to the manual trigger if it did not. Note
+#     that GitHub only runs `deployment_status` workflows from the default
+#     branch, so this file has to be on `main` before it fires at all.
+#
+#   workflow_dispatch  — manual, certain, and what the cutover checklist in
+#     site/README.md points at. Paste any deployment URL, preview or
+#     production, and run the same checks against it.
+name: Verify deployment
+
+on:
+  deployment_status:
+  workflow_dispatch:
+    inputs:
+      deployment_url:
+        description: 'Deployment to check, e.g. https://abc1234.kiln-docs.pages.dev'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Verify a deployment
+    # deployment_status fires on every state transition; only a finished,
+    # successful deployment has a URL worth requesting.
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      github.event.deployment_status.state == 'success'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: site
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          # On deployment_status, `github.sha` is the default branch's head,
+          # not what was deployed. The inventory has to come from the same
+          # commit as the site being requested or the two disagree about which
+          # URLs should exist.
+          ref: ${{ github.event.deployment.sha || github.sha }}
+          persist-credentials: false
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: site/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      # Read through the environment rather than interpolating `${{ }}` into
+      # the shell: the URL comes from a webhook payload.
+      - name: Resolve the deployment URL
+        id: target
+        env:
+          DISPATCH_URL: ${{ inputs.deployment_url }}
+          DEPLOYMENT_URL: ${{ github.event.deployment_status.environment_url }}
+        run: |
+          url="${DISPATCH_URL:-$DEPLOYMENT_URL}"
+          if [ -z "$url" ]; then
+            echo "::error::The deployment reported no environment_url, so there is nothing to check." >&2
+            exit 1
+          fi
+          echo "Checking ${url}"
+          echo "url=${url%/}" >> "$GITHUB_OUTPUT"
+
+      # No --dist, deliberately: the server has to do the redirecting for this
+      # run to say anything ci.yml has not already said.
+      - name: Every inventoried URL resolves on the deployment
+        env:
+          BASE_URL: ${{ steps.target.outputs.url }}
+        run: node scripts/verify_redirects.mjs --base-url "$BASE_URL" --min-paths 176
+
+      # Astro discards the Content-Type an endpoint sets, so the .md endpoints
+      # depend on the dist/_headers file scripts/build_integrations.mjs
+      # writes. Nothing offline can confirm Cloudflare honours it.
+      - name: The .md endpoints are served as markdown
+        env:
+          BASE_URL: ${{ steps.target.outputs.url }}
+        run: |
+          type=$(curl -sSfL -o /dev/null -w '%{content_type}' "$BASE_URL/docs/quickstart.md")
+          echo "Content-Type: ${type}"
+          case "$type" in
+            text/markdown*) ;;
+            *)
+              echo "::error::/docs/quickstart.md served as '${type}', expected text/markdown." \
+                   "dist/_headers is what carries this — see markdownContentType() in" \
+                   "site/scripts/build_integrations.mjs." >&2
+              exit 1
+              ;;
+          esac
+
+      # phase_4.md left open whether a static asset or a matching redirect rule
+      # wins on Cloudflare. This step exists to *record the answer*: a 301 means
+      # our rule ran, a 308 means Cloudflare's own trailing-slash normalisation
+      # got there first. Both are correct and neither is currently known.
+      #
+      # It is only half a gate, and deliberately so. The step above already
+      # fails on the bad outcome — phase 4's verifier holds every source path
+      # to the destination redirects.csv names for it, so a 200 at a slashless
+      # path is reported as "nothing redirects it" (verified against a server
+      # built to prefer assets). What that failure does not say is *why*, and
+      # this one does.
+      - name: A slashless path redirects rather than being served directly
+        env:
+          BASE_URL: ${{ steps.target.outputs.url }}
+        run: |
+          status=$(curl -sS -o /dev/null -w '%{http_code}' "$BASE_URL/docs/quickstart")
+          echo "GET /docs/quickstart -> ${status}"
+          case "$status" in
+            30*) ;;
+            *)
+              echo "::error::/docs/quickstart answered ${status}, expected a redirect." \
+                   "If this is a 200, Cloudflare is serving the static asset in preference to" \
+                   "the _redirects rule; record it and decide whether the canonical URL form" \
+                   "should change. See specs .../phase_plans/phase_4.md > Carried forward." >&2
+              exit 1
+              ;;
+          esac

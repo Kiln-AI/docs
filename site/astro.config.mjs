@@ -1,10 +1,21 @@
 // @ts-check
 import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
 import starlightThemeBlack from 'starlight-theme-black';
 import starlightLlmsTxt from 'starlight-llms-txt';
-import { markdownContentType, optimizedImagesOnly } from './scripts/build_integrations.mjs';
+import starlightLinksValidator from 'starlight-links-validator';
+import {
+  markdownContentType,
+  optimizedImagesOnly,
+  staleAnchorsStillStale,
+} from './scripts/build_integrations.mjs';
+import {
+  parseStaleAnchors,
+  staleAnchorExclusion,
+  STALE_ANCHORS_FILE,
+} from './scripts/stale_anchors.mjs';
 
 const SITE = 'https://docs.kiln.tech';
 
@@ -24,6 +35,14 @@ const CLOUDFLARE_ANALYTICS_TOKEN = process.env.CLOUDFLARE_ANALYTICS_TOKEN ?? '';
 const OG_IMAGE = new URL('/og.png', SITE).href;
 const OG_IMAGE_WIDTH = '1200';
 const OG_IMAGE_HEIGHT = '630';
+
+// The 24 links whose target headings GitBook had already lost before this
+// migration started. They are excused from link validation, and audited on
+// every build so the list cannot outlive them — see scripts/stale_anchors.mjs.
+const CONTENT_DIR = fileURLToPath(new URL('./src/content/docs', import.meta.url));
+const staleAnchors = parseStaleAnchors(
+  readFileSync(new URL(`./${STALE_ANCHORS_FILE}`, import.meta.url), 'utf8'),
+);
 
 // Committed content, kept out of this file so the config stays readable.
 // Originally generated from GitBook's SUMMARY.md; edited by hand since.
@@ -64,10 +83,11 @@ export default defineConfig({
   trailingSlash: 'always',
   build: { format: 'directory' },
   integrations: [
-    // Both are post-build assertions about `dist` rather than build steps; see
-    // scripts/build_integrations.mjs for what each one is defending against.
+    // All three are post-build assertions about `dist` rather than build steps;
+    // see scripts/build_integrations.mjs for what each one is defending against.
     markdownContentType(),
     optimizedImagesOnly(),
+    staleAnchorsStillStale({ entries: staleAnchors, contentDir: CONTENT_DIR }),
     starlight({
       title: 'Kiln AI',
       description: 'Rapid AI Prototyping and Dataset Collaboration Tool',
@@ -90,6 +110,16 @@ export default defineConfig({
       // component override.
       routeMiddleware: './src/starlightRouteData.ts',
       plugins: [
+        // The CI link gate, and it runs on every build so it cannot drift from
+        // what CI sees. Only the pre-existing broken anchors in
+        // ref/stale_anchors.txt are excused, page by page; anything else fails.
+        starlightLinksValidator({
+          exclude: staleAnchorExclusion(staleAnchors, CONTENT_DIR),
+          // An absolute https://docs.kiln.tech/... link inside the site sends a
+          // preview deployment back to production, so require the root-relative
+          // form rather than ignoring same-site links, which is the default.
+          sameSitePolicy: 'error',
+        }),
         starlightThemeBlack({
           // Render sidebar groups as collapsible dropdowns rather than flat,
           // always-expanded sections. SUMMARY.md relies on expanding groups.

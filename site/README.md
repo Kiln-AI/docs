@@ -12,7 +12,9 @@ generation step between the markdown and the site. What you edit is what ships.
 ## Working on it
 
 Requires **Node 22.12 or newer** (Astro 7's floor — older Node fails with
-confusing module errors).
+confusing module errors). The exact version CI and Cloudflare Pages use is in
+`.nvmrc` at the repo root, so `nvm use` from anywhere in the checkout picks it
+up.
 
 ```sh
 cd site
@@ -39,11 +41,12 @@ npm run serve     # build + preview in one step
 | `sidebar.json` | The sidebar, read by `astro.config.mjs`. |
 | `redirects.csv` | Every URL the old GitBook site served, and where it goes now. See [Redirects](#redirects). |
 | `public/_redirects` | Generated from `redirects.csv`. Read by Cloudflare Pages. |
-| `ref/**` | Evidence the redirects are built from: GitBook's sitemap, and the alias exclusion list. |
+| `ref/**` | Evidence the gates are built from: GitBook's sitemap, the alias exclusion list, and the anchors GitBook had already broken. See [Link validation](#link-validation). |
 | `src/pages/[...slug].md.ts` | Serves every page's markdown at `<url>.md`. See [Machine-readable output](#machine-readable-output). |
 | `src/pages/robots.txt.ts` | `robots.txt`, generated so the origin comes from `site`. |
 | `src/lib/**` | The asset-URL rewriter shared by the `.md` endpoints and the "Copy page" blob, and the frontmatter builder. |
-| `scripts/build_integrations.mjs` | Two post-build assertions: the `.md` `Content-Type`, and that no unoptimized originals leaked into `dist/_astro`. |
+| `scripts/build_integrations.mjs` | Three post-build assertions: the `.md` `Content-Type`, that no unoptimized originals leaked into `dist/_astro`, and that the stale-anchor list is still true. |
+| `scripts/stale_anchors.mjs` | Reads `ref/stale_anchors.txt`, and re-derives on every build whether each line still describes a broken anchor. |
 | `src/components/Footer.astro` | Starlight's footer plus the visible `llms.txt` link. |
 | `src/starlightRouteData.ts` | Route middleware that rewrites each page's raw markdown before the theme reads it. |
 | `public/og.png` | The one social preview image, shared by every page. Rebuild with `npm run og`. |
@@ -495,8 +498,9 @@ standard library:
 
 - `scripts/test_gitbook_to_starlight.py` and `scripts/test_build_redirects.py`
   (stdlib `unittest`) — `npm run test:py`
-- `scripts/verify_redirects.test.mjs`, `scripts/markdown_assets.test.mjs` and
-  `scripts/frontmatter.test.mjs` (`node:test`) — `npm run test:js`
+- `scripts/verify_redirects.test.mjs`, `scripts/markdown_assets.test.mjs`,
+  `scripts/frontmatter.test.mjs` and `scripts/stale_anchors.test.mjs`
+  (`node:test`) — `npm run test:js`
 
 They cover the parts that are easy to get subtly wrong and hard to eyeball: for
 the converter, the github-slugger port, anchor remapping, link and asset
@@ -505,7 +509,81 @@ the redirects, chain flattening, duplicate detection, the alias pattern, and
 the sitemap's whitespace-wrapped `<loc>` values; for the machine-readable
 output, every asset-reference shape the corpus uses, the idempotence the route
 middleware relies on, and every frontmatter scalar parsed back with a real
-YAML parser rather than eyeballed.
+YAML parser rather than eyeballed; and for the stale-anchor allowlist, that an
+entry excuses exactly one link on one page and stops excusing it the moment it
+stops being true.
+
+## Link validation
+
+Every build runs
+[starlight-links-validator](https://github.com/HiDeoo/starlight-links-validator)
+over the corpus and fails on a broken internal link or a `#anchor` that no
+heading answers. This is the gate the conversion needed most: it rewrote
+relative links across 45 pages, and a link that lands nowhere looks exactly
+like one that works until someone clicks it.
+
+Two settings are not the defaults:
+
+- **`sameSitePolicy: 'error'`.** An internal link written as
+  `https://docs.kiln.tech/docs/quickstart/` would send a reader of a *preview*
+  deployment back to production, so absolute self-links are rejected in favour
+  of the root-relative form. Stock behaviour is to ignore them.
+- **`exclude`**, built from `ref/stale_anchors.txt`.
+
+### The 24 anchors that were already broken
+
+24 links point at headings that no longer exist. They were broken in the
+GitBook source before this migration started — headings renamed upstream,
+links never updated — so they are broken on the live site today, and repairing
+them means writing content, which the migration deliberately does not do.
+Phase 7 owns them.
+
+They are listed in `ref/stale_anchors.txt`, one line per link, and excused from
+validation. The alternative was `errorOnInvalidHashes: false`, which would have
+switched off anchor checking for the whole site — and the anchors are the half
+most likely to break, since the converter had to re-derive every heading slug.
+
+The trade is that any allowlist can outlive the problem it describes and start
+hiding new ones. So each line is **re-derived from reality on every build** by
+`staleAnchorsStillStale()` in `scripts/build_integrations.mjs`, and the build
+fails, naming the line, if it has stopped being true:
+
+| What changed | Why it fails |
+| --- | --- |
+| The page is gone, or no longer carries that link | The link was fixed or removed; the line is dead |
+| The target page no longer builds | The line is hiding a broken *page* link, not a stale anchor |
+| The target page now has an element with that `id` | The heading came back |
+
+Each entry excuses one link on one page, so the same dead anchor appearing on a
+page that is not listed still fails — three pages link
+`/docs/prompts/#prompt-generators` and all three are listed individually.
+
+**Repairing one is: fix the link or add the heading, then delete its line.** The
+build tells you to.
+
+## Continuous integration
+
+`.github/workflows/ci.yml` runs on every pull request and on pushes to `main`:
+
+```sh
+npm ci
+npm test                  # both suites
+npm run redirects:check   # public/_redirects still matches redirects.csv
+npm run build             # + link validation and the three post-build assertions
+node scripts/verify_redirects.mjs --dist dist --min-paths 176
+```
+
+Node comes from `.nvmrc` **at the repo root**, which is also the file
+Cloudflare Pages reads — one pin, so CI cannot pass on a Node the deploy will
+not use.
+
+Most of the gating happens inside `npm run build`, because that is what
+Cloudflare runs too: link validation, the stale-anchor audit, the `dist/_headers`
+writer, and the assertion that no unoptimized image originals leaked into
+`dist/_astro`. CI adds the unit suites and the two redirect gates around it.
+
+`.github/workflows/verify-preview.yml` covers what only a real deployment can
+answer — see [Verifying a deployment](#verifying-a-deployment).
 
 ## Still to do
 
@@ -518,6 +596,13 @@ YAML parser rather than eyeballed.
   is wired up.
 - **Analytics is wired but off.** It needs a Cloudflare Web Analytics site
   token — see [Analytics](#analytics).
+- **There is no Cloudflare Pages project yet.** Everything the deployment needs
+  is committed and CI is green, but nobody has created the project or seen a
+  real preview — see
+  [Deploying to Cloudflare Pages](#deploying-to-cloudflare-pages).
+- **24 anchors are still broken**, inherited from GitBook and excused from link
+  validation until the content is fixed — see
+  [Link validation](#link-validation).
 - **The favicon and OG image are placeholders.** There is no Kiln logo in this
   repo to build them from — see
   [Social preview and favicon](#social-preview-and-favicon).
@@ -565,12 +650,20 @@ spaces — see [Images](#images).
 
 ## Deploying to Cloudflare Pages
 
+`npm run build` emits a fully static `site/dist`. There is no server, no
+database and no external search service — Pagefind is built at build time — so
+deployment is "upload a directory", plus three text files Cloudflare reads out
+of it: `_redirects`, `_headers` and `404.html`.
+
 ### Before cutover: things only a human can do
 
 None of these can be done from a sandbox, and two of them stop being possible
 once GitBook is switched off. Work through them before pointing DNS at the new
 site.
 
+- [ ] **Create the Cloudflare Pages project** and connect it to this repo, with
+      the settings in [Project settings](#project-settings). Nothing below can
+      be checked until this exists.
 - [ ] **Set the Cloudflare Web Analytics token.** Create a Web Analytics site
       for `docs.kiln.tech`, then set `CLOUDFLARE_ANALYTICS_TOKEN` as a Pages
       build environment variable. Without it the site deploys with no
@@ -584,25 +677,96 @@ site.
       `curl -sI https://docs.kiln.tech/docs/quickstart.md`, to confirm the
       spelling the `.md` endpoints reproduce. **Last chance:** after
       decommissioning, that evidence is gone permanently.
-- [ ] **Check `Content-Type` on the preview URL**:
-      `curl -sI https://<preview>/docs/quickstart.md` should report
-      `text/markdown` — see [Machine-readable output](#machine-readable-output).
+- [ ] **Confirm the deployment checks actually ran on the first preview.**
+      `.github/workflows/verify-preview.yml` is triggered by
+      `deployment_status`, which has never fired here because there was no
+      Pages project when it was written. Open the first preview's Actions run:
+      if "Verify a deployment" is absent, the Pages GitHub integration is not
+      reporting deployments and the job must be run by hand instead — see
+      [Verifying a deployment](#verifying-a-deployment). The workflow also has
+      to be on `main` before GitHub will fire it at all.
+- [ ] **Check the static-redirect rule cap against current Cloudflare docs.**
+      `MAX_RULES` in `scripts/build_redirects.py` is 2,000, taken from the
+      architecture with a note to confirm it. We emit 84, so the margin is
+      large and this is bookkeeping rather than risk.
 - [ ] **Submit `https://docs.kiln.tech/sitemap-index.xml`** to Search Console,
       not `/sitemap.xml`, which is a redirect kept for the URL already on file.
 
-`npm run build` emits a fully static `site/dist`. Point Cloudflare Pages at
-this repo with build command `cd site && npm run build` and output directory
-`site/dist`. Search (Pagefind) is built at build time, so there is no Algolia
-account or other external service to set up.
+### Project settings
 
-Set `CLOUDFLARE_ANALYTICS_TOKEN` on the project while you are there, or the
-site deploys without analytics — see [Analytics](#analytics).
+| Setting | Value |
+| --- | --- |
+| Build command | `cd site && npm run build` |
+| Build output directory | `site/dist` |
+| Root directory | *(repo root — leave unset)* |
+| Node version | From `.nvmrc` at the repo root. Set `NODE_VERSION` to the same value as a belt-and-braces fallback: some Pages projects default to a Node far older than Astro 7's floor of 22.12. |
+| Environment variables | `CLOUDFLARE_ANALYTICS_TOKEN`, on **both** production and preview — see [Analytics](#analytics). |
 
-`public/_redirects` is committed, so the build needs no Python and the deployed
-rules are reviewable in git. Two gates keep that honest, both cheap enough for
-CI: `npm run redirects:check` fails if the file has drifted from
-`redirects.csv`, and
-`node scripts/verify_redirects.mjs --dist dist --min-paths 176` fails if any
-inventoried URL no longer reaches the page `redirects.csv` names for it. Run the same verifier
-against the preview URL — without `--dist` — before pointing DNS at it. See
-[Verifying](#verifying).
+`.nvmrc` lives at the repo root rather than in `site/` precisely because the
+build command starts from the repo root, so that is where Cloudflare looks. CI
+reads the same file.
+
+Preview deployments are on by default for pull requests once the repo is
+connected; production builds from `main`.
+
+The build needs **no Python**. `public/_redirects` is committed rather than
+generated at deploy time, so the rules that ship are the rules reviewable in
+git, and `npm run redirects:check` in CI is what keeps the two in step.
+
+### Verifying a deployment
+
+Everything CI can prove offline, it already has. What is left needs the real
+host: whether Cloudflare applies `_redirects`, whether it honours `_headers`,
+and which of a static asset and a redirect rule wins.
+
+`.github/workflows/verify-preview.yml` runs those three checks — the redirect
+verifier without `--dist`, so the *server* has to do the redirecting; the
+`Content-Type` on a `.md` endpoint; and the status a slashless path answers
+with. Trigger it by hand from the Actions tab against any deployment URL:
+
+> Actions → **Verify deployment** → Run workflow → paste the URL
+
+or run the same checks locally:
+
+```sh
+node scripts/verify_redirects.mjs --base-url https://<preview>.pages.dev --min-paths 176
+curl -sI https://<preview>.pages.dev/docs/quickstart.md   # want: text/markdown
+curl -sI https://<preview>.pages.dev/docs/quickstart      # want: 301, or 308
+```
+
+That last one is the open question from the migration: a **301** means our
+`_redirects` rule ran, a **308** means Cloudflare's own trailing-slash
+normalisation got there first. Both are fine. A **200** is not — it would mean
+Cloudflare serves the page at a URL that disagrees with its own canonical tag,
+and the verifier above fails on it too.
+
+Also worth an eye on the first preview, none of which is automated:
+
+- the 404 page, by requesting a path that does not exist
+- search, which is a separate Pagefind bundle
+- the OG image, via any card-preview debugger
+
+### Cutover
+
+The order matters, and every step before the last is reversible.
+
+1. **Deploy to preview and verify it**, as above. Do not skip the manual look
+   at the 404 page and search.
+2. **Add `docs.kiln.tech` as a custom domain** on the Pages project. Cloudflare
+   walks through the DNS record; if the zone is already on Cloudflare it is one
+   click.
+3. **Point DNS at the Pages project.** This is the only irreversible-feeling
+   step, and it is not really — the record can be pointed back at GitBook.
+4. **Re-run the verification against production**, without `--dist`, before
+   telling anyone. A rule that worked on `*.pages.dev` and not on the custom
+   domain would be a surprise, but this is a two-minute check.
+5. **Submit `https://docs.kiln.tech/sitemap-index.xml`** to Search Console and
+   watch the coverage report. A 404 spike means the redirect map has a gap —
+   the inventory is built from GitBook's sitemap plus an inferred alias
+   pattern, so gaps are expected rather than surprising. Add the missing URLs
+   as `gsc` rows and re-run; see
+   [Adding to the inventory](#adding-to-the-inventory).
+6. **Confirm analytics is receiving data** before assuming the token is right.
+7. **Keep GitBook running** until all of the above is settled. Only then
+   decommission the space and cancel the subscription — at which point the
+   `.md` URL evidence and the live-site baseline are gone permanently.

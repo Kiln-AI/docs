@@ -1,14 +1,22 @@
 /**
- * Two small `astro:build:done` checks, wired up in `astro.config.mjs`.
+ * Three small `astro:build:done` checks, wired up in `astro.config.mjs`.
  *
- * Both exist because the thing they guard is invisible when it breaks: the
- * build stays green, nothing warns, and the damage only shows up in what
- * Cloudflare serves or in how big `dist` is.
+ * They exist because the thing each one guards is invisible when it breaks:
+ * the build stays green, nothing warns, and the damage only shows up in what
+ * Cloudflare serves, in how big `dist` is, or in a link check that has
+ * quietly stopped checking.
  */
 
 import { readdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+
+import {
+	builtPagePath,
+	retiredStaleAnchors,
+	splitHash,
+	STALE_ANCHORS_FILE,
+} from './stale_anchors.mjs';
 
 /**
  * Astro's static build discards the `Content-Type` an endpoint sets:
@@ -154,3 +162,63 @@ export function optimizedImagesOnly({ maxOriginals = MAX_UNOPTIMIZED_ORIGINALS }
 export const MAX_UNOPTIMIZED_ORIGINALS = 4;
 
 const ORIGINAL_IMAGE = /\.(png|jpe?g|gif|avif|tiff?)$/i;
+
+/**
+ * Fails the build when a line in `ref/stale_anchors.txt` has stopped being
+ * true.
+ *
+ * `astro.config.mjs` hands that file to `starlight-links-validator` as an
+ * `exclude` predicate so the 24 anchors GitBook already had broken do not
+ * fail CI. Every allowlist has the same failure mode: it outlives the problem
+ * it describes and quietly starts hiding new ones. So each line is re-derived
+ * from the content and from `dist` on every build, and any line that no
+ * longer holds stops the build naming itself — see `retiredStaleAnchors()`.
+ *
+ * Registered alongside the other two rather than after `starlight()` on
+ * purpose. Both orderings work (an integration listed after `starlight()`
+ * does get its `astro:build:done` after the validator's — measured, not
+ * assumed), but running first means a rotted exclusion is reported even on a
+ * build the validator is about to fail for its own reasons.
+ */
+export function staleAnchorsStillStale({ entries, contentDir }) {
+	return {
+		name: 'kiln:stale-anchors-still-stale',
+		hooks: {
+			'astro:build:done': async ({ dir }) => {
+				const distDir = fileURLToPath(dir);
+				const read = async (file) => readFile(file, 'utf8').catch(() => null);
+
+				// Read each distinct file once: several entries share a page, and
+				// five of them share `/docs/prompts/` as their target.
+				const sources = new Map();
+				const builtPages = new Map();
+				for (const entry of entries) {
+					const [urlPath] = splitHash(entry.link);
+					if (!sources.has(entry.page)) {
+						sources.set(entry.page, await read(path.join(contentDir, entry.page)));
+					}
+					if (!builtPages.has(urlPath)) {
+						builtPages.set(urlPath, await read(path.join(distDir, builtPagePath(urlPath))));
+					}
+				}
+
+				const retired = retiredStaleAnchors(
+					entries,
+					(page) => sources.get(page) ?? null,
+					(urlPath) => builtPages.get(urlPath) ?? null,
+				);
+				if (retired.length === 0) return;
+
+				throw new Error(
+					`${retired.length} of the ${entries.length} entries in ${STALE_ANCHORS_FILE} no ` +
+						'longer describe a stale anchor. Delete each line named below — the ' +
+						'exclusion is suppressing something nobody chose to suppress:\n\n' +
+						retired
+							.map(({ entry, reason }) => `  line ${entry.line}: ${reason}\n    ${entry.page} ${entry.link}`)
+							.join('\n') +
+						'\n',
+				);
+			},
+		},
+	};
+}

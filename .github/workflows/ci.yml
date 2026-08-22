@@ -1,0 +1,75 @@
+# Quality gates for the docs site, run on every pull request.
+#
+# The functional spec names three that must pass before cutover: the build
+# succeeds, no internal link is broken, and every inventoried URL resolves.
+# Two of the three are inside `npm run build` — `starlight-links-validator`
+# and the three post-build assertions in `scripts/build_integrations.mjs` all
+# run there — so what CI adds on top is the unit suites, the check that the
+# committed `_redirects` still matches `redirects.csv`, and the offline
+# redirect verifier.
+#
+# The URL-level half of the redirect gate that needs a real server lives in
+# verify-preview.yml, because Cloudflare has to do the redirecting for that
+# question to mean anything.
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+# A second push to the same branch makes the run in flight pointless.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  site:
+    name: Build and check the site
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: site
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@v7
+        with:
+          # The repo-root .nvmrc, which is also what Cloudflare Pages reads —
+          # one pin for both, so CI cannot pass on a Node the deploy will not
+          # use. Astro 7 needs >= 22.12 (site/package.json `engines`).
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: site/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      # `npm test`, never the two suites' commands directly: `test` wraps
+      # `test:py` and `test:js`, and calling either one alone silently skips
+      # half the coverage.
+      - name: Unit tests
+        run: npm test
+
+      # `public/_redirects` is committed rather than generated at deploy time,
+      # so a hand-edited redirects.csv would otherwise ship stale rules.
+      - name: public/_redirects is up to date with redirects.csv
+        run: npm run redirects:check
+
+      # Also runs starlight-links-validator, the stale-anchor audit, the
+      # dist/_headers writer and the unoptimized-image assertion.
+      - name: Build
+        run: npm run build
+
+      # The offline half of the redirect gate: resolve every inventoried path
+      # through the built rules and assert it reaches the page redirects.csv
+      # names for it. --min-paths is a floor, not an equality — raise it when
+      # the inventory grows, never lower it to make a run pass. See
+      # site/README.md > Redirects > Verifying.
+      - name: Every inventoried URL resolves in the build output
+        run: node scripts/verify_redirects.mjs --dist dist --min-paths 176
