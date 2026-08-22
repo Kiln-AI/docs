@@ -1,5 +1,5 @@
 ---
-status: draft
+status: complete
 ---
 
 # Phase 2: Audit the Transformer and Its Output
@@ -305,22 +305,38 @@ concentrated in links, assets, titles, and frontmatter.
    the property where the write happens does. `path_within` resolves the path
    with `realpath` immediately before use, and a component that does not exist
    yet cannot be a symlink, so **symlink escapes are closed completely and by
-   construction**. The write then goes to a sibling temp file that `os.replace`
-   moves into position: `replace` unlinks the destination name instead of writing
-   through it, so a destination hardlinked to a GitBook source keeps its own
-   inode and the source is untouched.
+   construction**.
 
-   What that does *not* claim. It is a check-then-use assertion, not an atomic
-   one: a concurrent writer with access to the output directory could swap a
-   component between the check and the write. Fine for a local development
-   script, and not a property this offers. And **`path_within` gates the output
-   directory only** — the 45 pages, the stamp, and the landing-page copy, which
-   are the only writes whose destination a caller supplies. `sidebar.json`,
-   `src/assets/hero.png` and the `public/assets` copytree do **not** go through
-   it. That is deliberate: their destinations are module constants derived from
-   `__file__`, never user input, and they are written only on the default run,
-   never under `--out`. Phase 9 reuses `--out`; if it ever routes a
-   caller-supplied path to one of those, this gate does not cover it.
+   `write_within` adds a second, narrower protection on top of that containment
+   check: it writes to a sibling temp file and `os.replace`s it into position.
+   `replace` unlinks the destination *name* instead of writing through it, so if
+   the destination was a hardlink to a GitBook source, **the source keeps its
+   inode and its content untouched** while the converted page lands on a new
+   inode. (Before, `open(..., "w")` truncated the shared inode and rewrote the
+   source in place.)
+
+   What that does *not* claim, stated precisely because phase 9 reuses `--out`:
+
+   - It is a check-then-use assertion, not an atomic one. A concurrent writer
+     with access to the output directory could swap a component between the
+     check and the write. Fine for a local development script, and not a
+     property this offers.
+   - **Containment and hardlink safety have different scopes.** Three writes go
+     through `path_within` and are contained: the 45 pages, the stamp, and the
+     landing-page copy. Only the first two go through `write_within`, so only
+     they get the `os.replace` hardlink and atomicity protection — the
+     landing-page copy is a `shutil.copy`, which is contained but would still
+     write through a hardlinked destination.
+   - **`sidebar.json`, `src/assets/hero.png` and the `public/assets` copytree
+     have neither protection**, deliberately: their destinations are module
+     constants derived from `__file__`, and they are written only on the default
+     run, never under `--out`. Nor is the landing-page copy's destination
+     caller-supplied — it is `docs_out/index.mdx`, gated because `docs_out` is
+     what `--out` sets, not because the filename comes from anywhere.
+
+   So the rule to carry into phase 9 is: a caller-supplied path is safe only
+   where it flows into `write_within`. Routing one to `shutil.copy`, or to any of
+   the module-constant destinations, is outside what this gate covers.
 
    The `stray_markdown` walk also gained `followlinks=True` (skipping
    already-visited directories by real path, so a cycle terminates), but that is

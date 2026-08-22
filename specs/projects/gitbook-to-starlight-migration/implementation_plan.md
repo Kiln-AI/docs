@@ -17,7 +17,7 @@ ability to convert anything else.
   run in a network-restricted environment. Everything downstream depends on
   this, and it is impossible once GitBook is gone.
 
-- [ ] **Phase 2: Audit the transformer and its output.** Review
+- [x] **Phase 2: Audit the transformer and its output.** Review
   `gitbook_to_starlight.py` against all 45 pages and fix conversion gaps before
   the output becomes hand-maintained. Add the `--out DIR` flag so later runs
   are non-destructive. Diff converted text against `baseline/pages/` to find
