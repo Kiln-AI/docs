@@ -52,8 +52,8 @@ async function scratch(files) {
 test('parseInventory checks both sources and targets', () => {
   const checks = parseInventory(`${HEADER}/a,/a/,301,sitemap\n`);
   assert.deepEqual(checks, [
-    { path: '/a', source: 'sitemap' },
-    { path: '/a/', source: 'target' },
+    { path: '/a', source: 'sitemap', expect: '/a/' },
+    { path: '/a/', source: 'target', expect: null },
   ]);
 });
 
@@ -65,6 +65,11 @@ test('parseInventory dedupes a target that is also a source', () => {
 test('parseInventory keeps the first source seen for a path', () => {
   const checks = parseInventory(`${HEADER}/a,/b/,301,sitemap\n/a,/b/,301,manual\n`);
   assert.equal(checks.find((check) => check.path === '/a').source, 'sitemap');
+});
+
+test('parseInventory expects no destination for a self-redirect', () => {
+  const checks = parseInventory(`${HEADER}/,/,301,sitemap\n`);
+  assert.deepEqual(checks, [{ path: '/', source: 'sitemap', expect: null }]);
 });
 
 test('parseInventory rejects a wrong header', () => {
@@ -178,6 +183,19 @@ test('parseArgs reads --min-paths', () => {
   assert.equal(parseArgs(['--dist', 'dist', '--min-paths', '120']).minPaths, 120);
 });
 
+test('parseArgs rejects a zero concurrency, which would spawn no runners', () => {
+  assert.throws(() => parseArgs(['--dist', 'dist', '--concurrency', '0']), /positive integer/);
+});
+
+test('parseArgs rejects a non-numeric concurrency', () => {
+  assert.throws(() => parseArgs(['--dist', 'dist', '--concurrency', 'abc']), /positive integer/);
+});
+
+test('parseArgs rejects a non-numeric --min-paths', () => {
+  // The flag that raises the floor must not disable it when mistyped.
+  assert.throws(() => parseArgs(['--dist', 'dist', '--min-paths', 'abc']), /positive integer/);
+});
+
 test('parseArgs rejects an unknown argument', () => {
   assert.throws(() => parseArgs(['--nope']), /unknown argument/);
 });
@@ -216,6 +234,83 @@ test('verify refuses to pass a directory off as a served file', async () => {
   });
   assert.equal(report.failures.length, 1);
   assert.equal(report.failures[0].path, '/docs');
+});
+
+test('verify refuses to report a run that checked nothing', async () => {
+  // The structural property, reached by bypassing parseArgs: a sparse results
+  // array has holes, and `filter` skips holes, so an incomplete run would
+  // otherwise look exactly like a run with no failures.
+  const root = await scratch({
+    'redirects.csv': `${HEADER}/a,/a/,301,sitemap\n`,
+    'dist/_redirects': '/a /a/ 301\n',
+    'dist/a/index.html': '<html></html>',
+  });
+  const options = { csvPath: path.join(root, 'redirects.csv'), distDir: path.join(root, 'dist') };
+  for (const concurrency of [0, NaN]) {
+    await assert.rejects(verify({ ...options, concurrency }), /did not complete/);
+  }
+});
+
+test('verify refuses a --min-paths floor that is not a number', async () => {
+  const root = await scratch({
+    'redirects.csv': `${HEADER}/a,/a/,301,sitemap\n`,
+    'dist/_redirects': '/a /a/ 301\n',
+    'dist/a/index.html': '<html></html>',
+  });
+  await assert.rejects(
+    verify({
+      csvPath: path.join(root, 'redirects.csv'),
+      distDir: path.join(root, 'dist'),
+      minPaths: NaN,
+    }),
+    /--min-paths must be a positive integer/,
+  );
+});
+
+test('verify catches a missing rule even where the destination file exists', async () => {
+  // `/a` resolves to `a/index.html` with or without its rule, so testing only
+  // that something exists would prove nothing about the 45 rules of this shape.
+  const root = await scratch({
+    'redirects.csv': `${HEADER}/a,/a/,301,sitemap\n`,
+    'dist/_redirects': '# rule dropped\n',
+    'dist/a/index.html': '<html></html>',
+  });
+  const report = await verify({
+    csvPath: path.join(root, 'redirects.csv'),
+    distDir: path.join(root, 'dist'),
+  });
+  assert.equal(report.failures.length, 1);
+  assert.match(report.failures[0].failure, /nothing redirects it/);
+});
+
+test('verify catches a rule that lands on the wrong page', async () => {
+  const root = await scratch({
+    'redirects.csv': `${HEADER}/a,/a/,301,sitemap\n`,
+    'dist/_redirects': '/a /elsewhere/ 301\n',
+    'dist/a/index.html': '<html></html>',
+    'dist/elsewhere/index.html': '<html></html>',
+  });
+  const report = await verify({
+    csvPath: path.join(root, 'redirects.csv'),
+    distDir: path.join(root, 'dist'),
+  });
+  assert.equal(report.failures.length, 1);
+  assert.match(report.failures[0].failure, /reached \/elsewhere\/, but redirects.csv says \/a\//);
+});
+
+test('verify holds a server to the destination redirects.csv names', async () => {
+  const root = await scratch({ 'redirects.csv': `${HEADER}/a,/a/,301,sitemap\n` });
+  const report = await verify({
+    csvPath: path.join(root, 'redirects.csv'),
+    baseUrl: 'http://localhost:9999',
+    fetchImpl: fakeServer({
+      '/a': response(301, '/elsewhere/'),
+      '/elsewhere/': response(200),
+      '/a/': response(200),
+    }),
+  });
+  assert.equal(report.failures.length, 1);
+  assert.match(report.failures[0].failure, /reached \/elsewhere\//);
 });
 
 test('verify refuses an inventory with nothing in it', async () => {

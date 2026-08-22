@@ -149,6 +149,10 @@ class CanonicalPathTest(unittest.TestCase):
         with self.assertRaisesRegex(B.RedirectError, "not a normalised path"):
             B.canonical_path("/a/../b")
 
+    def test_rejects_internal_whitespace(self):
+        with self.assertRaisesRegex(B.RedirectError, "whitespace-delimited"):
+            B.canonical_path("/docs/a b")
+
     def test_rejects_an_empty_value(self):
         with self.assertRaisesRegex(B.RedirectError, "empty path"):
             B.canonical_path("   ")
@@ -549,6 +553,19 @@ class CommandTest(unittest.TestCase):
         )
         self.assertEqual(code, 1)
         self.assertIn("refusing to write an empty rule set", err)
+
+    def test_build_refuses_a_csv_that_yields_no_rules(self):
+        """Rows are not rules: self-redirects are dropped before rendering."""
+        self.csv_path.write_text(csv_text(("/", "/", 301, "sitemap")), encoding="utf-8")
+        code, _, err = self.run_quietly(
+            lambda: B.main_with_paths(
+                [], self.csv_path, self.out_path, self.content,
+                self.sitemap_path, self.exclusions_path,
+            )
+        )
+        self.assertEqual(code, 1)
+        self.assertIn("refusing to write an empty rule set", err)
+        self.assertIn("1 rows", err)
 
     def test_refresh_repopulates_an_empty_inventory(self):
         self.csv_path.write_text(HEADER, encoding="utf-8")

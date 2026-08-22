@@ -215,10 +215,19 @@ actually being tested. A path passes if it returns 200, or redirects
 permanently (301 or 308 — Cloudflare's own trailing-slash normalisation uses
 308) to something that returns 200.
 
+Every source path is held to the destination `redirects.csv` names for it, so a
+rule that is missing, or that points at the wrong page, fails even when the
+page it lands on exists.
+
 A verifier that checks nothing must not report success, so an empty inventory
-is an error rather than a pass. Pass `--min-paths N` to pin the floor higher —
-worth doing for the pre-cutover run against production, where a truncated
-`redirects.csv` is the failure you least want to sail through.
+is an error rather than a pass, and `--concurrency` and `--min-paths` must be
+positive integers. Pass `--min-paths N` to pin the floor higher — worth doing
+for the pre-cutover run against production, where a truncated `redirects.csv`
+is the failure you least want to sail through:
+
+```sh
+node scripts/verify_redirects.mjs --dist dist --min-paths 129
+```
 
 ### Adding to the inventory
 
@@ -412,7 +421,8 @@ account or other external service to set up.
 `public/_redirects` is committed, so the build needs no Python and the deployed
 rules are reviewable in git. Two gates keep that honest, both cheap enough for
 CI: `npm run redirects:check` fails if the file has drifted from
-`redirects.csv`, and `node scripts/verify_redirects.mjs --dist dist` fails if
-any inventoried URL no longer lands on a built page. Run the same verifier
+`redirects.csv`, and
+`node scripts/verify_redirects.mjs --dist dist --min-paths 129` fails if any
+inventoried URL no longer reaches the page `redirects.csv` names for it. Run the same verifier
 against the preview URL — without `--dist` — before pointing DNS at it. See
 [Verifying](#verifying).

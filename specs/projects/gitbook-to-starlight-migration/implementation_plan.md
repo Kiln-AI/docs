@@ -39,7 +39,7 @@ ability to convert anything else.
   rewrite `site/README.md` so it no longer describes a transform pipeline.
   **Keep the transformer itself.**
 
-- [ ] **Phase 4: Redirects.** Build `redirects.csv` from the phase 1 inventory
+- [x] **Phase 4: Redirects.** Build `redirects.csv` from the phase 1 inventory
   plus the known flat-alias pattern. Implement `build_redirects.py` (with unit
   tests for chain-flattening and duplicate detection) and
   `verify_redirects.mjs`. Set `trailingSlash`/`build.format` explicitly.

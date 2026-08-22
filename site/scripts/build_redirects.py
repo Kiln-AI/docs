@@ -112,9 +112,17 @@ def canonical_path(url_or_path: str) -> str:
     Absolute URLs are accepted only for the legacy origin — anything else is a
     typo or a link off-site, and neither belongs in a redirect rule.
     """
-    value = " ".join(url_or_path.split())
+    value = url_or_path.strip()
     if not value:
         raise RedirectError("empty path")
+
+    # `_redirects` is whitespace-delimited, so `/docs/a b` renders as a rule
+    # with three tokens: Cloudflare, and this repo's own rule parser, would
+    # read the wrong destination and a nonsense status from it.
+    if any(character.isspace() for character in value):
+        raise RedirectError(
+            f"{value!r} contains whitespace; redirect rules are whitespace-delimited"
+        )
 
     if "://" in value:
         parts = urlsplit(value)
@@ -396,8 +404,13 @@ def flatten_chains(rows: list[Row]) -> list[Row]:
 
 def check_slash_variants(rows: list[Row]) -> None:
     """`/a` and `/a/` are different keys to Cloudflare but the same URL to a
-    reader. Emitting both is deliberate; sending them to *different* places is
-    always a mistake, and nothing else would catch it."""
+    reader. Emitting both is deliberate; sending them to different places is
+    not something we ever want to do silently.
+
+    This runs before `flatten_chains`, so a pair that would converge after
+    flattening is rejected too. That is the intended trade: the check is about
+    what a human wrote, and it fails loudly rather than quietly rewriting an
+    ambiguity."""
     by_old = {row.old_path: row for row in rows}
     for row in rows:
         sibling_path = (
@@ -557,12 +570,13 @@ def _load_rows(csv_path: Path) -> list[Row]:
 
 def _render_from_csv(csv_path: Path, content_dir: Path) -> str:
     rows = _load_rows(csv_path)
-    if not rows:
+    rules = build_rules(rows, content_dir)
+    if not rules:
         raise RedirectError(
-            f"{csv_path} holds no rows; refusing to write an empty rule set. "
-            "Run --refresh-csv to rebuild it from ref/."
+            f"{csv_path} yields no rules; refusing to write an empty rule set. "
+            f"It holds {len(rows)} rows. Run --refresh-csv to rebuild it from ref/."
         )
-    return render_redirects(build_rules(rows, content_dir), len(rows))
+    return render_redirects(rules, len(rows))
 
 
 def command_build(csv_path: Path, out_path: Path, content_dir: Path) -> int:

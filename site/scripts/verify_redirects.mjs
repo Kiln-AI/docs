@@ -59,10 +59,16 @@ export function parseInventory(csvText) {
       throw new VerifyError(`redirects.csv line ${index + 2}: expected 4 columns`);
     }
     const [oldPath, newPath, , source] = fields;
-    if (!checks.has(oldPath)) checks.set(oldPath, source);
-    if (!checks.has(newPath)) checks.set(newPath, 'target');
+    // `expect` is what this path must actually end up at. Without it a source
+    // path passes merely by resolving to *something* that exists — and 45 of
+    // ours resolve to `x/index.html` whether or not their rule is present, so
+    // deleting a rule would go unnoticed.
+    if (!checks.has(oldPath)) {
+      checks.set(oldPath, { source, expect: oldPath === newPath ? null : newPath });
+    }
+    if (!checks.has(newPath)) checks.set(newPath, { source: 'target', expect: null });
   }
-  return [...checks].map(([urlPath, source]) => ({ path: urlPath, source }));
+  return [...checks].map(([urlPath, check]) => ({ path: urlPath, ...check }));
 }
 
 // --------------------------------------------------------------------------
@@ -197,18 +203,27 @@ async function checkOne(check, options) {
   if (baseUrl) {
     const result = await fetchChain(baseUrl, start, fetchImpl);
     const allHops = [...hops, ...result.hops];
+    const landedOn = allHops.length ? allHops[allHops.length - 1].to : start;
     const failure = describeFailure(
       { hops: allHops, status: result.status },
       { allowTemporary },
-    );
-    return { ...check, resolvedTo: start, hops: allHops, failure };
+    ) ?? wrongDestination(check, landedOn);
+    return { ...check, resolvedTo: landedOn, hops: allHops, failure };
   }
 
   const failure = describeFailure({ hops }, { allowTemporary })
+    ?? wrongDestination(check, start)
     ?? ((await servedFileExists(distDir, start))
       ? null
       : `no file in ${describeDir(distDir)} for ${start}`);
   return { ...check, resolvedTo: start, hops, failure };
+}
+
+function wrongDestination(check, landedOn) {
+  if (!check.expect || landedOn === check.expect) return null;
+  return landedOn === check.path
+    ? `nothing redirects it; redirects.csv says it should reach ${check.expect}`
+    : `reached ${landedOn}, but redirects.csv says ${check.expect}`;
 }
 
 function describeDir(directory) {
@@ -219,14 +234,28 @@ function describeDir(directory) {
 async function mapWithConcurrency(items, limit, worker) {
   const results = new Array(items.length);
   let next = 0;
+  let completed = 0;
+
   const runners = Array.from({ length: Math.min(limit, items.length) }, async () => {
     while (next < items.length) {
       const index = next;
       next += 1;
       results[index] = await worker(items[index]);
+      completed += 1;
     }
   });
   await Promise.all(runners);
+
+  // Counting completions rather than inspecting `results`: a sparse array's
+  // holes are skipped by every array method, `filter` included, so a run that
+  // spawned no runners at all would otherwise look like a run with no
+  // failures. This is the property, not a guard against one bad flag value.
+  if (completed !== items.length) {
+    throw new VerifyError(
+      `only ${completed} of ${items.length} paths were checked - `
+      + `the run did not complete, so its result means nothing`,
+    );
+  }
   return results;
 }
 
@@ -237,7 +266,10 @@ export async function verify(options) {
   // Phase 8 runs this against production as the last gate before DNS cutover.
   // An inventory that has been truncated to nothing would otherwise sail
   // through as "all paths resolve".
-  const floor = Math.max(options.minPaths ?? 1, 1);
+  const floor = options.minPaths ?? 1;
+  if (!Number.isInteger(floor) || floor < 1) {
+    throw new VerifyError(`--min-paths must be a positive integer, got ${options.minPaths}`);
+  }
   if (checks.length < floor) {
     throw new VerifyError(
       `only ${checks.length} paths to check, expected at least ${floor} - `
@@ -284,12 +316,22 @@ export function parseArgs(args) {
       index += 1;
       return next;
     };
+    // Numeric flags are validated for the same reason unknown flags throw: a
+    // mistyped one must stop the run, never quietly weaken what it checks.
+    const count = () => {
+      const raw = value();
+      const parsed = Number(raw);
+      if (!Number.isInteger(parsed) || parsed < 1) {
+        throw new VerifyError(`${arg} must be a positive integer, got ${raw}`);
+      }
+      return parsed;
+    };
     switch (arg) {
       case '--dist': options.distDir = path.resolve(value()); break;
       case '--base-url': options.baseUrl = value(); break;
       case '--csv': options.csvPath = path.resolve(value()); break;
-      case '--concurrency': options.concurrency = Number(value()); break;
-      case '--min-paths': options.minPaths = Number(value()); break;
+      case '--concurrency': options.concurrency = count(); break;
+      case '--min-paths': options.minPaths = count(); break;
       case '--allow-temporary': options.allowTemporary = true; break;
       default: throw new VerifyError(`unknown argument: ${arg}`);
     }

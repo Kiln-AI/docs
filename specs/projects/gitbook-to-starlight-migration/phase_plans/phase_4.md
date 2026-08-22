@@ -1,5 +1,5 @@
 ---
-status: draft
+status: complete
 ---
 
 # Phase 4: Redirects
@@ -279,6 +279,12 @@ node scripts/verify_redirects.mjs --base-url https://<preview>.pages.dev
 node scripts/verify_redirects.mjs --base-url http://localhost:4321 --dist dist
 ```
 
+Every source path is held to the destination `redirects.csv` names for it, not
+merely to landing somewhere that exists. Without that, `--dist` would prove
+only 38 of the 83 rules: the 45 slashless `sitemap` paths resolve to
+`x/index.html` whether or not their rule is present, so deleting one would go
+unnoticed. With it, removing any single rule fails the run.
+
 `--dist DIR` does two jobs: it supplies the rule set (`DIR/_redirects`) and, on
 its own, it is the offline oracle — resolve the path through the rules, then
 assert the destination is **a file** in `DIR`. It has to be a file, not merely
@@ -287,9 +293,19 @@ something that exists: `dist/docs/` is a directory and nothing is served at
 a dropped rule sail through CI. That is the offline check the architecture asks
 for, and it needs no server.
 
-A run that checks nothing is a failure, not a pass: an empty inventory is an
-error, and `--min-paths N` pins the floor higher for the production run before
-cutover.
+A run that checks nothing is a failure, not a pass. Three things enforce that,
+because "the gate reported success without checking anything" is this phase's
+characteristic failure mode:
+
+- an empty inventory is an error, and `--min-paths N` pins the floor higher for
+  the production run before cutover;
+- `--concurrency` and `--min-paths` must parse as positive integers, the same
+  strictness `parseArgs` already applied to unknown and valueless flags — a
+  mistyped floor must not silently switch the floor off;
+- the worker pool counts completions and refuses to report a run where any path
+  went unchecked. That is the structural half: a sparse results array's holes
+  are skipped by `filter`, so an incomplete run would otherwise be
+  indistinguishable from a clean one, whatever the cause.
 
 `--base-url URL` is the HTTP oracle. Alone, the *server* must do the
 redirecting — that is phase 6 and phase 8 against Cloudflare. Combined with
@@ -331,13 +347,13 @@ phase 1's data arrives.
 
 ## Tests
 
-`site/scripts/test_build_redirects.py` — 89 tests, stdlib `unittest`, grouped
+`site/scripts/test_build_redirects.py` — 91 tests, stdlib `unittest`, grouped
 by the function under test:
 
 | Class | Tests | What it pins down |
 | --- | --- | --- |
 | `SitemapTest` | 8 | The two real-file quirks — a `<loc>` wrapped across newlines, and the browser prose banner ahead of the XML — plus dedupe-in-document-order, a rejected sitemap *index*, malformed XML, and a regression guard asserting the committed file still holds 46 URLs with no embedded whitespace. |
-| `CanonicalPathTest` | 12 | Origin stripping, bare origin to `/`, and the rejections: a foreign origin, a missing leading slash, a query string, a fragment, an empty value, and the unnormalised forms — protocol-relative `//host/x`, `/a//b`, `/a/../b`. |
+| `CanonicalPathTest` | 13 | Origin stripping, bare origin to `/`, and the rejections: a foreign origin, a missing leading slash, a query string, a fragment, an empty value, the unnormalised forms — protocol-relative `//host/x`, `/a//b`, `/a/../b` — and internal whitespace, which would render as extra tokens in a rule line. |
 | `FlatAliasTest` | 5 | Three segments give both slash forms; two segments and `/` give none; four segments drop every middle; a trailing slash on the nested path is ignored. |
 | `ExclusionsTest` | 3 | One entry covers both slash forms; comments and blanks ignored. |
 | `ReadRowsTest` | 11 | Header, column count, status, source and path validation, each reporting its **real** line number with comment lines counted; round-trip through `write_rows`. |
@@ -346,12 +362,12 @@ by the function under test:
 | `BuildRulesTest` | 6 | Self-redirects dropped; a target with no page raises; targets resolve through both `a/b.md` and `a/b/index.mdx`; the rule cap is enforced. |
 | `RenderTest` | 4 | One rule per line, a comment per source group, counts in the header, and no empty groups. |
 | `RefreshTest` | 10 | The merge semantics: human rows preserved verbatim, stale generated rows dropped, no regeneration over a preserved `old_path`, exclusions honoured, aliases dropped when they collide with a real page or when two nested pages would both claim them, and idempotence. |
-| `CommandTest` | 11 | The three CLI modes end to end against a scratch directory: refresh writes both files, check passes fresh and fails stale or missing, a missing CSV is an error not a traceback, a header-only CSV is refused by build but repopulated by refresh, a comment stays attached to its preserved row, and the summary names what was added, dropped and silently reverted. |
+| `CommandTest` | 12 | The three CLI modes end to end against a scratch directory: refresh writes both files, check passes fresh and fails stale or missing, a missing CSV is an error not a traceback, a CSV that yields no rules is refused by build — rows are not rules, so a file of only self-redirects counts — but repopulated by refresh, a comment stays attached to its preserved row, and the summary names what was added, dropped and silently reverted. |
 | `AnnotationTest` | 3 | `#` comments are tied to the row below them and follow it when rows are reordered; an un-annotated write is unchanged. |
 | `SlashVariantTest` | 3 | Both slash forms may share a target; disagreeing on one raises; `/` has no sibling. |
 | `RepoStateTest` | 4 | The committed artifacts as they will deploy: `_redirects` matches `redirects.csv`, every sitemap URL has a row, every content page is some row's target, and the `NOT probe-confirmed` disclaimer is still in the generated file — skipped, not failed, once no `alias-generated` row is left to disclaim. |
 
-`site/scripts/verify_redirects.test.mjs` — 37 tests under `node:test`:
+`site/scripts/verify_redirects.test.mjs` — 46 tests under `node:test`:
 
 - `parseInventory`: checks sources *and* targets, dedupes a target that is also
   a source, keeps the first source seen, rejects a bad header or a short row
@@ -362,14 +378,18 @@ by the function under test:
 - `describeFailure`: 200 passes; 301 and 308 chains pass; 302 fails by default
   and passes under `--allow-temporary`; a non-200 final response and an
   unexpected 3xx are both reported
-- `parseArgs`: an oracle is required, both are accepted, `--min-paths` is
-  read, unknown flags and valueless flags are rejected
+- `parseArgs`: an oracle is required, both are accepted, `--min-paths` is read,
+  and unknown flags, valueless flags, `--concurrency 0`, `--concurrency abc`
+  and `--min-paths abc` are all rejected
 - `verify`, against a fake server and a scratch `dist`: offline pass, offline
-  failure on an unbuilt target, **a directory refused as a served file**, an
-  empty inventory refused, an explicit `--min-paths` floor, server-side
-  redirects, a server that 404s instead of redirecting, local rules applied
-  first so only the destination is ever requested, a redirect with no
-  `Location`, and a server-side loop
+  failure on an unbuilt target, **a directory refused as a served file**, **a
+  missing rule caught even where the destination file exists**, **a rule that
+  lands on the wrong page**, a server held to the named destination, an empty
+  inventory refused, an explicit `--min-paths` floor, a non-numeric floor
+  refused, **a run that checked nothing refused** (concurrency 0 and NaN,
+  reached by bypassing `parseArgs`), server-side redirects, a server that 404s
+  instead of redirecting, local rules applied first so only the destination is
+  ever requested, a redirect with no `Location`, and a server-side loop
 
 ## Verification
 
@@ -394,7 +414,7 @@ Run against the real artifacts, not fixtures:
   every path that has a rule, since `astro preview` implements none of them.
   That is the shape of a deployment whose `_redirects` was never applied,
   which is what phase 6 needs this to catch.
-- `npm test` — 261 tests green: 224 Python (135 inherited plus 89 new) and 37
+- `npm test` — 272 tests green: 226 Python (135 inherited plus 91 new) and 46
   under `node:test`.
 - `ruff check scripts/` clean.
 - **The offline gate catches a dropped rule.** With the `/docs` and
@@ -402,6 +422,16 @@ Run against the real artifacts, not fixtures:
   exactly those two failures and exits 1. Before the file-not-directory fix
   both passed, because `dist/docs/` and `dist/developers/` exist as
   directories — a green CI over a production 404.
+- **`--dist` now proves all 83 rules, not 38.** Dropping the single
+  `/docs/quickstart` rule — one of the 45 whose destination file exists either
+  way, and which the previous version passed — fails the run with
+  `nothing redirects it; redirects.csv says it should reach /docs/quickstart/`.
+  Stripping every rule fails all 83 sources and no targets.
+- **The vacuous-pass class is closed twice over.** `--concurrency 0`,
+  `--concurrency abc` and `--min-paths abc` are each rejected by `parseArgs`
+  with exit 2; calling `verify()` directly with `concurrency: 0` or `NaN`,
+  bypassing that validation entirely, is refused by the completion count with
+  `only 0 of 129 paths were checked`.
 - **Reconciliation exercised on the real file**: a hand-edited `sitemap` target
   is reported as `changed /docs/agents: was -> /docs/skills/ … now ->
   /docs/agents/`, and a `#` comment written above a `gsc` row is still directly
@@ -474,6 +504,15 @@ inherit.
   discovery line directly, or it will silently skip the verifier's tests.
 - **The `redirects:check` gate belongs in CI.** `public/_redirects` is
   committed, so nothing regenerates it at deploy time and a hand-edited
-  `redirects.csv` would ship stale rules. `npm run redirects:check` plus
-  `node scripts/verify_redirects.mjs --dist dist` are both offline and fast,
-  and are the two gates phase 6 should add alongside the link validator.
+  `redirects.csv` would ship stale rules. Both gates are offline and fast, and
+  phase 6 should add them alongside the link validator, spelled with the floor:
+
+  ```sh
+  npm run redirects:check
+  node scripts/verify_redirects.mjs --dist dist --min-paths 129
+  ```
+
+  `--min-paths` is what stops a truncated `redirects.csv` passing as "all paths
+  resolve". 129 is today's count — 84 `old_path`s plus 46 distinct `new_path`s,
+  less `/` counted once. Raise it when the inventory grows; it is a floor, not
+  an equality.
