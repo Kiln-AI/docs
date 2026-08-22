@@ -28,6 +28,12 @@ export default defineConfig({
           // Render sidebar groups as collapsible dropdowns rather than flat,
           // always-expanded sections. SUMMARY.md relies on expanding groups.
           sidebar: { useDropdowns: true },
+          docs: {
+            // The "Copy page" menu offers ChatGPT, v0, Claude and Scira by
+            // default. Listed agents override the defaults, so this drops
+            // Scira and leaves the other three.
+            showMarkdownActions: { agents: { scira: false } },
+          },
           navLinks: [
             { label: 'Docs', link: '/docs/quickstart/' },
             { label: 'Developers', link: '/developers/python-library-quickstart/' },
