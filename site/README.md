@@ -329,9 +329,15 @@ and Cloudflare Pages needs no Python.
 
 ### Verifying
 
+**Always go through `npm run verify:redirects`, never
+`node scripts/verify_redirects.mjs` directly.** The npm script carries
+`--min-paths`, and the raw command defaults that floor to 1 — see
+[The floor](#the-floor) below for why that matters. Pass your oracle after
+`--`:
+
 ```sh
 npm run build
-node scripts/verify_redirects.mjs --dist dist
+npm run verify:redirects -- --dist dist
 ```
 
 That is the offline check: it applies the rules in `dist/_redirects` itself and
@@ -342,7 +348,7 @@ Against a running site:
 
 ```sh
 npm run preview   # in another shell
-node scripts/verify_redirects.mjs --base-url http://localhost:4321 --dist dist
+npm run verify:redirects -- --base-url http://localhost:4321 --dist dist
 ```
 
 `astro preview` does not implement `_redirects` — that file means nothing
@@ -350,7 +356,7 @@ outside Cloudflare Pages — so `--dist` is needed to apply the rules locally
 before each request. **Drop `--dist` when checking a real deployment:**
 
 ```sh
-node scripts/verify_redirects.mjs --base-url https://<preview>.pages.dev
+npm run verify:redirects -- --base-url https://<preview>.pages.dev
 ```
 
 Without it the server has to do the redirecting itself, which is the thing
@@ -362,22 +368,27 @@ Every source path is held to the destination `redirects.csv` names for it, so a
 rule that is missing, or that points at the wrong page, fails even when the
 page it lands on exists.
 
-A verifier that checks nothing must not report success, so an empty inventory
-is an error rather than a pass, and `--concurrency` and `--min-paths` must be
-positive integers. Pass `--min-paths N` to pin the floor higher — worth doing
-for the pre-cutover run against production, where a truncated `redirects.csv`
-is the failure you least want to sail through:
+#### The floor
 
-```sh
-npm run verify:redirects -- --dist dist
-```
+A verifier that checks nothing must not report success. So an empty inventory
+is an error rather than a pass, `--concurrency` and `--min-paths` must be
+positive integers, and the run refuses to report on a pass where any path went
+unchecked.
 
-The floor lives in the `verify:redirects` script in `package.json`, not in the
-callers, because every gate has to move in step with the inventory and a floor
-only some callers pass has stopped being a floor. It is **176** today: 131 URLs
-from the inventory, plus 45 `md-endpoint` identity rows that assert our own
-build output rather than GitBook's. Raise it when the inventory grows; never
-lower it to make a run pass.
+`--min-paths` is the last of those, and it is the one that catches a truncated
+`redirects.csv` — the failure you least want to sail through on the pre-cutover
+run against production. **It lives in one place: the `verify:redirects` script
+in `package.json`.** Callers pass only their oracle, because the floor has to
+move in step with the inventory and a floor only some callers pass has stopped
+being a floor.
+
+It is **176** today: 131 URLs from the inventory, plus 45 `md-endpoint`
+identity rows that assert our own build output rather than GitBook's. Raise it
+in `package.json` when the inventory grows.
+
+Appending `--min-paths N` still works and wins, since the last flag is the one
+read. That is an escape hatch for a one-off, not a way to make a failing run
+pass — lowering the floor to get a green run is how a truncated inventory ships.
 
 ### Adding to the inventory
 
@@ -661,26 +672,32 @@ of it: `_redirects`, `_headers` and `404.html`.
 
 ### Before cutover: things only a human can do
 
-None of these can be done from a sandbox, and two of them stop being possible
-once GitBook is switched off. Work through them before pointing DNS at the new
-site.
+None of these can be done from a sandbox. They are ordered so that each one is
+possible when you reach it: the expiring one first, then the Pages project, then
+everything that needs the project to exist.
+
+**Do this one first — it expires.**
+
+- [ ] **Fetch one `.md` URL from the live GitBook site**, e.g.
+      `curl -sI https://docs.kiln.tech/docs/quickstart.md`, to confirm the
+      spelling the `.md` endpoints reproduce. The endpoints reproduce a URL
+      family nobody has ever probed; the decision was argued from the sitemap,
+      not from an observation. If the spelling differs the fix is one line in
+      `src/pages/[...slug].md.ts` plus a `redirects.csv` refresh. **This is the
+      last moment it is physically possible** — once GitBook is decommissioned
+      the evidence is gone permanently, and it does not depend on anything else
+      here.
+
+**Then set up the deployment.**
 
 - [ ] **Create the Cloudflare Pages project** and connect it to this repo, with
       the settings in [Project settings](#project-settings). Nothing below can
       be checked until this exists.
-- [ ] **Set the Cloudflare Web Analytics token.** Create a Web Analytics site
-      for `docs.kiln.tech`, then set `CLOUDFLARE_ANALYTICS_TOKEN` as a Pages
-      build environment variable. Without it the site deploys with no
+- [ ] **Set the Cloudflare Web Analytics token** while you are in the
+      dashboard. Create a Web Analytics site for `docs.kiln.tech`, then set
+      `CLOUDFLARE_ANALYTICS_TOKEN` as a Pages build environment variable, on
+      **both** production and preview. Without it the site deploys with no
       analytics at all — see [Analytics](#analytics).
-- [ ] **Replace `public/favicon.svg` and `public/og.png`.** Both are
-      placeholders built from type and the site's palette, because **there is
-      no Kiln logo anywhere in this repo or its git history**. They are what
-      every share card and browser tab will show — see
-      [Social preview and favicon](#social-preview-and-favicon).
-- [ ] **Fetch one `.md` URL from the live GitBook site**, e.g.
-      `curl -sI https://docs.kiln.tech/docs/quickstart.md`, to confirm the
-      spelling the `.md` endpoints reproduce. **Last chance:** after
-      decommissioning, that evidence is gone permanently.
 - [ ] **Confirm the deployment checks actually ran on the first preview.**
       `.github/workflows/verify-preview.yml` is triggered by
       `deployment_status`, which has never fired here because there was no
@@ -688,27 +705,49 @@ site.
 
       **Present and green is not the same as run.** `deployment_status` fires
       on every state transition, and the job's condition lets only a
-      *successful* deployment in one of Cloudflare's two environments through.
+      *successful* deployment, in an environment named for Cloudflare, through.
       So a perfectly healthy deploy produces several workflow runs whose
       "Verify a deployment" job is **Skipped** — and a skipped job reports
       success. A broken setup looks identical at a glance.
 
       What to look for: a run in which "Verify a deployment" **executed its
       steps**, with "Every inventoried URL resolves on the deployment" showing
-      `176 paths` and green. If every run shows the job skipped, the condition
-      is not matching — the deployment's `environment` is the first thing to
-      check, since the two names it tests for were never verified against a
-      real Cloudflare payload and no linter checks them. Until it matches, run
-      the workflow by hand — see
+      `176 paths` and green. Two ways it can be missing, with different fixes:
+
+      - **No "Verify deployment" runs exist at all.** Cloudflare's GitHub App
+        is not creating Deployments — re-authorize the Pages integration, and
+        check the workflow is on `main`. Nothing about this repo will fix it.
+      - **Runs exist but the job is Skipped in every one.** The job condition
+        is not matching. The deployment's `environment` is the first thing to
+        check: the workflow expects a name ending in `Preview` or
+        `Production`. Cloudflare spells it `<project-name> (Preview)`, but that
+        was never verified against a real payload and no linter checks it.
+        Open the run's `deployment_status` payload, read the actual name, and
+        adjust the condition.
+
+      Until either is settled, run the workflow by hand — see
       [Verifying a deployment](#verifying-a-deployment).
 
-      The workflow also has to be on `main` before GitHub will fire it at all.
+**Then, before the site becomes the public one.**
+
+- [ ] **Replace `public/favicon.svg` and `public/og.png`.** Both are
+      placeholders built from type and the site's palette, because **there is
+      no Kiln logo anywhere in this repo or its git history**. They are what
+      every share card and browser tab will show — see
+      [Social preview and favicon](#social-preview-and-favicon).
+- [ ] **Read the two descriptions nobody at Kiln wrote.**
+      `docs/structured-data-json.md` and `docs/keyboard-shortcuts.md` had none
+      in GitBook, so the copy in them is ours. Thirty seconds each.
 - [ ] **Check the static-redirect rule cap against current Cloudflare docs.**
       `MAX_RULES` in `scripts/build_redirects.py` is 2,000, taken from the
       architecture with a note to confirm it. We emit 84, so the margin is
       large and this is bookkeeping rather than risk.
-- [ ] **Submit `https://docs.kiln.tech/sitemap-index.xml`** to Search Console,
-      not `/sitemap.xml`, which is a redirect kept for the URL already on file.
+
+Then work through [Cutover](#cutover), which is the ordered procedure rather
+than a checklist. One thing to know before you start it: the sitemap to submit
+to Search Console is **`https://docs.kiln.tech/sitemap-index.xml`**, not
+`/sitemap.xml` — that one is a redirect kept for the URL Search Console already
+has on file.
 
 ### Project settings
 

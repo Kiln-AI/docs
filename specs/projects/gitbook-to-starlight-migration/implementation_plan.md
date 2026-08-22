@@ -49,7 +49,7 @@ ability to convert anything else.
   the 404 page is useful. Check whether GitBook's per-page `.md` URLs need
   redirect rules.
 
-- [ ] **Phase 6: CI and deployment.** GitHub Actions running build and
+- [x] **Phase 6: CI and deployment.** GitHub Actions running build and
   `starlight-links-validator` on PRs. Cloudflare Pages project, building from
   `site/`, with preview deployments. Run `verify_redirects.mjs` against the
   preview URL. Document the deploy and cutover process.

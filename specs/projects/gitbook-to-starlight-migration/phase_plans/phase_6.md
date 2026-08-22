@@ -1,5 +1,5 @@
 ---
-status: draft
+status: complete
 ---
 
 # Phase 6: CI and Deployment
@@ -166,7 +166,7 @@ npm ci
 npm test
 npm run redirects:check
 npm run build
-node scripts/verify_redirects.mjs --dist dist --min-paths 176
+npm run verify:redirects -- --dist dist
 ```
 
 `npm test`, never `test:py` or the bare discovery line — phase 4 recorded that
@@ -190,13 +190,25 @@ The three checks that need a real host, on two triggers:
 
 - `deployment_status` — automatic. It fires for *every* GitHub Deployment in
   the repo, so the job condition narrows twice: to a successful deployment, and
-  to one of the two environments the Cloudflare Pages integration uses
-  (`Preview`, `Production`). Without the second clause any future integration
-  that creates a Deployment would send this job at an unrelated
-  `environment_url` and fail 176 requests for reasons nobody would connect to
-  this file. **Never exercised here**, so the checklist asks a human to confirm
-  it ran on the first preview. It also has to be on `main` before GitHub will
-  fire it at all.
+  to one whose environment name looks like Cloudflare's. Without the second
+  clause any future integration that creates a Deployment would send this job
+  at an unrelated `environment_url` and fail 176 requests for reasons nobody
+  would connect to this file. **Never exercised here**, so the checklist asks a
+  human to confirm it ran on the first preview. It also has to be on `main`
+  before GitHub will fire it at all.
+
+  The narrowing is spelled `endsWith(…, 'Preview')` rather than `== 'Preview'`,
+  and the difference is the whole point. Cloudflare names the environment
+  `<project-name> (Preview)`; the bare `Preview`/`Production` form is
+  **Vercel's** convention, and an equality test against it would most likely
+  have matched nothing — converting a narrowing into an off switch, which is
+  the failure this workflow can least afford. `endsWith` covers both spellings
+  and is case-insensitive, as all GitHub string comparison is.
+
+  `timeout-minutes: 15` is not there because the run is slow — the verifier
+  works six-wide and the 176 checks take under a second locally. It is there
+  because Node's `fetch` has no default timeout, so an unresponsive host would
+  otherwise hold a runner for the default 360 minutes.
 - `workflow_dispatch` with a `deployment_url` input — manual, certain, and
   what the cutover procedure points at.
 
@@ -209,10 +221,8 @@ from the commit that was actually deployed.
 
 `concurrency` is keyed on the deployed *branch* rather than the environment: a
 new push should supersede the verification of the preview it replaces, while
-different PRs stay independent — and Cloudflare calls every preview `Preview`,
-so grouping on that would make every open PR cancel every other. Both jobs
-carry `timeout-minutes: 15`; the preview job talks to a host that can hang and
-the 360-minute default would burn a runner for six hours to learn that.
+different PRs stay independent — and every preview shares one environment name,
+so grouping on that would make every open PR cancel every other.
 
 ### 8. `site/README.md`
 
@@ -297,10 +307,10 @@ the one phase 5 warned changes the image measurement:
 
 ```
 npm ci             403 packages
-npm test           236 Python + 100 JavaScript, all pass
+npm test           236 Python + 104 JavaScript, all pass
 redirects:check    public/_redirects is up to date
 npm run build      All internal links are valid. 47 pages. 45 .md endpoints.
-verify_redirects   176 paths, 84 through local rules, all resolve
+verify:redirects   176 paths, 84 through local rules, all resolve
 ```
 
 Cold-cache `dist/_astro`: **1 original, 2.0 MB** — matching phase 5's healthy
@@ -359,8 +369,19 @@ New findings, on top of the phase 2–5 lists later phases inherit.
   skipped job reports success. "The job is present and green" therefore looks
   identical in the working and the broken case. The checklist item is written
   to say what to look for instead: a run whose job **executed its steps**, with
-  the redirect step showing 176 paths. `workflow_dispatch` is the certain path
-  until that is confirmed.
+  the redirect step showing 176 paths — and it separates "no runs at all"
+  (re-authorize the Pages GitHub App) from "runs exist, job always skipped"
+  (the condition does not match; read the payload's real environment name).
+  `workflow_dispatch` is the certain path until that is confirmed.
+
+  Review round 2 caught this condition mid-flight and it is worth recording
+  why: the first spelling tested `environment == 'Preview'`, which is
+  **Vercel's** naming. Cloudflare uses `<project-name> (Preview)`, so the
+  equality would probably never have matched and the narrowing added in round 1
+  would have silently disabled the job. `endsWith` fixes it, but the general
+  lesson is that this condition is the one part of the phase with no oracle at
+  all — not the build, not the tests, not actionlint — and it has now been
+  wrong once.
 - **`phase_4.md`'s asset-versus-rule note is stale and has been superseded
   here.** The verifier does catch a 200 at a slashless path; phase 4's own
   step 4 closed it and the Carried-forward note was written before that. Left

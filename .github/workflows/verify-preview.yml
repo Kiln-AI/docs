@@ -47,23 +47,30 @@ jobs:
     name: Verify a deployment
     # deployment_status fires on every state transition of every Deployment in
     # the repo, so this narrows twice: to a finished, successful deployment,
-    # and to one of the two environments the Cloudflare Pages integration uses.
-    # Without the second clause any future integration that creates a
-    # Deployment — actions/deploy-pages, another host's app, a hand-rolled
-    # `gh api` call — would send this job at an unrelated environment_url and
-    # fail 176 requests for reasons nobody would connect to this file.
+    # and to one that looks like a Cloudflare Pages environment. Without the
+    # second clause any future integration that creates a Deployment —
+    # actions/deploy-pages, another host's app, a hand-rolled `gh api` call —
+    # would send this job at an unrelated environment_url and fail 176
+    # requests for reasons nobody would connect to this file.
     #
-    # Those two environment names are unverified here: no Pages project existed
-    # when this was written. GitHub compares strings case-insensitively, so
-    # casing is not the risk; a different name would be, and it would show up
-    # as this job never running its steps. That is exactly what the "confirm
-    # the deployment checks actually ran" item in site/README.md checks, and
-    # this condition is the first place to look if it did not.
+    # `endsWith` rather than `==`, because the environment name is *not* just
+    # `Preview`. Cloudflare spells it `<project-name> (Preview)` and
+    # `<project-name> (Production)`; the bare `Preview`/`Production` form
+    # widely seen in the wild is Vercel's convention. Equality here would very
+    # likely have matched nothing, turning a narrowing into an off switch.
+    # `endsWith` covers both spellings and is case-insensitive, as all GitHub
+    # string comparison is.
+    #
+    # Still unverified against a real deployment — no Pages project existed
+    # when this was written, and actionlint does not check webhook payload
+    # fields. A wrong guess shows up as this job never running its steps, which
+    # is exactly what the "confirm the deployment checks actually ran" item in
+    # site/README.md looks for, and this condition is the first place to look.
     if: >-
       github.event_name == 'workflow_dispatch' ||
       (github.event.deployment_status.state == 'success' &&
-       (github.event.deployment_status.environment == 'Preview' ||
-        github.event.deployment_status.environment == 'Production'))
+       (endsWith(github.event.deployment_status.environment, 'Preview') ||
+        endsWith(github.event.deployment_status.environment, 'Production')))
     runs-on: ubuntu-latest
     # The steps below talk to a host that can hang; the 360-minute default
     # would burn a runner for six hours to learn that.
