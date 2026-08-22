@@ -38,12 +38,25 @@ Starlight themes are plugins, so it is configured in one place — the `plugins`
 array in `astro.config.mjs` — and swapping it is an npm install plus editing
 that array.
 
-`src/styles/custom.css` carries the accent colors and one workaround: the
-theme gives sidebar links a fixed `30px` height against a `22.4px`
-line-height, so any label wrapping to two lines overflows its box and collides
-with the next entry. Three of our sidebar labels hit it ("Evaluate RAG
-Accuracy: Q&A Evals", "Evaluate Appropriate Tool Use", "Input Templates &
-Feature Engineering"). The override lets the box grow.
+### Sidebar
+
+The theme ships its own sidebar, which is flat: every group is rendered as a
+static header with all its children always visible, and `collapsed` in the
+sidebar config is ignored. Our `SUMMARY.md` has six nested groups and relies
+on them expanding and collapsing, so `src/components/Sidebar.astro` takes that
+override back and renders Starlight's default sidebar instead.
+
+This works because the theme skips any component the Starlight config already
+overrides, so setting `Sidebar` ourselves keeps the rest of the theme intact.
+
+The build also logs `No data found for font family Geist Mono`, from the
+theme's font configuration. It is harmless — the monospace stack falls back —
+and unrelated to the sidebar.
+
+This also sidesteps a bug in the theme's sidebar, where links have a fixed
+`30px` height against a `22.4px` line-height, so labels wrapping to two lines
+overflow their box and collide with the next entry. Starlight's default
+sidebar wraps correctly.
 
 ## How it works
 
