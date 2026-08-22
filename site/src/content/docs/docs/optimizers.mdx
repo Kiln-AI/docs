@@ -1,0 +1,69 @@
+---
+title: "Optimizers"
+description: "Tools to build the optimal AI system for your task"
+---
+
+import { CardGrid } from '@astrojs/starlight/components';
+import CoverCard from '../../../components/CoverCard.astro';
+import promptsCover from '../../../assets/Prompts3.png';
+import compareCover from '../../../assets/Compare2.png';
+import fineTuningCover from '../../../assets/tuning2.png';
+import ragCover from '../../../assets/rag-icon-2-2.png';
+import toolsCover from '../../../assets/tools2.png';
+import agentsCover from '../../../assets/Agents-2.png';
+import skillsCover from '../../../assets/skills.png';
+
+Kiln offers a powerful set of optimization techniques to make your AI agents smarter, faster, and cheaper.
+
+Click the "Optimize" tab in the app to explore our optimizers, or browse the docs:
+
+<CardGrid>
+  <CoverCard
+    title="Optimize Prompt"
+    description="Improve your prompt using our automatic optimizers or manually."
+    href="/docs/prompts/"
+    cover={promptsCover}
+  />
+  <CoverCard
+    title="Compare Models"
+    description="Compare models to find the best quality/cost tradeoff for your task."
+    href="https://kiln.tech/model_library"
+    cover={compareCover}
+  />
+  <CoverCard
+    title="Fine-Tuning"
+    description="Train a custom model for your task."
+    href="/docs/fine-tuning/"
+    cover={fineTuningCover}
+  />
+  <CoverCard
+    title="Docs & Search (RAG)"
+    description="Let agents search for relevant knowledge."
+    href="/docs/documents-and-search-rag/"
+    cover={ragCover}
+  />
+  <CoverCard
+    title="Tools & MCP"
+    description="Add tools like web-search, code sandboxes, and more."
+    href="/docs/tools-and-mcp/"
+    cover={toolsCover}
+  />
+  <CoverCard
+    title="Agents"
+    description="Allow your task to call sub-agents and perform work."
+    href="/docs/agents/"
+    cover={agentsCover}
+  />
+  {/*
+    The GitBook source left this card's target cell empty, so it rendered as a
+    card that went nowhere. `/docs/skills/` is the page it describes and the
+    only one it can mean; a card that is not a link is worse than the table
+    this replaced. Recorded in phase_plans/phase_7.md.
+  */}
+  <CoverCard
+    title="Skills"
+    description="Dynamically load prompts for the current goal."
+    href="/docs/skills/"
+    cover={skillsCover}
+  />
+</CardGrid>

@@ -14,7 +14,7 @@ It's easy to collaborate with Kiln across teams with technical team members (dev
 
 We suggest [Git](/docs/collaboration/#option-1-use-git) for technical teams, [shared drives](/docs/collaboration/#option-2-use-shared-drives-for-non-technical-team-members) for non-technical teams, or a [mix](/docs/collaboration/#option-3-combining-git-and-shared-drives) for mixed teams.
 
-### **Recommended: Use Git!**
+### **Recommended: Use Git!**<a id="option-1-use-git"></a>
 
 Kiln projects are simply a folder of files, making it easy to share them using Git. Add your project folder(s) to a git repo and you're set up with an excellent collaboration workflow with branches, pull requests, version control, access control, and more!
 
@@ -22,7 +22,7 @@ Kiln's [**Automatic Git Sync**](/docs/collaboration/automatic-git-sync/) feature
 
 See [below](/docs/collaboration/#collaboration-design) for how our file format is optimized for Git-based workflows.
 
-### Option 2: Use Shared Drives
+### Option 2: Use Shared Drives<a id="option-2-use-shared-drives-for-non-technical-team-members"></a>
 
 You can also host a Kiln project on a shared drive of your choice (Google Drive, Dropbox, iCloud, etc).
 
@@ -30,7 +30,7 @@ Be sure to review our [**Automatic Git Sync**](/docs/collaboration/automatic-git
 
 Kiln project files will track who created them (internally in their JSON), which adds version history when many folks are making changes on the same shared drive. It's not as robust as Git history, but there is attribution built in.
 
-### Collaboration Design
+### Collaboration Design<a id="technical-collaboration-architecture"></a>
 
 As you may have already guessed, you don't need to allow a third party to access your data, or maintain a database. Everything runs locally on your machine, and syncs through existing tools you control.
 

@@ -1,11 +1,26 @@
 # Anchors that were already broken in the GitBook source, page by page.
 #
 # Each line excuses ONE link on ONE page from `starlight-links-validator`.
-# Without them the build fails on 24 links whose target headings were renamed
-# upstream, before this migration existed — they are broken on the live
-# GitBook site today. Fixing them means writing content, which the functional
-# spec puts out of scope for the migration; phase 7 owns them. See
-# `specs/projects/gitbook-to-starlight-migration/phase_plans/phase_2.md`.
+# These links point at headings that were renamed upstream, before this
+# migration existed, and were never updated — they are broken on the live
+# GitBook site today.
+#
+# Phase 7 repaired 22 of the original 24, two ways:
+#
+#   - where the section was renamed but stayed on the page, its old id was put
+#     back on the heading that replaced it, as `<a id="…"></a>`. That is the
+#     only repair that also fixes the indexed anchor URL, which no redirect
+#     can reach.
+#   - where the section moved to another page, the link was repointed.
+#
+# The two below are the ones the corpus does not answer. Repairing either
+# means writing a section that does not exist, which is a content decision:
+#
+#   - `#option-3-combining-git-and-shared-drives`: the page has no Option 3
+#     any more, and nothing on it describes combining git with a shared drive.
+#     The link text is "mix".
+#   - `#set-up-a-data-guide`: the Data Guide is mentioned twice in prose and
+#     has no section of its own.
 #
 # This list cannot rot quietly. `staleAnchorsStillStale()` in
 # `scripts/build_integrations.mjs` re-derives, on every build, whether each
@@ -26,27 +41,5 @@
 # Format: <page under src/content/docs/> <link exactly as authored>.
 # Blank lines and `#` comments are ignored.
 
-developers/kiln-datamodel.md                                 /docs/collaboration/#technical-collaboration-architecture
-docs/collaboration/index.md                                  /docs/collaboration/#option-1-use-git
-docs/collaboration/index.md                                  /docs/collaboration/#option-2-use-shared-drives-for-non-technical-team-members
 docs/collaboration/index.md                                  /docs/collaboration/#option-3-combining-git-and-shared-drives
-docs/evals-and-specs/evaluations.md                          /docs/evals-and-specs/evaluations/#iterate-and-expand
-docs/evals-and-specs/evaluations.md                          /docs/prompts/#custom-prompts-saved-prompts
-docs/evals-and-specs/evaluations.md                          /docs/prompts/#prompt-generators
-docs/evals-and-specs/evaluations.md                          /docs/synthetic-data-generation/#templates-and-custom-guidance
-docs/fine-tuning/fine-tuning-guide.md                        /docs/fine-tuning/fine-tuning-guide/#step-1-define-your-task-and-goals
-docs/fine-tuning/fine-tuning-guide.md                        /docs/models-and-ai-providers/#additional-fine-tuneable-models
-docs/fine-tuning/fine-tuning-guide.md                        /docs/synthetic-data-generation/#templates-and-custom-guidance
-docs/fine-tuning/guide-train-a-reasoning-model.md            /docs/models-and-ai-providers/#included-models-recommended
-docs/fine-tuning/guide-train-a-reasoning-model.md            /docs/prompts/#custom-prompts-saved-prompts
-docs/fine-tuning/guide-train-a-reasoning-model.md            /docs/reasoning-and-chain-of-thought/#what-are-reasoning-models-and-chain-of-thought
-docs/models-and-ai-providers.md                              /docs/models-and-ai-providers/#included-models-recommended
-docs/models-and-ai-providers.md                              /docs/models-and-ai-providers/#litellm
-docs/prompts.md                                              /docs/prompts/#custom-prompts
-docs/prompts.md                                              /docs/prompts/#prompt-generators
-docs/reasoning-and-chain-of-thought.md                       /docs/models-and-ai-providers/#included-models-recommended
-docs/repairing-responses.md                                  /docs/prompts/#prompt-builders-prompt-styles
-docs/reviewing-and-rating.md                                 /docs/prompts/#prompt-generators
-docs/structured-data-json.md                                 /docs/models-and-ai-providers/#included-models-recommended
-docs/structured-data-json.md                                 /docs/prompts/#custom-prompts-saved-prompts
-docs/synthetic-data-generation/generating-synthetic-data.md  /docs/synthetic-data-generation/generating-synthetic-data/#set-up-a-data-guide
+docs/synthetic-data-generation/generating-synthetic-data.md   /docs/synthetic-data-generation/generating-synthetic-data/#set-up-a-data-guide

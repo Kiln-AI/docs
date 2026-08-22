@@ -14,7 +14,7 @@ Want to dive in and build a reasoning model? See our [Guide for Training A Reaso
 
 Kiln has powerful support for reasoning models and chain of thought. These techniques can generate higher quality results, while also reducing costs and improving performance.
 
-<details>
+<details id="what-are-reasoning-models-and-chain-of-thought">
 
 <summary>What are reasoning models and chain of thought?</summary>
 

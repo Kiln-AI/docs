@@ -5,7 +5,7 @@ description: "How to use our prompt optimizer, prompt generators, or create your
 Kiln offers several methods to build and manage prompts
 
 * [Automatic Prompt Generator](/docs/prompts/automatic-prompt-optimizer/): Our state-of-the-art automatic prompt optimizer. We run iterative experiments and use evals to pinpoint and fix failure modes — **no manual prompting required**.
-* [Prompt Generators](/docs/prompts/#prompt-generators): Kiln can automatically generate many popular prompt styles from your task and dataset (few-shot, many-shot, chain of thought, chain of thought multi-shot, and more). The more you use your task, and rate the results, the richer your prompts become.
+* [Prompt Generators](/docs/prompts/prompt-generators/#prompt-generators): Kiln can automatically generate many popular prompt styles from your task and dataset (few-shot, many-shot, chain of thought, chain of thought multi-shot, and more). The more you use your task, and rate the results, the richer your prompts become.
 * [Custom Prompts](/docs/prompts/#custom-prompts): manually create, save and share any prompt.
 
 <figure>
@@ -14,7 +14,7 @@ Kiln offers several methods to build and manage prompts
 
 </figure>
 
-## Viewing, Managing & Sharing Prompts
+## Viewing, Managing & Sharing Prompts<a id="custom-prompts"></a><a id="custom-prompts-saved-prompts"></a>
 
 The "Prompts" tab in the UI lets you see and manage all of the prompts for the currently selected task.
 

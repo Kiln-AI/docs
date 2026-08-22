@@ -1,0 +1,101 @@
+---
+import { Image } from 'astro:assets';
+
+/**
+ * A link card with a cover image.
+ *
+ * GitBook's `<table data-view="cards">` widget rendered a grid of cards, each
+ * with a cover image, a bold title and a sentence. Starlight has `<LinkCard>`,
+ * which has no cover, so the two pages that used the widget
+ * (`docs/fine-tuning/index.mdx`, `docs/optimizers.mdx`) get this instead.
+ * Everything except the image follows `LinkCard`: the same borders, the same
+ * `::before` trick that makes the whole card the click target, the same hover.
+ *
+ * `cover` is an `ImageMetadata` — the page imports the file and passes the
+ * import. That is deliberately the plainest path through `astro:assets`, the
+ * same one a markdown image takes, so these covers are optimized like every
+ * other image on the site. They were the only ones that were not.
+ */
+interface Props {
+	title: string;
+	description: string;
+	href: string;
+	cover: ImageMetadata;
+}
+
+const { title, description, href, cover } = Astro.props;
+---
+
+<div class="cover-card">
+	<Image
+		class="cover"
+		src={cover}
+		alt=""
+		widths={[320, 480, 640]}
+		sizes="(min-width: 50rem) 22rem, 92vw"
+	/>
+	<div class="body">
+		<a href={href}>{title}</a>
+		<p class="description">{description}</p>
+	</div>
+</div>
+
+<style>
+	@layer starlight.components {
+		.cover-card {
+			display: flex;
+			flex-direction: column;
+			border: 1px solid var(--sl-color-gray-5);
+			border-radius: 0.5rem;
+			box-shadow: var(--sl-shadow-sm);
+			overflow: hidden;
+			position: relative;
+		}
+
+		.cover {
+			display: block;
+			width: 100%;
+			height: auto;
+			/* The card's own rounding is on the wrapper, which clips this. The
+			   site-wide `.sl-markdown-content img` radius would round the top
+			   corners a second time and show a sliver of card behind them. */
+			border-radius: 0;
+			border-bottom: 1px solid var(--sl-color-gray-5);
+		}
+
+		.body {
+			display: flex;
+			flex-direction: column;
+			gap: 0.5rem;
+			padding: 1rem;
+		}
+
+		a {
+			color: var(--sl-color-white);
+			font-weight: 600;
+			font-size: var(--sl-text-lg);
+			line-height: var(--sl-line-height-headings);
+			text-decoration: none;
+		}
+
+		/* Makes the whole card clickable while leaving one real link for
+		   assistive technology. Copied from Starlight's LinkCard, which cites
+		   https://github.com/withastro/starlight/issues/487. */
+		a::before {
+			content: '';
+			position: absolute;
+			inset: 0;
+		}
+
+		.description {
+			margin: 0;
+			color: var(--sl-color-gray-3);
+			line-height: 1.5;
+		}
+
+		.cover-card:hover {
+			background: var(--sl-color-gray-7, var(--sl-color-gray-6));
+			border-color: var(--sl-color-gray-2);
+		}
+	}
+</style>

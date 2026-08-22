@@ -1,0 +1,37 @@
+---
+title: "Fine Tuning"
+description: "Create custom fine-tuned models for your use case"
+---
+
+import { CardGrid } from '@astrojs/starlight/components';
+import CoverCard from '../../../../components/CoverCard.astro';
+import fineTuningGuideCover from '../../../../assets/tuning2.png';
+import reasoningModelCover from '../../../../assets/distill.png';
+import toolUseCover from '../../../../assets/MCP.png';
+
+Kiln makes it easy to fine-tune a wide variety of models like GPT-4o, Llama, Mistral, Gemma, and many more. Check out our fine tuning docs to get started:
+
+<CardGrid>
+  <CoverCard
+    title="Fine Tuning Guide"
+    description="Our end-to-end walkthrough of fine-tuning a model in Kiln. Includes generating training data."
+    href="/docs/fine-tuning/fine-tuning-guide/"
+    cover={fineTuningGuideCover}
+  />
+  <CoverCard
+    title="Train a Reasoning Model"
+    description="Using a process called distillation, create your own reasoning model."
+    href="/docs/fine-tuning/guide-train-a-reasoning-model/"
+    cover={reasoningModelCover}
+  />
+  <CoverCard
+    title="Fine Tune For Tool Use"
+    description="Train a model to use a specific set of tools, at the right time, with the right parameters."
+    href="/docs/fine-tuning/fine-tuning-for-tool-use/"
+    cover={toolUseCover}
+  />
+</CardGrid>
+
+:::tip
+**Before Fine-Tuning, consider using Kiln's** [**Automatic Prompt Optimizer**](/docs/prompts/automatic-prompt-optimizer/)**.** It has many of the benefits of fine-tuning (automated data driven optimization), while the result is much easier to deploy than a fine-tuned model.
+:::

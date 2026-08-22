@@ -28,7 +28,7 @@ Analysis:
 If you want to tune a reasoning model, see our [guide for training reasoning models](/docs/fine-tuning/guide-train-a-reasoning-model/). It includes notes about each step of this guide which are necessary to produce a reasoning model.
 :::
 
-### Step 1: Define your Task
+### Step 1: Define your Task<a id="step-1-define-your-task-and-goals"></a>
 
 First, we’ll need to define what the models should do. In Kiln we call this a “task definition”. Create a new task in the Kiln UI to get started, including a initial prompt and input/output schema.
 
@@ -175,7 +175,7 @@ Models and products are rarely perfect on their first try. When you find bugs or
 * Experiment with fine-tuning hyperparameters (see the "Advanced Options" section of the UI)
 * Experiment with shorter training prompts, which can reduce costs
 * For one-off bugs you encounter use Kiln to “[repair](/docs/repairing-responses/)” the issues. These get added to your training data for future iterations.
-* For recurring bugs/patterns, use [synthetic data generation](/docs/synthetic-data-generation/) to generate many samples of common bugs, ensure they have correct responses with [human guidance](/docs/synthetic-data-generation/#templates-and-custom-guidance), and add the results to the training set to prevent this class of issues in the future.
+* For recurring bugs/patterns, use [synthetic data generation](/docs/synthetic-data-generation/) to generate many samples of common bugs, ensure they have correct responses with [human guidance](/docs/synthetic-data-generation/generating-synthetic-data/#templates-and-custom-guidance), and add the results to the training set to prevent this class of issues in the future.
 * Rate your dataset using Kiln’s [rating system](/docs/reviewing-and-rating/), then build fine-tunes using only highly rated content.
 * Regenerate fine-tunes as your dataset grows and evolves
 * Try new foundation models (directly and with fine tuning) when new state of the art models are released.

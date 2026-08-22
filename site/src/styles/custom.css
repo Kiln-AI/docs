@@ -43,3 +43,34 @@ a.entry-link {
      intended 30px rhythm for single-line labels. */
   padding-block: calc(var(--spacing) * 1);
 }
+
+/* The same mistake as `a.entry-link` above, in the prev/next footer: the theme
+   sets `white-space: nowrap` and a fixed 2rem height on links whose labels are
+   page titles. On a 375px viewport seven pages were pushed sideways by one of
+   them -- `/docs/issues/` measured 542px of content in 375px of viewport --
+   which scrolls the body text off-screen too, not just the link. Let the
+   labels wrap, and let the box grow when they do; the two have to change
+   together, or the text wraps out of a box that cannot follow it. */
+.pagination-links {
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.pagination-links a {
+  white-space: normal;
+  height: auto;
+  min-height: 2rem;
+}
+
+/* The theme sizes the splash hero image with `.hero > img`, but in the
+   media-top layout the image is wrapped in a `.hero-image` div, so the child
+   combinator misses it: the image renders at its intrinsic 400px inside a
+   328px column and pushes the landing page sideways on a 375px viewport. Cap
+   it at the column instead of picking a new size, so the desktop hero -- which
+   already fits -- is unchanged. */
+.hero .hero-image {
+  max-width: 100%;
+}
+.hero .hero-image img {
+  max-width: 100%;
+  height: auto;
+}

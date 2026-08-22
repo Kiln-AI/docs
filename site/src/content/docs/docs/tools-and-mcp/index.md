@@ -135,7 +135,7 @@ If you want to view which tools were called, their arguments, and their results 
 
 Not all models are designed with tools in mind. Calling tools requires precise syntax and models that were not trained for tool-calling often fail. This makes it important to select a model with tool support.
 
-Kiln tests every model for its capabilities to minimize guesswork; you can read more about our testing methodology [here](https://kiln.tech/blog/i_wrote_2000_llm_test_cases_so_you_dont_have_to). You can view our [model library](https://app.gitbook.com/u/lbKlVk0pqscWejhogcdq9NRaUtP2) and filter to Capability=Tools to see which models and providers we suggest for tool calling.
+Kiln tests every model for its capabilities to minimize guesswork; you can read more about our testing methodology [here](https://kiln.tech/blog/i_wrote_2000_llm_test_cases_so_you_dont_have_to). You can view our [model library](https://kiln.tech/model_library) and filter to Capability=Tools to see which models and providers we suggest for tool calling.
 
 When you select a model in Kiln, you’ll see a warning if tools are not supported. While you can still try these models, they are likely to fail:
 

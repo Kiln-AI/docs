@@ -63,7 +63,7 @@ Models come in several flavours, from very easy to use, to advanced methods for 
 * [Custom OpenAI compatible servers](/docs/models-and-ai-providers/#custom-openai-compatible-servers)
   * [LiteLLM](/docs/models-and-ai-providers/#litellm) - Anthropic, Huggingface, VertexAI, TogetherAI, and more.
 
-### Included Models from the Model Library - Recommended
+### Included Models from the Model Library - Recommended<a id="included-models-recommended"></a>
 
 Included models are models that have been tested to work with Kiln's various features. These are the easiest to use, and generally won't result in errors.
 
@@ -80,7 +80,7 @@ View all available models in our [model library on our webpage](https://kiln.tec
 
 You can request we add models on our [Discord](https://kiln.tech/discord).
 
-### Fine-Tuneable Models
+### Fine-Tuneable Models<a id="additional-fine-tuneable-models"></a>
 
 The [model library](https://kiln.tech/model_library) or the models tab in app lists many of the of models that Kiln can fine-tune. Kiln can fine-tune even more models than shown in our library, including:
 
@@ -260,7 +260,7 @@ Hugging face has thousands of models. We've included a few of these common model
 
 Hugging face errors are not always descriptive - if you get 400 errors, it's likely the model you've selected requires a Hugging Face Pro subscription. Try the same model in their UI for a more helpful error message.
 
-### Custom OpenAI Compatible Servers
+### Custom OpenAI Compatible Servers<a id="litellm"></a>
 
 If you have an OpenAI compatible server (LiteLLM, vLLM, etc.), you can use it in Kiln.
 
