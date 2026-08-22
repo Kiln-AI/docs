@@ -98,7 +98,7 @@ If your eval goal can be stated as a rule, prefer a programmatic judge. If it ne
 An eval in Kiln has several datasets, each defining a subset of the items in your task's dataset:
 
 * **Test Dataset**: held-out data for measuring final quality. This is the data used when evaluating different methods of running your task, and the scores shown in the "Compare" view. Every eval needs one.
-* **Golden Dataset**: the data used when trying to find the best judge for this eval. These items have human ratings, so we can compare judges to human preference. Only needed if you're using an [LLM judge](llm-judges.md) — a programmatic judge has nothing to align.
+* **Golden Dataset**: the data used when trying to find the best judge for this eval. These items have human ratings, so we can compare judges to human preference.
 * **Training Dataset** \[optional]: used by optimizers, such as the [automatic prompt optimizer](../prompts/automatic-prompt-optimizer.md).
 * **Validation Dataset** \[optional]: also used by optimizers, to confirm a result generalizes beyond the data it was tuned on.
 
