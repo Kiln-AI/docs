@@ -1,5 +1,5 @@
 ---
-status: draft
+status: complete
 ---
 
 # Phase 7: Page-by-Page QA
@@ -259,10 +259,22 @@ it through `createRequire` so a global or `npx` install works, and says so
 plainly when it is absent instead of failing:
 
 ```
---browser needs Playwright, which is not installed. Static checks ran; layout
-checks did not. Install it with `npx playwright install chromium`, or drop
---browser.
+--browser needs Playwright, which is not installed. The static checks ran; the
+layout checks did not. Install it from `site/` with `npm install --no-save
+playwright && npx playwright install chromium` — the first command is the one
+this resolves, the second downloads the browser it drives — or drop --browser.
 ```
+
+Both commands, because they do different things: `npx playwright install
+chromium` downloads a browser binary and installs no package, and this resolves
+`playwright` through `site/node_modules` and its parents, which `npx` and
+global installs do not populate.
+
+The message is printed **after** the static report, not instead of it, and the
+run exits 2 rather than 0. The same holds for any other way the browser half
+can fail — a missing browser binary, a page that will not load — because a
+sweep that discards its own findings is the exact silent failure this tool
+exists to catch. Exit codes: 0 clean, 1 found something, 2 could not finish.
 
 `npm run qa` runs the static half. `npm test` gains the unit tests, not the
 sweep.
@@ -465,13 +477,24 @@ on the old page would send the reader to the wrong content.
 
 - `package.json`: `"qa": "node scripts/qa_pages.mjs"`, and the new test file in
   `test:js` (the existing glob already covers `scripts/*.test.mjs`).
-- `README.md`: a "Page QA" section covering what the sweep checks and what it
-  cannot; the list-item figure case under "Screenshots with a caption"; the
-  card-grid component under "Images"; the anchor count in "Still to do" moved
-  from 24 to 2, with the two survivors named; the `.mdx` pages noted where the
-  converter is described.
+- `README.md`: a "Page QA" section covering what the sweep checks, what it
+  cannot, its exit-code contract, why it is not a CI gate, and how to install
+  Playwright (both commands — the package *and* the browser binary); the
+  list-item figure case under "Screenshots with a caption"; the card-grid
+  component under "Images"; the anchor count in "Still to do" moved from 24 to
+  2, with the two survivors named; a `CoverCard.astro` row and a
+  `scripts/qa_pages.mjs` row in the Layout table.
+- **The `.mdx` warning belongs where phase 9 will be standing**, not only in
+  the plan: a subsection of "The GitBook converter", plus a pointer to it at
+  the paragraph that says pages can be copied in one at a time. It has to say
+  that copying the converter's `.md` in collides with the `.mdx`, and that
+  deleting the `.mdx` to resolve the collision silently restores the card
+  table this phase removed.
 - `ref/stale_anchors.txt`: 22 lines deleted, header updated so it no longer
   says phase 7 owns them.
+- **Exit codes are part of the contract** and are documented with the script:
+  0 clean, 1 found something, 2 could not finish. The findings print before the
+  reason in every case.
 
 ## Tests
 
@@ -528,6 +551,20 @@ catches:
   `test_a_missing_title_is_reported`.
 - `test_console_errors_are_reported`.
 - `test_a_clean_observation_produces_no_findings`.
+
+**The CLI** — spawned, because the exit-code contract and the
+report-before-you-fail ordering are behaviour that the pure functions cannot
+express, and both are what a later phase actually consumes:
+
+- `test_the_static_report_prints_and_exits_1` — findings on stdout, exit 1.
+- `test_browser_does_not_swallow_the_static_findings` — the same fixture with
+  `--browser` still prints both findings and still exits non-zero. Written so
+  it holds whether or not Playwright is installed on the machine running it.
+- `test_a_browser_that_fails_after_it_loads_does_not_swallow_them_either` — a
+  stub `playwright` whose `launch()` throws, resolved through `NODE_PATH` so
+  the test never touches the real install. This is the half-installed case (the
+  package present, the browser binary not), it is not a `QaError`, and catching
+  only `QaError` would print a bare stack trace and lose the findings.
 
 **Whole-corpus checks re-run after the change** — the phase's own acceptance,
 in the absence of a baseline:

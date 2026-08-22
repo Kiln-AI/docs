@@ -54,7 +54,7 @@ ability to convert anything else.
   `site/`, with preview deployments. Run `verify_redirects.mjs` against the
   preview URL. Document the deploy and cutover process.
 
-- [ ] **Phase 7: Page-by-page QA.** Work through all 45 pages against the
+- [x] **Phase 7: Page-by-page QA.** Work through all 45 pages against the
   baseline text and screenshot diffs. Fix rendering and styling issues; every
   page must meet or exceed the GitBook version. Prioritise by what the diffs
   flag rather than reviewing all 45 by eye. Interactive polish of sidebar,

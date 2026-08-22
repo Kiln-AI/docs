@@ -378,8 +378,32 @@ async function fixtureSite() {
   return root;
 }
 
-async function runCli(args) {
-  return run(process.execPath, [SCRIPT, ...args]).catch((error) => error);
+async function runCli(args, env) {
+  return run(process.execPath, [SCRIPT, ...args], { env: { ...process.env, ...env } }).catch(
+    (error) => error,
+  );
+}
+
+/**
+ * A `playwright` this project can resolve, whose `launch()` fails.
+ *
+ * Stands in for the common half-installed case — the package is there, the
+ * Chromium binary is not — which fails *after* the module has loaded, and so
+ * is not a `QaError`. Returned as a `NODE_PATH` value rather than written into
+ * `node_modules`, so the test never touches the real install.
+ */
+async function stubPlaywrightPath(root) {
+  const dir = path.join(root, 'stub', 'playwright');
+  await mkdir(dir, { recursive: true });
+  await writeFile(
+    path.join(dir, 'package.json'),
+    '{ "name": "playwright", "version": "0.0.0-stub", "main": "index.js" }',
+  );
+  await writeFile(
+    path.join(dir, 'index.js'),
+    "module.exports = { chromium: { launch: async () => { throw new Error('stub: Executable does not exist'); } } };",
+  );
+  return path.join(root, 'stub');
 }
 
 test('the static report is printed and exits non-zero', async () => {
@@ -399,4 +423,18 @@ test('--browser never swallows the static findings, however it ends', async () =
   assert.notEqual(result.code, 0);
   assert.match(result.stdout, /gitbook-card-table/);
   assert.match(result.stdout, /gitbook-hidden-column/);
+});
+
+test('a browser that fails after it loads does not swallow them either', async () => {
+  // The failure that is not a QaError: Playwright resolves, its browser binary
+  // does not exist. Catching only QaError would print nothing but a stack.
+  const root = await fixtureSite();
+  const result = await runCli(
+    ['--browser', '--content', `${root}/content`, '--dist', `${root}/dist`],
+    { NODE_PATH: await stubPlaywrightPath(root) },
+  );
+  assert.equal(result.code, 2);
+  assert.match(result.stdout, /gitbook-card-table/);
+  assert.match(result.stdout, /gitbook-hidden-column/);
+  assert.match(result.stderr, /could not finish/);
 });

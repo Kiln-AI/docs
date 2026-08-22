@@ -728,18 +728,30 @@ Findings print as failures; things it cannot verify print as **notes** and do
 not fail — external images (`img.shields.io`, `github.com/user-attachments`)
 are unreachable from this environment, and a check that cries wolf about them
 gets ignored. Exit codes: `1` means it found something, `2` means it could not
-finish, and in that case whatever it *did* find is still printed first.
+finish — and in that case whatever it *did* find is still printed first,
+whether the browser half failed because Playwright is missing, because its
+browser binary is missing, or because a page would not load. A run that
+discarded its own findings would be the same silent failure this tool exists to
+catch.
 
 **Playwright is not a dependency of this project** and `--browser` is opt-in.
 It is a large package with a browser download attached, this is a docs site,
 and CI already gates what must never regress. `--browser` resolves Playwright
 from wherever it is installed and says so plainly when it is not there, rather
-than failing with a stack trace — and it still prints the static findings it
-already has. Install it with:
+than failing with a stack trace. Installing it takes **both** commands, from
+`site/`:
 
 ```sh
-npx playwright install chromium
+npm install --no-save playwright   # the package `--browser` resolves
+npx playwright install chromium    # the browser binary that package drives
 ```
+
+`npx playwright install chromium` on its own is the tempting half and it does
+not work: it downloads a browser into Playwright's cache but installs no
+package, and the script resolves `playwright` the way `require` does — through
+`site/node_modules` and its parents, which neither an `npx` nor a global
+install populates. `--no-save` keeps it out of `package.json`, which is the
+point of not depending on it.
 
 `--base-url` points the same checks at a deployment instead of a local `dist`
 — **worth re-running against the Cloudflare preview and against production**,

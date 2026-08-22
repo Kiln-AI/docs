@@ -532,8 +532,9 @@ function loadPlaywright() {
 	} catch (cause) {
 		throw new QaError(
 			'--browser needs Playwright, which is not installed. The static checks ran; the ' +
-				'layout checks did not. Install it with `npx playwright install chromium`, or drop ' +
-				'--browser.',
+				'layout checks did not. Install it from `site/` with `npm install --no-save ' +
+				'playwright && npx playwright install chromium` — the first command is the one ' +
+				'this resolves, the second downloads the browser it drives — or drop --browser.',
 			{ cause },
 		);
 	}
@@ -623,19 +624,21 @@ async function main(args) {
 	console.log(`scanned ${pageCount} content files for residual GitBook markup`);
 
 	/**
-	 * A half that could not run at all — no Playwright, no `dist` to serve.
+	 * Why the browser half stopped, if it did.
 	 *
-	 * Held rather than thrown, because throwing here would discard the static
-	 * findings already collected. For a tool whose whole thesis is that markup
-	 * which degrades quietly raises no error anywhere, silently dropping its own
-	 * results is the one failure mode it cannot have.
+	 * Held rather than thrown, and held for *any* failure — Playwright missing,
+	 * its Chromium binary missing, `dist` unservable, a page that will not load.
+	 * Throwing would discard the static findings already collected, and for a
+	 * tool whose whole thesis is that markup which degrades quietly raises no
+	 * error anywhere, silently dropping its own results is the one failure mode
+	 * it cannot have. Narrowing this to `QaError` would leave the common case —
+	 * an installed Playwright with no browser downloaded — swallowing them again.
 	 */
 	let incomplete = null;
 	if (options.browser) {
 		try {
 			await sweepInBrowser(options, distDir, record);
 		} catch (error) {
-			if (!(error instanceof QaError)) throw error;
 			incomplete = error;
 		}
 	}
@@ -655,7 +658,9 @@ async function main(args) {
 	// 1: the sweep ran and found something. 2: the sweep could not finish, so a
 	// clean report means nothing — anything it did find is printed above first.
 	if (incomplete) {
-		console.error(`\n${incomplete.message}`);
+		// A QaError is a message written for this situation; anything else is a
+		// surprise, and a surprise needs its stack.
+		console.error(`\n${incomplete instanceof QaError ? incomplete.message : `--browser could not finish: ${incomplete?.stack ?? incomplete}`}`);
 		return 2;
 	}
 	if (failures.length > 0) return 1;
