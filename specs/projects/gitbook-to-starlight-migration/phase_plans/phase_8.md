@@ -114,22 +114,27 @@ for path in /docs/quickstart.md /docs/quickstart/index.md /docs/quickstart/; do
     "https://docs.kiln.tech$path"
 done
 
-# all 17 slashless alias-generated paths, recorded
+# all 17 slashless alias-generated paths, with where GitBook sent each one
 awk -F, '$4=="alias-generated" && $1 !~ /\/$/ {print $1}' redirects.csv \
 | while read -r path; do
-    printf '%s %s\n' \
-      "$(curl -sS -o /dev/null -w '%{http_code}' "https://docs.kiln.tech$path")" \
-      "$path"
+    printf '%s %s\n' "$path" \
+      "$(curl -sS -o /dev/null -w '%{http_code} %{redirect_url}' \
+           "https://docs.kiln.tech$path")"
   done | tee ref/alias_probe.txt
 ```
 
+`%{redirect_url}` is not optional: a `301` proves the alias existed but not
+where GitBook sent it, and the promotion step freezes our *inferred*
+destination as fact. See step 13.
+
 State what the alias probe is *for*, because it is counter-intuitive: a
 generated row for a URL GitBook never served is dead weight, not a defect —
-nothing links to it, so the rule never fires. The inferred rows can only be
-wrong by being **too few**. The probe's value is discovering aliases the
-pattern failed to generate, including the site-root form (`/fine-tuning-guide`
-rather than `/docs/fine-tuning-guide`) that phase 4 flagged and could not
-settle.
+`_alias_rows` already refuses to generate an alias that would shadow a real
+page, so an unused one costs nothing. The inferred rows can only be wrong by
+being **too few**. The probe's value is discovering aliases the pattern failed
+to generate, including the site-root form (`/fine-tuning-guide` rather than
+`/docs/fine-tuning-guide`) that phase 4 flagged and could not settle. Step 14
+has the full reasoning and its caveat.
 
 ### 3. Assemble the pre-cutover verification
 
@@ -359,7 +364,7 @@ here*.
 | `npm run qa -- --browser` is green | Ran, 46 pages × 2 viewports | No findings; only unreachable-external-image notes |
 | Both Playwright install commands work as written from `site/` | Ran both | Work; `--no-save` leaves `package-lock.json` byte-identical |
 | `npm run qa -- --base-url X` without `--browser` | Ran | **Silent no-op, exit 0** — fixed, step 8 |
-| `npm test` with Playwright installed | Ran | **Failed 1/44** in the JS suite — fixed, step 10 |
+| `npm test` with Playwright installed | Ran | **Failed 1 of 44 in `qa_pages.test.mjs`** — fixed, step 10 |
 | `--refresh-csv` is idempotent today | Ran in a scratch copy | No change to `redirects.csv` |
 | The disproved-alias settle-up works as documented | Simulated in a scratch copy: deleted both rows, added the exclusion, refreshed | Rows dropped correctly, 130 → 128 |
 | …and what it does to the verifier | Ran the verifier after | **Fails the 176 floor** — fixed, step 9 |
@@ -410,11 +415,18 @@ the checklist is on it by definition.
 
 For phase 9, and for whoever performs the cutover.
 
-- **This phase did not perform the cutover, and the implementation-plan
-  checkbox for phase 8 should not be ticked when this work is committed.** What
-  is complete is the runbook and the local verification; the outward-facing
-  half is a human's, and its evidence is a live `docs.kiln.tech` on Cloudflare
-  Pages, not a commit.
+- **This phase did not perform the cutover. The implementation-plan checkbox
+  for phase 8 stays UNTICKED, and this plan stays at `status: draft`, until a
+  human has actually completed the cutover.** That is not bookkeeping
+  pedantry: a ticked box is what a later agent reads as "`docs.kiln.tech`
+  serves Starlight and GitBook is gone", and acting on that while GitBook is
+  still live would skip group 1 and destroy evidence that cannot be recovered.
+
+  What is complete is the runbook and everything verifiable without an account.
+  What closes the box: group 1 run and its output saved, DNS moved,
+  `verify:redirects` green against production, the sitemap submitted, the 404
+  watch quiet for a full reporting cycle, and GitBook decommissioned. Its
+  evidence is a live site, not a commit.
 - **Phase 9 must not run before group 1.** The reconciliation diffs
   `origin/main` against the freeze commit `1dde281`. If group 1's probes add
   `gsc` or `alias` rows, they land in `redirects.csv` alongside that work, and

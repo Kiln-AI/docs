@@ -480,16 +480,33 @@ them like this rather than rebuilding:
 
 1. Add each newly discovered URL as a row with `source` set to `gsc`, `crawl`
    or `alias`.
-2. For a flat alias the probe **confirmed**, change that row's `source` from
-   `alias-generated` to `alias`. Refresh then leaves it alone instead of
-   regenerating it. Each alias has two rows, one per slash form, and they are
-   settled separately — promote the sibling only if the probe requested it too.
+2. For a flat alias the probe **confirmed** — meaning it answered with a
+   redirect *and* its recorded `Location` matches the row's `new_path` —
+   change that row's `source` from `alias-generated` to `alias`. Refresh then
+   leaves it alone instead of regenerating it. Each alias has two rows, one per
+   slash form, and they are settled separately — promote the sibling only if
+   the probe requested it too.
+
+   **A status code alone does not confirm a row.** Promotion freezes our
+   *inferred* destination as fact, so a row whose `Location` disagrees with its
+   `new_path` is a row that was **wrong**, not one that was confirmed: correct
+   `new_path` first, then promote. Nothing checks this for you — see the probe
+   command in
+   [group 1](#group-1--while-gitbook-is-still-live) for why the field is
+   recorded.
 3. For a flat alias the probe **disproved**, delete both of its rows and add
    the slashless path to `ref/alias_exclusions.txt`. One entry covers both
    forms; a row deleted without an entry comes back on the next refresh.
-4. Run `python3 scripts/build_redirects.py --refresh-csv`. It regenerates the
-   `sitemap`, `alias-generated` and `structural` rows from `ref/`, keeps every
-   other row verbatim, prints what changed, and rewrites `public/_redirects`.
+4. Run `python3 scripts/build_redirects.py --refresh-csv`. It regenerates
+   every row whose `source` is one of `sitemap`, `alias-generated`,
+   `structural` or `md-endpoint` — `GENERATED_SOURCES` in the script — keeps
+   the human-supplied rows (`alias`, `crawl`, `gsc`, `manual`) verbatim, prints
+   what changed, and rewrites `public/_redirects`.
+
+   Today **every** row is a generated one, so "keeps every other row verbatim"
+   currently preserves nothing: a refresh rewrites all 130. That matters during
+   a deliberate 302 window — see
+   [If it goes wrong](#if-it-goes-wrong-rolling-back).
 5. **Move the floor if the path count changed.** Step 3 removes rows, so a
    probe that disproves aliases drops the count below `--min-paths` and the
    verifier stops with `only N paths to check`. Put that `N` in the
