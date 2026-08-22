@@ -1,0 +1,228 @@
+[
+  {
+    "label": "Docs",
+    "items": [
+      {
+        "label": "Quickstart",
+        "link": "/docs/quickstart/"
+      },
+      {
+        "label": "Models and AI Providers",
+        "link": "/docs/models-and-ai-providers/"
+      },
+      {
+        "label": "End to End Project Demo",
+        "link": "/docs/end-to-end-project-demo/"
+      },
+      {
+        "label": "Optimizers",
+        "link": "/docs/optimizers/"
+      },
+      {
+        "label": "Fine Tuning",
+        "items": [
+          {
+            "label": "Overview",
+            "link": "/docs/fine-tuning/"
+          },
+          {
+            "label": "Fine Tuning Guide",
+            "link": "/docs/fine-tuning/fine-tuning-guide/"
+          },
+          {
+            "label": "Train a Reasoning Model",
+            "link": "/docs/fine-tuning/guide-train-a-reasoning-model/"
+          },
+          {
+            "label": "Fine Tuning for Tool Use",
+            "link": "/docs/fine-tuning/fine-tuning-for-tool-use/"
+          }
+        ],
+        "collapsed": true
+      },
+      {
+        "label": "Evals",
+        "items": [
+          {
+            "label": "Overview",
+            "link": "/docs/evals-and-specs/"
+          },
+          {
+            "label": "Evaluations",
+            "link": "/docs/evals-and-specs/evaluations/"
+          },
+          {
+            "label": "Eval Builder",
+            "link": "/docs/evals-and-specs/specifications/"
+          },
+          {
+            "label": "Judge Types",
+            "link": "/docs/evals-and-specs/judge-types/"
+          },
+          {
+            "label": "LLM Judges",
+            "link": "/docs/evals-and-specs/llm-judges/"
+          },
+          {
+            "label": "Code Judges",
+            "link": "/docs/evals-and-specs/code-judges/"
+          },
+          {
+            "label": "Evaluate RAG Accuracy: Q&A Evals",
+            "link": "/docs/evals-and-specs/evaluate-rag-accuracy-q-and-a-evals/"
+          },
+          {
+            "label": "Evaluate Appropriate Tool Use",
+            "link": "/docs/evals-and-specs/evaluate-appropriate-tool-use/"
+          }
+        ],
+        "collapsed": true
+      },
+      {
+        "label": "Tools & MCP",
+        "items": [
+          {
+            "label": "Overview",
+            "link": "/docs/tools-and-mcp/"
+          },
+          {
+            "label": "Code Tools",
+            "link": "/docs/tools-and-mcp/code-tools/"
+          },
+          {
+            "label": "Connect to Existing Agents",
+            "link": "/docs/tools-and-mcp/connect-to-existing-agents/"
+          }
+        ],
+        "collapsed": true
+      },
+      {
+        "label": "Prompts",
+        "items": [
+          {
+            "label": "Overview",
+            "link": "/docs/prompts/"
+          },
+          {
+            "label": "Automatic Prompt Optimizer",
+            "link": "/docs/prompts/automatic-prompt-optimizer/"
+          },
+          {
+            "label": "Prompt Generators",
+            "link": "/docs/prompts/prompt-generators/"
+          }
+        ],
+        "collapsed": true
+      },
+      {
+        "label": "Documents & Search (RAG)",
+        "link": "/docs/documents-and-search-rag/"
+      },
+      {
+        "label": "Agents",
+        "link": "/docs/agents/"
+      },
+      {
+        "label": "Skills",
+        "link": "/docs/skills/"
+      },
+      {
+        "label": "Synthetic Data Generation",
+        "items": [
+          {
+            "label": "Overview",
+            "link": "/docs/synthetic-data-generation/"
+          },
+          {
+            "label": "Synthetic Data Guides",
+            "link": "/docs/synthetic-data-generation/synthetic-data-guides/"
+          },
+          {
+            "label": "Generating Synthetic Data",
+            "link": "/docs/synthetic-data-generation/generating-synthetic-data/"
+          }
+        ],
+        "collapsed": true
+      },
+      {
+        "label": "Input Templates & Feature Engineering",
+        "link": "/docs/input-templates-and-feature-engineering/"
+      },
+      {
+        "label": "Issues",
+        "link": "/docs/issues/"
+      },
+      {
+        "label": "Reasoning & Chain of Thought",
+        "link": "/docs/reasoning-and-chain-of-thought/"
+      },
+      {
+        "label": "Reviewing and Rating",
+        "link": "/docs/reviewing-and-rating/"
+      },
+      {
+        "label": "Collaboration",
+        "items": [
+          {
+            "label": "Overview",
+            "link": "/docs/collaboration/"
+          },
+          {
+            "label": "Automatic Git Sync",
+            "link": "/docs/collaboration/automatic-git-sync/"
+          }
+        ],
+        "collapsed": true
+      },
+      {
+        "label": "Organizing Datasets",
+        "link": "/docs/organizing-datasets/"
+      },
+      {
+        "label": "Structured Data / JSON",
+        "link": "/docs/structured-data-json/"
+      },
+      {
+        "label": "Keyboard Shortcuts",
+        "link": "/docs/keyboard-shortcuts/"
+      },
+      {
+        "label": "Privacy",
+        "link": "/docs/privacy/"
+      },
+      {
+        "label": "Repairing Responses",
+        "link": "/docs/repairing-responses/"
+      },
+      {
+        "label": "Troubleshooting & Logs",
+        "link": "/docs/troubleshooting-and-logs/"
+      },
+      {
+        "label": "Productionizing Kiln",
+        "link": "/docs/productionizing-kiln/"
+      },
+      {
+        "label": "Contact Us",
+        "link": "/docs/contact-us/"
+      }
+    ]
+  },
+  {
+    "label": "Developers",
+    "items": [
+      {
+        "label": "Python Library Setup",
+        "link": "/developers/python-library-quickstart/"
+      },
+      {
+        "label": "Rest API",
+        "link": "/developers/rest-api/"
+      },
+      {
+        "label": "Kiln Data Model",
+        "link": "/developers/kiln-datamodel/"
+      }
+    ]
+  }
+]

@@ -10,8 +10,8 @@
   "scripts": {
     "convert": "python3 scripts/gitbook_to_starlight.py",
     "test": "python3 -m unittest discover -s scripts -p 'test_*.py' -t scripts",
-    "dev": "npm run convert && astro dev",
-    "build": "npm run convert && astro build",
+    "dev": "astro dev",
+    "build": "astro build",
     "preview": "astro preview",
     "serve": "npm run build && astro preview"
   },

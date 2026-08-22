@@ -4,12 +4,13 @@ import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
 import starlightThemeBlack from 'starlight-theme-black';
 
-// Generated from SUMMARY.md by scripts/gitbook_to_starlight.py.
+// Committed content, kept out of this file so the config stays readable.
+// Originally generated from GitBook's SUMMARY.md; edited by hand since.
 let sidebar;
 try {
   sidebar = JSON.parse(readFileSync(new URL('./sidebar.json', import.meta.url), 'utf8'));
-} catch {
-  throw new Error('sidebar.json is missing. Run `npm run convert` first.');
+} catch (cause) {
+  throw new Error('site/sidebar.json could not be read.', { cause });
 }
 
 export default defineConfig({
@@ -22,7 +23,9 @@ export default defineConfig({
       social: [
         { icon: 'github', label: 'GitHub', href: 'https://github.com/Kiln-AI/Kiln' },
       ],
-      editLink: { baseUrl: 'https://github.com/Kiln-AI/docs/edit/main/' },
+      // Starlight appends the page's path relative to this Astro project, not
+      // the repo, so the base URL has to carry the `site/` segment itself.
+      editLink: { baseUrl: 'https://github.com/Kiln-AI/docs/edit/main/site/' },
       plugins: [
         starlightThemeBlack({
           // Render sidebar groups as collapsible dropdowns rather than flat,

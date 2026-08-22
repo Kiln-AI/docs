@@ -43,16 +43,19 @@ def fake_repo():
         repo = pathlib.Path(root, "repo")
         (repo / "docs" / "fine-tuning").mkdir(parents=True)
         (repo / ".gitbook" / "assets").mkdir(parents=True)
-        (repo / ".gitbook" / "assets" / "shot.png").write_bytes(b"png")
+        for name in ("shot.png", "wide shot.png", "clip.mp4", "orphan.png"):
+            (repo / ".gitbook" / "assets" / name).write_bytes(b"bytes")
         (repo / "docs" / "one.md").write_text(
             "---\ndescription: First\n---\n\n# One\n\n"
-            "![](../.gitbook/assets/shot.png)\n\n[two](fine-tuning/two.md)\n")
+            "![](../.gitbook/assets/shot.png)\n\n"
+            "![](<../.gitbook/assets/wide shot.png>)\n\n"
+            '<video src="../.gitbook/assets/clip.mp4"></video>\n\n'
+            "[two](fine-tuning/two.md)\n")
         (repo / "docs" / "fine-tuning" / "two.md").write_text("# Two\n\nBody\n")
         (repo / "SUMMARY.md").write_text(
             "## Docs\n\n* [One](docs/one.md)\n* [Two](docs/fine-tuning/two.md)\n")
         site = repo / "site"
-        (site / "src" / "landing").mkdir(parents=True)
-        (site / "src" / "landing" / "index.mdx").write_text("---\ntitle: Home\n---\n")
+        (site / "src").mkdir(parents=True)
 
         with mock.patch.multiple(
             G,
@@ -261,14 +264,51 @@ class AssetTest(unittest.TestCase):
     def test_angle_bracket_asset_link(self):
         out = convert("# P\n\n![](<../.gitbook/assets/filter 2.png>)\n",
                       ctx=context(self.ASSETS))
-        self.assertIn("![](/assets/filter%202.png)", out)
+        self.assertIn("![](../../../assets/filter-2.png)", out)
+        self.assertNotIn(">", out.split("---\n")[-1])
 
     def test_asset_filename_containing_parentheses(self):
         out = convert("# P\n\n![](<../.gitbook/assets/"
                       "Screenshot 2025-01-05 at 12.18.52 PM (1).png>)\n",
                       ctx=context(self.ASSETS))
-        self.assertIn("Screenshot%202025-01-05%20at%2012.18.52%20PM%20%281%29.png", out)
+        self.assertIn("../../../assets/Screenshot-2025-01-05-at-12.18.52-PM-1.png", out)
         self.assertNotIn("%3E", out)
+
+    def test_markdown_image_points_into_src_assets(self):
+        ctx = context(self.ASSETS)
+        convert("# P\n\n![](<../.gitbook/assets/filter 2.png>)\n", ctx=ctx)
+        self.assertEqual(ctx.image_assets, {"filter 2.png"})
+        self.assertEqual(ctx.public_assets, set())
+
+    def test_html_img_src_stays_in_public_assets(self):
+        # Astro rewrites markdown image nodes and nothing else, so a raw <img>
+        # cannot use a relative src/assets path.
+        ctx = context(self.ASSETS)
+        out = convert('# P\n\n<img src="../.gitbook/assets/filter 2.png">\n', ctx=ctx)
+        self.assertIn('src="/assets/filter%202.png"', out)
+        self.assertEqual(ctx.public_assets, {"filter 2.png"})
+        self.assertEqual(ctx.image_assets, set())
+
+    def test_markdown_link_to_an_asset_stays_in_public_assets(self):
+        ctx = context(self.ASSETS)
+        out = convert("# P\n\n[the shot](<../.gitbook/assets/filter 2.png>)\n", ctx=ctx)
+        self.assertIn("](/assets/filter%202.png)", out)
+        self.assertEqual(ctx.public_assets, {"filter 2.png"})
+
+    def test_nested_image_link_rewrites_both_destinations(self):
+        # [![alt](image)](page.md): the inner target is an image, the outer is
+        # not, and folding the "!" into MD_LINK would stop matching the outer.
+        ctx = context(self.ASSETS, {"/docs/two/": "# Two\n"})
+        out = convert("# P\n\n[![shot](<../.gitbook/assets/filter 2.png>)](two.md)\n",
+                      ctx=ctx)
+        self.assertIn("[![shot](../../../assets/filter-2.png)](/docs/two/)", out)
+        self.assertEqual(ctx.image_assets, {"filter 2.png"})
+        self.assertEqual(ctx.public_assets, set())
+
+    def test_missing_asset_is_still_fatal_for_a_markdown_image(self):
+        ctx = context(self.ASSETS)
+        convert("# P\n\n![](../.gitbook/assets/nope.png)\n", ctx=ctx)
+        self.assertEqual(ctx.missing_assets, [("docs/page.md", "nope.png")])
 
     def test_asset_name_whitespace_is_normalised_to_the_real_file(self):
         ctx = context(self.ASSETS)
@@ -310,6 +350,97 @@ class AssetTest(unittest.TestCase):
         with contextlib.redirect_stderr(stderr):
             G.report(ctx, list_anchors=True)
         self.assertIn("/docs/x/#gone", stderr.getvalue())
+
+
+class AssetNameTest(unittest.TestCase):
+    """Astro resolves a markdown image path literally, so spaces are fatal."""
+
+    def test_unsafe_runs_become_single_hyphens(self):
+        self.assertEqual(
+            G.safe_asset_name("Screenshot 2025-01-05 at 12.18.52 PM (1).png"),
+            "Screenshot-2025-01-05-at-12.18.52-PM-1.png")
+
+    def test_narrow_no_break_space_is_folded_too(self):
+        self.assertEqual(
+            G.safe_asset_name("Screenshot 2025-11-14 at 1.33.24 PM.png"),
+            "Screenshot-2025-11-14-at-1.33.24-PM.png")
+
+    def test_a_clean_name_is_left_alone(self):
+        # 22 of the 68 images in src/assets are already safe; they must not churn.
+        for name in ("Agents-2.png", "synth_data-2.png", "eval_header.png"):
+            self.assertEqual(G.safe_asset_name(name), name)
+
+    def test_extension_is_lowercased(self):
+        self.assertEqual(G.safe_asset_name("CreateTask720.MP4"), "CreateTask720.mp4")
+
+    def test_near_collisions_stay_distinct(self):
+        self.assertNotEqual(G.safe_asset_name("synth_data-2 (1).png"),
+                            G.safe_asset_name("synth_data-2 (2).png"))
+
+    def test_src_asset_path_counts_the_page_depth(self):
+        # site/src/content/docs/<page> -> site/src/assets/<name>
+        self.assertEqual(G.src_asset_path("a.png", "top.md"), "../../assets/a.png")
+        self.assertEqual(G.src_asset_path("a.png", "docs/page.md"),
+                         "../../../assets/a.png")
+        self.assertEqual(G.src_asset_path("a.png", "docs/group/deep.md"),
+                         "../../../../assets/a.png")
+
+    def test_src_asset_path_follows_readme_to_index(self):
+        # docs/group/README.md is written as docs/group/index.md, one level in.
+        self.assertEqual(G.src_asset_path("a.png", "docs/group/README.md"),
+                         "../../../../assets/a.png")
+
+
+class FigureTest(unittest.TestCase):
+    ASSETS = {"shot.png": "shot.png", "wide shot.png": "wide shot.png"}
+
+    def figure(self, source, ctx=None):
+        return convert("# P\n\n" + source + "\n", ctx=ctx or context(self.ASSETS))
+
+    def test_figure_becomes_a_markdown_image(self):
+        out = self.figure('<figure><img src="../.gitbook/assets/shot.png" alt="">'
+                          "<figcaption></figcaption></figure>")
+        self.assertIn("<figure>\n\n![](../../../assets/shot.png)\n\n</figure>", out)
+        self.assertNotIn("<img", out)
+
+    def test_width_moves_onto_the_figure_as_css(self):
+        out = self.figure('<figure><img src="../.gitbook/assets/shot.png" alt="" '
+                          'width="375"><figcaption></figcaption></figure>')
+        self.assertIn('<figure style="max-width:375px">', out)
+        self.assertNotIn("width=", out)
+
+    def test_caption_is_preserved(self):
+        out = self.figure('<figure><img src="../.gitbook/assets/shot.png" alt="">'
+                          "<figcaption><p>Rating UI</p></figcaption></figure>")
+        self.assertIn("<figcaption><p>Rating UI</p></figcaption>\n</figure>", out)
+
+    def test_empty_caption_leaves_no_figcaption(self):
+        out = self.figure('<figure><img src="../.gitbook/assets/shot.png" alt="">'
+                          "</figure>")
+        self.assertNotIn("<figcaption>", out)
+
+    def test_alt_text_is_preserved(self):
+        out = self.figure('<figure><img src="../.gitbook/assets/shot.png" '
+                          'alt="Kiln Model Library"></figure>')
+        self.assertIn("![Kiln Model Library](../../../assets/shot.png)", out)
+
+    def test_a_filename_with_spaces_survives_the_handoff(self):
+        # The figure pass emits an angle-bracketed destination so the space
+        # reaches rewrite_references intact.
+        out = self.figure('<figure><img src="../.gitbook/assets/wide shot.png" '
+                          'alt=""></figure>')
+        self.assertIn("![](../../../assets/wide-shot.png)", out)
+
+    def test_embed_figure_keeps_its_html(self):
+        out = convert('# P\n\n{% embed url="https://vimeo.com/1" %}\nCap\n{% endembed %}\n')
+        self.assertIn("<figure><div", out)
+        self.assertIn("<figcaption><p>Cap</p></figcaption></figure>", out)
+
+    def test_a_figure_inside_a_code_fence_is_untouched(self):
+        source = ('# P\n\n```html\n<figure><img src="../.gitbook/assets/shot.png" '
+                  'alt=""></figure>\n```\n')
+        out = G.convert(source, "docs/page.md", context(self.ASSETS))
+        self.assertIn('<figure><img src="../.gitbook/assets/shot.png" alt=""></figure>', out)
 
 
 class FrontmatterTest(unittest.TestCase):
@@ -418,13 +549,25 @@ class EmbedTest(unittest.TestCase):
         self.assertNotIn("<figure>", out)
         self.assertIn("player.vimeo.com/video/1", out)
 
+    CDN_VIDEO = ("https://files.gitbook.com/v0/b/gitbook-x-prod.appspot.com/o/"
+                 "spaces%2FA%2Fuploads%2FB%2FCreateTask720.mp4?alt=media&token=x")
+
     def test_gitbook_cdn_video_points_at_the_local_copy(self):
-        url = ("https://files.gitbook.com/v0/b/gitbook-x-prod.appspot.com/o/"
-               "spaces%2FA%2Fuploads%2FB%2FCreateTask720.mp4?alt=media&token=x")
-        out = convert('# P\n\n{%% embed url="%s" %%}\nCreate a task\n{%% endembed %%}\n' % url)
+        ctx = context({"CreateTask720.mp4": "CreateTask720.mp4"})
+        out = convert('# P\n\n{%% embed url="%s" %%}\nCreate a task\n{%% endembed %%}\n'
+                      % self.CDN_VIDEO, ctx=ctx)
         self.assertIn('<video controls playsinline', out)
         self.assertIn('src="/assets/CreateTask720.mp4"', out)
         self.assertIn("<figcaption><p>Create a task</p></figcaption>", out)
+        # Videos are not optimizable, so they belong in public/assets -- and
+        # registering them there is what gets them copied at all.
+        self.assertEqual(ctx.public_assets, {"CreateTask720.mp4"})
+        self.assertEqual(ctx.missing_assets, [])
+
+    def test_a_cdn_video_with_no_local_copy_is_reported(self):
+        ctx = context()
+        convert('# P\n\n{%% embed url="%s" %%}\n' % self.CDN_VIDEO, ctx=ctx)
+        self.assertEqual(ctx.missing_assets, [("docs/page.md", "CreateTask720.mp4")])
 
 
 class ArgsTest(unittest.TestCase):
@@ -608,7 +751,8 @@ class OutTargetTest(unittest.TestCase):
                 silenced(lambda: G.main(["--out", str(wrapper)]))
 
             self.assertIn("outside the output directory", str(raised.exception))
-            self.assertEqual(sorted(os.listdir(repo / ".gitbook" / "assets")), ["shot.png"])
+            self.assertEqual(sorted(os.listdir(repo / ".gitbook" / "assets")),
+                             ["clip.mp4", "orphan.png", "shot.png", "wide shot.png"])
 
     def test_a_symlink_swapped_in_after_stamping_is_still_refused(self):
         # The stamp short-circuits stray_markdown, so on a re-run the write-time
@@ -726,6 +870,74 @@ class OutFlagTest(unittest.TestCase):
         message = out.getvalue()
         self.assertNotIn("Nothing else was written", message)
         self.assertIn("Left untouched:", message)
+
+
+class CopyAssetsTest(unittest.TestCase):
+    """The default run decides which of the 159 GitBook assets survive."""
+
+    def run_default(self):
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out), contextlib.redirect_stderr(io.StringIO()):
+            G.main([])
+        return out.getvalue()
+
+    def test_referenced_assets_land_in_the_right_tree(self):
+        with fake_repo():
+            self.run_default()
+            src = pathlib.Path(G.SRC_ASSETS)
+            public = pathlib.Path(G.ASSETS_OUT)
+            # Markdown images are optimizable, so they go to src/assets under a
+            # name Astro can resolve.
+            self.assertTrue((src / "shot.png").exists())
+            self.assertTrue((src / "wide-shot.png").exists())
+            self.assertFalse((src / "wide shot.png").exists())
+            # Everything Astro will not process is served verbatim.
+            self.assertEqual(sorted(p.name for p in public.iterdir()), ["clip.mp4"])
+
+    def test_unreferenced_assets_are_not_copied_but_are_reported(self):
+        with fake_repo():
+            printed = self.run_default()
+            self.assertFalse(pathlib.Path(G.SRC_ASSETS, "orphan.png").exists())
+            self.assertFalse(pathlib.Path(G.ASSETS_OUT, "orphan.png").exists())
+            self.assertIn("1 unreferenced asset(s)", printed)
+            self.assertIn("orphan.png", printed)
+
+    def test_the_original_assets_are_left_alone(self):
+        with fake_repo() as repo:
+            self.run_default()
+            self.assertEqual(
+                sorted(p.name for p in (repo / ".gitbook" / "assets").iterdir()),
+                ["clip.mp4", "orphan.png", "shot.png", "wide shot.png"])
+
+    def test_the_hero_image_is_still_copied(self):
+        with fake_repo():
+            self.run_default()
+            self.assertTrue(pathlib.Path(G.SRC_ASSETS, "hero.png").exists())
+
+    def test_a_stale_copy_does_not_survive_a_rerun(self):
+        with fake_repo():
+            self.run_default()
+            stale = pathlib.Path(G.SRC_ASSETS, "gone.png")
+            stale.write_bytes(b"stale")
+            self.run_default()
+            self.assertFalse(stale.exists())
+
+    def test_colliding_safe_names_fail_the_run(self):
+        with fake_repo() as repo:
+            assets = repo / ".gitbook" / "assets"
+            (assets / "wide-shot.png").write_bytes(b"bytes")
+            (repo / "docs" / "one.md").write_text(
+                "# One\n\n![](<../.gitbook/assets/wide shot.png>)\n\n"
+                "![](../.gitbook/assets/wide-shot.png)\n")
+            with self.assertRaises(SystemExit) as raised:
+                self.run_default()
+            self.assertIn("wide-shot.png", str(raised.exception))
+
+    def test_out_runs_copy_nothing(self):
+        with fake_repo(), tempfile.TemporaryDirectory() as scratch:
+            silenced(lambda: G.main(["--out", os.path.join(scratch, "out")]))
+            self.assertFalse(pathlib.Path(G.SRC_ASSETS).exists())
+            self.assertFalse(pathlib.Path(G.ASSETS_OUT).exists())
 
 
 class SidebarTest(unittest.TestCase):

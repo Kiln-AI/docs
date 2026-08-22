@@ -12,12 +12,18 @@
   --sl-color-accent-high: #211a63;
 }
 
-/* GitBook exported screenshots as <figure> blocks; give them some polish. */
+/* Screenshots are markdown images wrapped in a <figure>, which is what puts
+   them through Astro's optimizer. CommonMark ends the figure's HTML block at
+   the blank line before the image, so the image arrives inside a <p> of its
+   own; the figure owns the spacing, not that paragraph. */
 .sl-markdown-content img {
   border-radius: 8px;
 }
 .sl-markdown-content figure {
   margin: 1.5rem 0;
+}
+.sl-markdown-content figure p {
+  margin: 0;
 }
 .sl-markdown-content figcaption {
   font-size: var(--sl-text-sm);

@@ -1,16 +1,22 @@
 #!/usr/bin/env python3
 """Convert the GitBook docs in this repo into Astro Starlight content.
 
-Everything this writes is generated and gitignored. Re-run it any time the
-GitBook markdown changes:
-
-    cd site && npm run convert
+This produced the content now committed under site/src/content/docs, and it is
+no longer part of the build -- `npm run dev` and `npm run build` are plain Astro
+commands. It is kept only to reconcile GitBook pages that landed after the
+content freeze, which is what --out DIR is for. The default run rebuilds
+site/src/content/docs from scratch and refuses to start once that directory is
+committed, because it would delete hand-maintained content.
 
 Outputs:
-    site/src/content/docs/**   pages (converted markdown + the landing page)
-    site/src/assets/hero.png   landing page hero
-    site/public/assets/**      images and video copied from .gitbook/assets
+    site/src/content/docs/**   converted pages
+    site/src/assets/**         referenced images, renamed so Astro can optimize
+                               them, plus hero.png for the landing page
+    site/public/assets/**      referenced videos and anything else Astro will
+                               not process, copied verbatim
     site/sidebar.json          sidebar built from SUMMARY.md
+
+Unreferenced files in .gitbook/assets are reported and left alone.
 
 Run with --help for the flags. --out DIR is the safe one: it writes the
 converted pages to DIR and nothing else, deleting nothing, which is how late
@@ -230,8 +236,37 @@ def build_asset_index(directory=None):
     return index
 
 
-def asset_url(name):
+def public_asset_url(name):
+    """URL of an asset served verbatim out of site/public/assets."""
     return "/assets/" + urllib.parse.quote(name)
+
+
+# Everything outside this set is folded to a hyphen by safe_asset_name.
+UNSAFE_IN_ASSET_NAME = re.compile(r"[^A-Za-z0-9._-]+")
+
+
+def safe_asset_name(name):
+    """Asset filename -> a name Astro's image pipeline can actually resolve.
+
+    Astro optimizes an image only when it is written as a markdown image with a
+    relative path, and it resolves that path as a literal string through Vite.
+    A space anywhere in the filename fails the build -- percent-encoding and
+    <angle brackets> both fail the same way -- and most of the referenced files
+    are macOS screenshots whose names are full of spaces, parentheses and
+    U+202F. So the names change on the way into src/assets.
+    """
+    stem, ext = os.path.splitext(name)
+    stem = UNSAFE_IN_ASSET_NAME.sub("-", stem)
+    stem = re.sub(r"-{2,}", "-", stem).strip("-.")
+    return stem + ext.lower()
+
+
+def src_asset_path(name, relpath):
+    """Relative path from a converted page to its image in site/src/assets.
+
+    Two levels out of src/content/docs, plus one per directory the page sits in.
+    """
+    return "../" * (out_for(relpath).count("/") + 2) + "assets/" + safe_asset_name(name)
 
 
 # --- frontmatter ------------------------------------------------------------
@@ -346,6 +381,23 @@ class Conversion:
             self.anchors[url_for(rel)] = page_anchors(body)
         self.missing_assets = []
         self.unresolved_anchors = []
+        # Real on-disk filenames, split by where the reference needs them to
+        # live: src/assets goes through Astro's optimizer, public/assets does
+        # not. Only what lands in one of these is copied out of .gitbook.
+        self.image_assets = set()
+        self.public_assets = set()
+
+    def image_asset(self, relpath, name):
+        """An asset referenced as a markdown image -> its src/assets path."""
+        name = self.resolve_asset(relpath, name)
+        self.image_assets.add(name)
+        return src_asset_path(name, relpath)
+
+    def public_asset(self, relpath, name):
+        """An asset Astro cannot optimize -> its public/assets URL."""
+        name = self.resolve_asset(relpath, name)
+        self.public_assets.add(name)
+        return public_asset_url(name)
 
     def resolve_asset(self, relpath, name):
         if name in self.asset_names:
@@ -382,8 +434,13 @@ class Conversion:
             collected.append(item)
 
 
-def rewrite_target(target, relpath, ctx, page_url):
-    """Link destination -> rewritten URL, or None to leave it as written."""
+def rewrite_target(target, relpath, ctx, page_url, is_image=False):
+    """Link destination -> rewritten URL, or None to leave it as written.
+
+    `is_image` decides where an asset reference points. Astro rewrites markdown
+    image nodes and nothing else, so only those can use the relative src/assets
+    path that puts the file through the optimizer.
+    """
     if target.startswith("#"):
         return "#" + ctx.resolve_anchor(relpath, page_url, target[1:])
 
@@ -395,7 +452,8 @@ def rewrite_target(target, relpath, ctx, page_url):
 
     if ".gitbook/assets/" in target:
         name = urllib.parse.unquote(target.split(".gitbook/assets/")[-1])
-        return asset_url(ctx.resolve_asset(relpath, name))
+        place = ctx.image_asset if is_image else ctx.public_asset
+        return place(relpath, name)
 
     path, _, anchor = target.partition("#")
     if not path:
@@ -421,13 +479,32 @@ MD_LINK = re.compile(r"\]\((<[^<>\n]*>|[^()\s]*(?:\([^()\s]*\)[^()\s]*)*)\)")
 HTML_ATTR = re.compile(r'\b(src|href)="([^"]*)"')
 
 
+def is_image_destination(text, close):
+    """Is the `]` at index `close` the end of an image's alt text?
+
+    Walks back to the matching `[` rather than folding the `!` into MD_LINK,
+    which would stop matching the outer destination of a nested
+    `[![alt](a)](b)` -- a shape the corpus already contains.
+    """
+    depth = 0
+    for i in range(close, -1, -1):
+        if text[i] == "]" and not text[i - 1: i] == "\\":
+            depth += 1
+        elif text[i] == "[" and not text[i - 1: i] == "\\":
+            depth -= 1
+            if depth == 0:
+                return text[i - 1: i] == "!"
+    return False
+
+
 def rewrite_references(text, relpath, ctx, page_url):
     """Point every asset, page and anchor reference at its Starlight home."""
 
     def markdown(m):
         raw = m.group(1)
         target = raw[1:-1] if raw.startswith("<") else raw
-        rewritten = rewrite_target(target, relpath, ctx, page_url)
+        rewritten = rewrite_target(target, relpath, ctx, page_url,
+                                   is_image=is_image_destination(text, m.start()))
         return m.group(0) if rewritten is None else "](" + rewritten + ")"
 
     def attribute(m):
@@ -455,7 +532,7 @@ def outside_code(text, transform):
 # --- embeds -----------------------------------------------------------------
 
 
-def embed_html(url):
+def embed_html(url, relpath, ctx):
     """GitBook {% embed %} -> a real embed."""
     url = url.strip()
     frame = (
@@ -487,7 +564,7 @@ def embed_html(url):
         name = urllib.parse.unquote(m.group(1))
         return (
             '<video controls playsinline style="width:100%;border-radius:8px;'
-            'margin:1.5rem 0" src="' + asset_url(name) + '"></video>'
+            'margin:1.5rem 0" src="' + ctx.public_asset(relpath, name) + '"></video>'
         )
 
     return '<p><a href="%s">%s</a></p>' % (url, url)
@@ -502,19 +579,62 @@ CAPTIONED_EMBED = re.compile(
 )
 
 
-def convert_embeds(body):
+def convert_embeds(body, relpath, ctx):
     """GitBook embeds -> a figure, so the caption stays a caption."""
 
     def captioned(m):
         caption = html.escape(m.group(2).strip(), quote=False)
         return "<figure>%s<figcaption><p>%s</p></figcaption></figure>\n" % (
-            embed_html(m.group(1)),
+            embed_html(m.group(1), relpath, ctx),
             caption,
         )
 
     body = CAPTIONED_EMBED.sub(captioned, body)
-    body = re.sub(r'\{%\s*embed url="([^"]+)"\s*%\}', lambda m: embed_html(m.group(1)), body)
+    body = re.sub(r'\{%\s*embed url="([^"]+)"\s*%\}',
+                  lambda m: embed_html(m.group(1), relpath, ctx), body)
     return re.sub(r"\{%\s*endembed\s*%\}\n?", "", body)
+
+
+# --- figures ----------------------------------------------------------------
+
+
+# GitBook exported every screenshot as this one shape. Across the 45 pages the
+# only attributes that ever appear are src, alt and an optional width, and every
+# caption is a bare <figcaption><p>text</p></figcaption>.
+FIGURE_IMAGE = re.compile(
+    r'<figure><img src="(?P<src>[^"]*)" alt="(?P<alt>[^"]*)"'
+    r'(?: width="(?P<width>\d+)")?>'
+    r"(?:<figcaption>(?P<caption>.*?)</figcaption>)?</figure>",
+    re.S,
+)
+
+
+def convert_figures(body):
+    """<figure><img> -> a figure wrapped around a *markdown* image.
+
+    Astro only optimizes images written as markdown, so the <img> has to go.
+    The blank lines are load-bearing: a CommonMark HTML block ends at a blank
+    line, which is what lets the image parse as markdown while still nesting
+    inside the surrounding <figure>.
+
+    The width moves onto the figure as CSS. Keeping it as an <img width> would
+    force the image back to raw HTML and out of the optimizer, and a shared
+    stylesheet rule cannot stand in for it -- the 44 widths span 179-375px
+    across 12 distinct values, so one rule would visibly resize the narrow
+    screenshots.
+    """
+
+    def figure(m):
+        style = ' style="max-width:%spx"' % m.group("width") if m.group("width") else ""
+        caption = m.group("caption")
+        return "<figure%s>\n\n![%s](<%s>)\n\n%s</figure>" % (
+            style,
+            m.group("alt"),
+            m.group("src"),
+            "<figcaption>%s</figcaption>\n" % caption if caption else "",
+        )
+
+    return FIGURE_IMAGE.sub(figure, body)
 
 
 # --- page conversion --------------------------------------------------------
@@ -539,8 +659,12 @@ def convert(text, relpath, ctx):
         # {% code %} only carried display options; Expressive Code handles those.
         chunk = re.sub(r"\{%\s*code[^%]*%\}\n?", "", chunk)
         chunk = re.sub(r"\{%\s*endcode\s*%\}\n?", "", chunk)
-        chunk = convert_embeds(chunk)
+        chunk = convert_embeds(chunk, relpath, ctx)
         chunk = re.sub(r"\{%[^%]*%\}", "", chunk)
+        # Before rewrite_references, so the markdown image it produces is the
+        # thing that gets resolved -- asset resolution stays in one place, and
+        # the figure pass stays a pure structural transform.
+        chunk = convert_figures(chunk)
         chunk = rewrite_references(chunk, relpath, ctx, page_url)
         return chunk.replace(":desktop:", "\U0001f5a5️")
 
@@ -672,11 +796,11 @@ def path_within(root, relative):
     rather than by having listed the ways in.
 
     Scope, precisely. This gates everything written into the output directory --
-    the 45 pages, the stamp, and the landing-page copy -- which is the only
-    destination a caller supplies. `sidebar.json`, `src/assets/hero.png` and the
-    `public/assets` copytree do *not* go through it: their destinations are
-    module constants derived from `__file__`, never user input, and they are
-    written only on the default run, never under `--out`.
+    the 45 pages and the stamp -- which is the only destination a caller
+    supplies. `sidebar.json` and the copies into `src/assets` and
+    `public/assets` do *not* go through it: their destinations are module
+    constants derived from `__file__`, never user input, and they are written
+    only on the default run, never under `--out`.
 
     It remains a check-then-use assertion, not an atomic one. Nothing stops a
     concurrent writer with access to the output directory from swapping a
@@ -905,6 +1029,47 @@ def refuse_to_rebuild_committed_output():
             % (relative, detail, REPO, advice))
 
 
+def copy_assets(ctx):
+    """Copy the referenced assets out of .gitbook, and report what was left.
+
+    Images go to src/assets under a sanitized name so Astro's optimizer can
+    resolve them; videos and anything else Astro will not process go to
+    public/assets verbatim. Everything unreferenced stays behind -- it is
+    reported rather than quietly dropped, because this is the run that decides
+    which of the 159 files survive the migration.
+    """
+    for directory in (SRC_ASSETS, ASSETS_OUT):
+        if os.path.isdir(directory):
+            shutil.rmtree(directory)
+        os.makedirs(directory)
+
+    safe_names = {}
+    for name in sorted(ctx.image_assets):
+        safe = safe_asset_name(name)
+        if safe in safe_names:
+            raise SystemExit(
+                "Assets %r and %r both sanitize to %r. Rename one in "
+                ".gitbook/assets." % (safe_names[safe], name, safe))
+        safe_names[safe] = name
+        shutil.copy(os.path.join(GITBOOK_ASSETS, name), os.path.join(SRC_ASSETS, safe))
+
+    for name in sorted(ctx.public_assets):
+        shutil.copy(os.path.join(GITBOOK_ASSETS, name), os.path.join(ASSETS_OUT, name))
+
+    shutil.copy(os.path.join(GITBOOK_ASSETS, HERO_SOURCE),
+                os.path.join(SRC_ASSETS, "hero.png"))
+
+    referenced = ctx.image_assets | ctx.public_assets | {HERO_SOURCE}
+    unreferenced = sorted(set(os.listdir(GITBOOK_ASSETS)) - referenced)
+    print("Copied %d image(s) to %s and %d file(s) to %s."
+          % (len(os.listdir(SRC_ASSETS)), os.path.relpath(SRC_ASSETS, REPO),
+             len(os.listdir(ASSETS_OUT)), os.path.relpath(ASSETS_OUT, REPO)))
+    print("%d unreferenced asset(s) in %s were not copied:"
+          % (len(unreferenced), os.path.relpath(GITBOOK_ASSETS, REPO)))
+    for name in unreferenced:
+        print("  " + name)
+
+
 def list_sources(sources):
     """Print what would be converted. Diagnostic for a surprising page count."""
     try:
@@ -954,16 +1119,7 @@ def main(argv=None):
                  os.path.relpath(os.path.join(SITE, "sidebar.json"), REPO)))
         return
 
-    # Hand-written landing page (the GitBook card table doesn't convert).
-    shutil.copy(os.path.join(SITE, "src/landing/index.mdx"),
-                path_within(docs_out, "index.mdx"))
-
-    os.makedirs(SRC_ASSETS, exist_ok=True)
-    shutil.copy(os.path.join(GITBOOK_ASSETS, HERO_SOURCE), os.path.join(SRC_ASSETS, "hero.png"))
-
-    if os.path.isdir(ASSETS_OUT):
-        shutil.rmtree(ASSETS_OUT)
-    shutil.copytree(GITBOOK_ASSETS, ASSETS_OUT)
+    copy_assets(ctx)
 
     sidebar = build_sidebar(read(os.path.join(REPO, "SUMMARY.md")))
     with open(os.path.join(SITE, "sidebar.json"), "w") as f:
