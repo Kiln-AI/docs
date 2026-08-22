@@ -33,7 +33,7 @@ HINTS = {"info": "note", "success": "tip", "warning": "caution", "danger": "dang
 
 # Directory names never scanned for source markdown, at any depth. Dot
 # directories are skipped separately.
-SKIP_DIRS = {"site", "node_modules", "dist", "__pycache__", "venv", "env"}
+SKIP_DIRS = {"site", "specs", "node_modules", "dist", "__pycache__", "venv", "env"}
 
 # Image used for the landing page hero
 HERO_SOURCE = "App3.png"
