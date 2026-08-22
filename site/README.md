@@ -108,13 +108,29 @@ The 68 `<figure>` blocks in the source are left as raw HTML and render as-is,
 | Flag | Effect |
 | --- | --- |
 | `--list` | Print the source pages that would be converted; write nothing. Use it when the page count looks wrong. |
-| `--out DIR` | Write the converted pages to `DIR` and nothing else — no landing page, no assets, no `sidebar.json`, and no deletions. `--out=DIR` works too. |
+| `--out DIR` | Write the converted pages to `DIR` and nothing else — no landing page, no assets, no `sidebar.json`, and no deletions. `--out=DIR` works too. `DIR` must be outside the repo and must not already hold markdown; see below. |
 | `--anchors` | List every link pointing at an anchor no heading provides. Without it they are summarised in one line. |
 
 An argument the script does not recognise is an error, not a default run — and
 so is an empty `--out`, which is what an unset shell variable looks like. The
 default run starts by deleting `src/content/docs/`, and a typo must never reach
 it.
+
+`--out`'s target is validated in the same place, because the flag exists to make
+conversion safe and a bad target makes it the opposite. It is refused when it
+
+- **is inside the repo** (`--out .`, `--out $PWD`, `--out docs`,
+  `--out src/content/docs`). The converter reads the repo for source markdown,
+  so it would overwrite its own input — and `find_sources()` walks everything
+  outside `SKIP_DIRS`, so a scratch tree at the repo root would be read back as
+  source on the next run and silently double the page set;
+- **contains the repo** (`--out /`, `--out ~`);
+- **already holds markdown this converter did not write**, which would be
+  clobbered. A directory it wrote before carries a `.gitbook-to-starlight-out`
+  stamp, so re-running into the same scratch directory is fine;
+- **exists and is not a directory**.
+
+Use somewhere outside the checkout — `mktemp -d` is the obvious choice.
 
 That default run also refuses outright once `src/content/docs/` is committed to
 git, since at that point it is hand-maintained content. `npm run build` and

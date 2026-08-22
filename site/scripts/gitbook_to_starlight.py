@@ -124,8 +124,9 @@ def legacy_slugs(text):
 def page_anchors(body):
     """Page body -> (slugs Starlight will emit, {legacy slug: current slug})."""
     slugs, aliases, seen = set(), {}, {}
+    regions = code_regions(body)
 
-    for raw in headings(body):
+    for raw in headings(body, regions):
         text = heading_text(raw)
         # github-slugger disambiguates a repeated slug with a numeric suffix, and
         # records the suffixed result too -- so a literal "Overview 1" heading
@@ -142,7 +143,7 @@ def page_anchors(body):
     # GitBook pins some headings to a hand-written id with an inline anchor tag.
     # Scanned over the prose only: an id in a documented HTML sample is not an
     # anchor, and a phantom slug here would bless a dead link.
-    slugs.update(re.findall(r'\bid="([^"]+)"', without_code(body)))
+    slugs.update(re.findall(r'\bid="([^"]+)"', without_code(body, regions)))
 
     return slugs, {legacy: slug for legacy, slug in aliases.items() if legacy not in slugs}
 
@@ -170,25 +171,25 @@ def code_regions(text):
     return regions
 
 
-def without_code(text):
+def without_code(text, regions=None):
     """The text with every fenced code block removed."""
     parts, last = [], 0
-    for start, end in code_regions(text):
+    for start, end in code_regions(text) if regions is None else regions:
         parts.append(text[last:start])
         last = end
     parts.append(text[last:])
     return "".join(parts)
 
 
-def heading_matches(text):
+def heading_matches(text, regions=None):
     """Every ATX heading match outside a fenced code block."""
-    regions = code_regions(text)
+    regions = code_regions(text) if regions is None else regions
     return [m for m in ATX_HEADING.finditer(text)
             if not any(start <= m.start() < end for start, end in regions)]
 
 
-def headings(text):
-    return [m.group(2) for m in heading_matches(text)]
+def headings(text, regions=None):
+    return [m.group(2) for m in heading_matches(text, regions)]
 
 
 def lift_title(body):
@@ -212,13 +213,17 @@ def normalize_asset_name(name):
     return re.sub(r"\s+", " ", name).strip()
 
 
-def build_asset_index(directory=GITBOOK_ASSETS):
+def build_asset_index(directory=None):
     """Real filename, keyed by its normalized form.
 
     Screenshot filenames from macOS contain U+202F (narrow no-break space) where
     the markdown that references them was written with a plain space. GitBook's
     CDN papered over the difference; a static host will not.
     """
+    # Resolved at call time, not bound as a default: the module constant is what
+    # callers (and tests) repoint, and a default argument would freeze the value
+    # this module happened to have at import.
+    directory = GITBOOK_ASSETS if directory is None else directory
     index = {}
     for name in sorted(os.listdir(directory)):
         index.setdefault(normalize_asset_name(name), name)
@@ -255,11 +260,17 @@ def parse_frontmatter(text):
     is no yaml module in the standard library.
 
     Supported: `key: value` at the top level, with plain, single-quoted,
-    double-quoted, folded (`>`) and literal (`|`) scalars. Deliberately not
-    supported, because GitBook emits none of it and a page relying on it should
-    fail loudly rather than parse into something plausible: nested mappings,
-    sequences, anchors and aliases, explicit tags, multi-line plain scalars, and
-    the indentation-indicator form of a block header (`>2`).
+    double-quoted, folded (`>`) and literal (`|`) scalars, including the escapes
+    a double-quoted scalar can carry. Not supported, because GitBook emits none
+    of it: nested mappings, sequences, anchors and aliases, and explicit tags --
+    all of which are skipped rather than parsed, so a page that grows one would
+    silently lose the field rather than mis-set it.
+
+    Two deliberate approximations, verified against PyYAML to make no difference
+    over the current 46 files: chomping indicators are accepted and ignored
+    (every value is stripped, so a trailing newline would be dropped anyway), and
+    a more-indented continuation line inside a folded block is folded rather than
+    kept as a literal break.
     """
     m = FRONTMATTER.match(text)
     if not m:
@@ -305,14 +316,18 @@ def fold(lines):
 # backslash is passed through as the character itself.
 DOUBLE_QUOTED_ESCAPES = {"n": "\n", "t": "\t", "r": "\r", "0": "\0"}
 
+UNICODE_ESCAPE = re.compile(r"\\(?:x([0-9a-fA-F]{2})|u([0-9a-fA-F]{4})|U([0-9a-fA-F]{8}))")
+
 
 def unquote_scalar(value):
     if len(value) >= 2 and value[0] == value[-1] == "'":
         return value[1:-1].replace("''", "'")
     if len(value) >= 2 and value[0] == value[-1] == '"':
+        inner = UNICODE_ESCAPE.sub(
+            lambda m: chr(int(next(g for g in m.groups() if g), 16)), value[1:-1])
         return re.sub(r"\\(.)",
                       lambda m: DOUBLE_QUOTED_ESCAPES.get(m.group(1), m.group(1)),
-                      value[1:-1])
+                      inner)
     return value
 
 
@@ -369,15 +384,18 @@ class Conversion:
 
 def rewrite_target(target, relpath, ctx, page_url):
     """Link destination -> rewritten URL, or None to leave it as written."""
-    if ".gitbook/assets/" in target:
-        name = urllib.parse.unquote(target.split(".gitbook/assets/")[-1])
-        return asset_url(ctx.resolve_asset(relpath, name))
-
     if target.startswith("#"):
         return "#" + ctx.resolve_anchor(relpath, page_url, target[1:])
 
+    # Before the asset check: an absolute URL that happens to contain
+    # ".gitbook/assets/" belongs to somebody else's site, and rewriting it to a
+    # local path would turn a working link into a fatal missing-asset error.
     if not target or EXTERNAL_TARGET.match(target):
         return None
+
+    if ".gitbook/assets/" in target:
+        name = urllib.parse.unquote(target.split(".gitbook/assets/")[-1])
+        return asset_url(ctx.resolve_asset(relpath, name))
 
     path, _, anchor = target.partition("#")
     if not path:
@@ -603,15 +621,82 @@ def find_sources():
 # --- entry point ------------------------------------------------------------
 
 
+# Written into an --out directory so a re-run can tell its own output apart from
+# markdown that was already there.
+OUT_STAMP = ".gitbook-to-starlight-out"
+
+
+def is_within(parent, child):
+    """Is `child` at or below `parent`? Both must be absolute."""
+    try:
+        return os.path.commonpath([parent, child]) == parent
+    except ValueError:
+        return False
+
+
+def stray_markdown(directory):
+    """The first .md file under `directory` that this converter did not write."""
+    if not os.path.isdir(directory) or os.path.exists(os.path.join(directory, OUT_STAMP)):
+        return None
+    for root, dirs, files in os.walk(directory):
+        dirs[:] = [d for d in dirs if not d.startswith(".")]
+        for name in sorted(files):
+            if name.endswith(".md"):
+                return os.path.join(root, name)
+    return None
+
+
+def unusable_out_dir(target):
+    """Why `target` is unsafe to write converted pages into, or None if it is fine.
+
+    Every check lives here rather than at the call sites. --out has now failed
+    open three ways -- a missing value, an empty value, and a target that
+    overwrites real files -- and the third one rewrote 40 tracked GitBook source
+    pages in place while the run reported that nothing had been written. The
+    common shape is a caller reading a value it never validated, so validation
+    happens once, before anything can act on it.
+    """
+    repo = os.path.realpath(REPO)
+    resolved = os.path.realpath(target)
+
+    if is_within(repo, resolved):
+        # `--out .`, `--out $PWD`, `--out docs`, `--out src/content/docs`.
+        # Writing here overwrites the converter's own input or its hand-edited
+        # output, and the tree becomes the next run's input too: find_sources()
+        # walks everything outside SKIP_DIRS, so a scratch directory at the repo
+        # root silently doubles the page set.
+        return ("%s is inside the repo. The converter reads the repo for source "
+                "markdown, so it would overwrite its own input and then read the "
+                "output back as source. Use a directory outside %s." % (resolved, repo))
+
+    if is_within(resolved, repo):
+        # `--out /`, `--out ~`.
+        return ("%s contains the repo, so writing the converted tree into it "
+                "would overwrite the source markdown. Use a directory outside %s."
+                % (resolved, repo))
+
+    if os.path.exists(resolved) and not os.path.isdir(resolved):
+        return "%s exists and is not a directory." % resolved
+
+    stray = stray_markdown(resolved)
+    if stray:
+        return ("%s already contains markdown this converter did not write (%s). "
+                "Use an empty or new directory so nothing is overwritten."
+                % (resolved, stray))
+
+    return None
+
+
 def parse_args(argv):
-    """Parse the command line.
+    """Parse and validate the command line.
 
     argparse rather than hand-rolled matching because the failure mode matters:
     an unrecognised argument -- `--out=DIR` under a hand-rolled `--out` check, or
     a typo like `--outt` -- used to fall through to the default run, which starts
     by deleting src/content/docs. The functional spec forbids that once content
     is hand-edited, so an argument this parser does not understand is an error,
-    never a silent full rebuild.
+    never a silent full rebuild. --out's target is validated here too, for the
+    same reason: one place says no, and it says no before anything writes.
     """
     parser = argparse.ArgumentParser(
         prog="gitbook_to_starlight.py",
@@ -622,18 +707,24 @@ def parse_args(argv):
         help="print the source pages that would be converted, then exit")
     parser.add_argument(
         "--out", metavar="DIR",
-        help="write the converted pages to DIR and nothing else, deleting nothing")
+        help="write the converted pages to DIR and nothing else. DIR must be "
+             "outside the repo and must not already hold markdown.")
     parser.add_argument(
         "--anchors", action="store_true",
         help="list every link pointing at an anchor no heading provides")
     args = parser.parse_args(argv)
+
     if args.out is not None:
-        # An empty --out is almost always an unset shell variable, and truthiness
-        # checks downstream would read it as "no --out given" and rebuild the
-        # site. Reject it here so there is one place that can say no.
-        if not args.out.strip():
+        # Strip before resolving: an unset shell variable arrives as "" or "  ",
+        # and abspath of a padded value silently lands somewhere else entirely.
+        target = args.out.strip()
+        if not target:
             parser.error("--out needs a directory")
-        args.out = os.path.abspath(args.out)
+        args.out = os.path.abspath(target)
+        unusable = unusable_out_dir(args.out)
+        if unusable:
+            parser.error("--out %s" % unusable)
+
     return args
 
 
@@ -660,24 +751,57 @@ def report(ctx, list_anchors=False):
                          % len(ctx.missing_assets))
 
 
-def tracked_in_git(path):
-    """Does git have committed files under `path`?
+TRACKED, UNTRACKED, UNKNOWN = "tracked", "untracked", "unknown"
 
-    From phase 3 on, src/content/docs is committed, hand-maintained content, and
-    the functional spec forbids a destructive full re-run over it. `npm run
-    build` and `npm run dev` both shell out to this script, so the refusal has to
-    live here rather than in a habit. If git cannot answer -- not installed, not
-    a checkout -- this reports False and the run proceeds as before, because a
-    missing tool is not evidence of hand-edited content.
+
+def git_status_of(path):
+    """(state, detail) for whether git has committed files under `path`.
+
+    UNKNOWN means git could not answer, which is not the same as "no": it covers
+    git missing entirely, and also a real checkout where git failed -- dubious
+    ownership when a container runs as a different uid than the checkout owner, a
+    held index.lock, a damaged index. The caller decides what to do with each,
+    because reading UNKNOWN as UNTRACKED is how committed content gets deleted.
     """
     try:
         found = subprocess.run(
             ["git", "ls-files", "--", path],
             cwd=REPO, capture_output=True, text=True, timeout=30,
         )
-    except (OSError, subprocess.SubprocessError):
-        return False
-    return found.returncode == 0 and bool(found.stdout.strip())
+    except (OSError, subprocess.SubprocessError) as error:
+        return UNKNOWN, str(error)
+    if found.returncode != 0:
+        return UNKNOWN, found.stderr.strip() or "git exited %d" % found.returncode
+    return (TRACKED if found.stdout.strip() else UNTRACKED), ""
+
+
+def refuse_to_rebuild_committed_output():
+    """Stop the destructive run when src/content/docs is hand-maintained content.
+
+    From phase 3 on it is committed, and the functional spec forbids a full
+    re-run over it. `npm run build` and `npm run dev` both shell out to this
+    script, so the refusal has to live here rather than in a habit.
+    """
+    relative = os.path.relpath(DOCS_OUT, REPO)
+    advice = ("Convert into a scratch directory instead:\n"
+              "    python3 scripts/gitbook_to_starlight.py --out DIR\n"
+              "and copy in only the pages you actually need.")
+
+    state, detail = git_status_of(DOCS_OUT)
+    if state == TRACKED:
+        raise SystemExit(
+            "%s is committed to git, so it is hand-maintained content and a full\n"
+            "re-run would delete it. %s" % (relative, advice))
+
+    if state == UNKNOWN and os.path.isdir(os.path.join(REPO, ".git")):
+        # A checkout whose git we cannot query. Refusing costs a build; guessing
+        # "not committed" costs the content this guard exists to protect.
+        raise SystemExit(
+            "This is a git checkout, but git could not say whether %s is\n"
+            "committed: %s\n"
+            "Refusing to delete and rebuild it on a guess. Fix git (a dubious-ownership\n"
+            "checkout needs `git config --global --add safe.directory %s`), or:\n%s"
+            % (relative, detail, REPO, advice))
 
 
 def list_sources(sources):
@@ -701,13 +825,8 @@ def main(argv=None):
         list_sources(sources)
         return
 
-    if args.out is None and tracked_in_git(DOCS_OUT):
-        raise SystemExit(
-            "%s is committed to git, so it is hand-maintained content and a full\n"
-            "re-run would delete it. Convert into a scratch directory instead:\n"
-            "    python3 scripts/gitbook_to_starlight.py --out DIR\n"
-            "and copy in only the pages you actually need." % os.path.relpath(DOCS_OUT, REPO)
-        )
+    if args.out is None:
+        refuse_to_rebuild_committed_output()
 
     # Convert everything before writing anything, so a missing asset stops the
     # run instead of leaving a half-written tree behind.
@@ -727,8 +846,14 @@ def main(argv=None):
             f.write(converted)
 
     if args.out is not None:
-        print("Converted %d pages into %s. Nothing else was written or deleted."
-              % (len(pages), docs_out))
+        with open(os.path.join(docs_out, OUT_STAMP), "w") as f:
+            f.write("Converted pages written by site/scripts/gitbook_to_starlight.py"
+                    " --out. Safe to delete.\n")
+        print("Converted %d pages into %s.\nLeft untouched: %s, %s, %s."
+              % (len(pages), docs_out,
+                 os.path.relpath(DOCS_OUT, REPO),
+                 os.path.relpath(ASSETS_OUT, REPO),
+                 os.path.relpath(os.path.join(SITE, "sidebar.json"), REPO)))
         return
 
     # Hand-written landing page (the GitBook card table doesn't convert).

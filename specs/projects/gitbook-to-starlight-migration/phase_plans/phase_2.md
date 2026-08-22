@@ -278,19 +278,40 @@ concentrated in links, assets, titles, and frontmatter.
    `src/content/docs/`. The functional spec forbids that once content is
    hand-edited. For the same reason `parse_args` rejects an empty `--out` (an
    unset `$SCRATCH` in the phase 9 script) and `main` tests `args.out is None`
-   rather than its truthiness. Documented in the module docstring and in
-   `site/README.md`.
+   rather than its truthiness.
+
+   **`--out`'s target is validated in the same place**, and this is the third
+   face of the same fail-open class — after a missing value and an empty value,
+   a *valid-looking but destructive* target. `--out .` at the repo root rewrote
+   40 tracked GitBook source pages in place during review while the run reported
+   that nothing had been written. `unusable_out_dir(target)` refuses a target
+   that is inside the repo, contains the repo, is not a directory, or already
+   holds markdown the converter did not write; the value is stripped before
+   `abspath`, so `--out " /tmp/x "` cannot resolve to an in-repo path. A
+   directory the converter wrote carries a `.gitbook-to-starlight-out` stamp so
+   re-runs are still idempotent. Rejecting in-repo targets also closes the
+   quieter half of the bug: `find_sources()` prunes only `SKIP_DIRS`, so a
+   scratch tree at the repo root would be read back as source and double the
+   page set. The completion message no longer claims "Nothing else was written
+   or deleted" — it names what it left untouched. Documented in the module
+   docstring and in `site/README.md`.
 
 11. **Refuse the destructive run over committed content.** `npm run build` and
    `npm run dev` both shell out to this script, so from phase 3 on the ordinary
    build a contributor or CI runs would `rmtree` the hand-maintained
-   `src/content/docs/` and regenerate it from `docs/`. `tracked_in_git(DOCS_OUT)`
-   asks git whether the output is committed, and the default run exits with the
-   `--out DIR` instruction if it is. `--out` runs skip the check — they delete
-   nothing. If git cannot answer (not installed, not a checkout) the check
-   reports False and the run proceeds, because a missing tool is not evidence of
-   hand-edited content. This is a backstop, not the plan: unwiring `convert`
-   from `build`/`dev` is now an explicit phase 3 step.
+   `src/content/docs/` and regenerate it from `docs/`. `git_status_of(DOCS_OUT)`
+   returns `TRACKED`, `UNTRACKED` or `UNKNOWN`, and the default run exits with
+   the `--out DIR` instruction on `TRACKED`. `--out` runs skip the check — they
+   delete nothing.
+
+   `UNKNOWN` is deliberately not folded into `UNTRACKED`: it covers git missing
+   entirely *and* a real checkout where git failed — dubious ownership when a
+   container runs as a different uid than the checkout owner, a held
+   `index.lock`, a damaged index. Those are exactly the CI and Docker conditions
+   this guard exists for, so when `.git` is present and git could not answer the
+   run refuses and prints git's own stderr; with no `.git` it proceeds, because a
+   missing tool is not evidence of hand-edited content. This is a backstop, not
+   the plan: unwiring `convert` from `build`/`dev` is an explicit phase 3 step.
 
 12. **`site/package.json`** gains `"test": "python3 -m unittest discover -s
    scripts -p 'test_*.py' -t scripts"`.
@@ -346,7 +367,12 @@ honest:
   `test_html_anchor_href_with_parent_segments_is_rewritten`,
   `test_markdown_link_to_md_is_rewritten`.
 - `test_external_and_absolute_targets_are_untouched`,
-  `test_link_to_missing_page_is_untouched`.
+  `test_link_to_missing_page_is_untouched`,
+  `test_html_anchor_href_to_a_missing_directory_is_untouched`.
+- `test_external_url_containing_the_asset_path_is_not_localised` — an absolute
+  URL that happens to contain `.gitbook/assets/` belongs to someone else's site;
+  the external check runs first so it is not rewritten to a local path and then
+  reported as a fatal missing asset.
 - `test_angle_bracket_asset_link` — `](<../.gitbook/assets/filter 2.png>)`
   produces `/assets/filter%202.png` with no stray `>`.
 - `test_asset_filename_containing_parentheses`.
@@ -362,7 +388,7 @@ honest:
 - `test_folded_block_description_is_joined`,
   `test_folded_block_treats_a_blank_line_as_a_line_break`,
   `test_literal_block_description_keeps_line_breaks`,
-  `test_double_quoted_escapes_are_decoded`,
+  `test_double_quoted_escapes_are_decoded` (including `\uXXXX` and `\xXX`),
   `test_single_quoted_description_keeps_inner_quotes`,
   `test_plain_description_is_passed_through`,
   `test_page_without_description_omits_the_field`.
@@ -391,25 +417,48 @@ honest:
 - `test_empty_out_is_rejected` — `--out ""`, `--out "   "` and `--out=` all
   raise. An empty value is an unset shell variable, and reading it as "no --out"
   would rebuild the site in place.
+- `OutTargetTest` — the target validation, every case run against a fixture repo
+  so the assertions can check the source files afterwards:
+  `test_the_repo_itself_is_rejected` (the one that really fired, and it asserts
+  the fixture's source page is still intact), `test_a_directory_inside_the_repo_is_rejected`
+  (`scratch`, `docs`, `site/src/content/docs`),
+  `test_an_ancestor_of_the_repo_is_rejected`,
+  `test_a_directory_holding_foreign_markdown_is_rejected` (and that the foreign
+  file is untouched), `test_an_existing_file_is_rejected`,
+  `test_padding_is_stripped_before_the_path_is_resolved`,
+  `test_a_fresh_directory_is_accepted`, and
+  `test_rerunning_into_our_own_output_is_accepted` via the stamp file.
+- `test_the_completion_message_does_not_overclaim` — the run must not say
+  "Nothing else was written" when it may have written outside the scratch tree.
 - `test_unknown_arguments_are_rejected` — `--outt DIR`, bare `garbage`, and a
   trailing unknown flag all raise rather than falling through to the run that
   deletes `src/content/docs/`.
 - `test_out_writes_pages_only_and_touches_nothing_else` — runs `main()` for
-  real against a temp directory with `shutil.rmtree`/`copy`/`copytree` patched,
-  asserting none is called, a sentinel file survives, `sidebar.json`'s mtime is
-  unchanged, one `.md` lands per source page, and no `.mdx` landing page is
-  copied. This is the single most safety-critical behaviour in the change, so
-  it gets an end-to-end test rather than an assertion about `parse_args`.
+  real with `shutil.rmtree`/`copy`/`copytree` patched, asserting none is called,
+  a sentinel file survives, no `sidebar.json` or `src/content/docs` appears, one
+  `.md` lands per source page, no `.mdx` landing page is copied, and the source
+  markdown still reads as it did. This is the single most safety-critical
+  behaviour in the change, so it gets an end-to-end test rather than an
+  assertion about `parse_args`.
+
+All of these run against `fake_repo()`, a fixture GitBook tree with the module's
+path constants patched at it. The earlier versions ran `main()` over the live
+corpus and read the real git index, which made them depend on both the content
+and on `.git` being present — the same condition that disables the guard they
+cover. Same reasoning that put the sidebar tests on a fixture.
 
 **Refusing to rebuild committed content**
 
-- `test_default_run_refuses_when_the_output_is_committed` — with
-  `tracked_in_git` patched true, `main([])` exits with the `--out DIR`
-  instruction and `shutil.rmtree` is never called.
-- `test_out_run_is_allowed_even_when_the_output_is_committed` — `--out` skips
-  the check entirely, since it deletes nothing.
-- `test_tracked_in_git_reads_the_real_index` and
-  `test_tracked_in_git_reports_false_when_git_is_unavailable`.
+- `test_git_status_reads_the_ls_files_output` — TRACKED and UNTRACKED.
+- `test_git_failure_is_unknown_not_untracked` (a dubious-ownership `rc 128`) and
+  `test_missing_git_is_unknown`.
+- `test_default_run_refuses_when_the_output_is_committed` and
+  `test_default_run_refuses_when_a_checkout_cannot_be_queried` — `main([])`
+  exits with the `--out DIR` instruction, git's stderr is surfaced, and
+  `shutil.rmtree` is never called.
+- `test_default_run_proceeds_when_there_is_no_checkout` — no `.git`, so UNKNOWN
+  is not evidence of hand-edited content.
+- `test_out_run_skips_the_check_entirely` — `--out` never even asks.
 
 **Sidebar** — built from a fixture `SUMMARY.md` rather than the live one, so a
 content rename cannot break it: `test_group_heading_becomes_a_sidebar_group`,

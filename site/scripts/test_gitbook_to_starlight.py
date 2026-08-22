@@ -30,6 +30,42 @@ def context(assets=None, pages=None):
     return ctx
 
 
+@contextlib.contextmanager
+def fake_repo():
+    """A miniature GitBook repo, with the module pointed at it.
+
+    The safety tests run `main()` for real, so they must not depend on the live
+    corpus or on `.git` being present -- the second is the very condition that
+    disables the guard some of them cover.
+    """
+    with tempfile.TemporaryDirectory() as root:
+        repo = pathlib.Path(root, "repo")
+        (repo / "docs" / "fine-tuning").mkdir(parents=True)
+        (repo / ".gitbook" / "assets").mkdir(parents=True)
+        (repo / ".gitbook" / "assets" / "shot.png").write_bytes(b"png")
+        (repo / "docs" / "one.md").write_text(
+            "---\ndescription: First\n---\n\n# One\n\n"
+            "![](../.gitbook/assets/shot.png)\n\n[two](fine-tuning/two.md)\n")
+        (repo / "docs" / "fine-tuning" / "two.md").write_text("# Two\n\nBody\n")
+        (repo / "SUMMARY.md").write_text(
+            "## Docs\n\n* [One](docs/one.md)\n* [Two](docs/fine-tuning/two.md)\n")
+        site = repo / "site"
+        (site / "src" / "landing").mkdir(parents=True)
+        (site / "src" / "landing" / "index.mdx").write_text("---\ntitle: Home\n---\n")
+
+        with mock.patch.multiple(
+            G,
+            REPO=str(repo),
+            SITE=str(site),
+            DOCS_OUT=str(site / "src" / "content" / "docs"),
+            ASSETS_OUT=str(site / "public" / "assets"),
+            SRC_ASSETS=str(site / "src" / "assets"),
+            GITBOOK_ASSETS=str(repo / ".gitbook" / "assets"),
+            HERO_SOURCE="shot.png",
+        ):
+            yield repo
+
+
 def silenced(call):
     """Run `call`, swallowing its console output. Returns what it returned."""
     with contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(io.StringIO()):
@@ -164,8 +200,24 @@ class LinkRewriteTest(unittest.TestCase):
         self.assertIn('<a href="/docs/prompts/">', out)
 
     def test_html_anchor_href_to_directory_is_rewritten(self):
-        out = convert('# P\n\n<a href="fine-tuning/">Fine Tuning</a>\n')
+        # Directory targets resolve against the repo on disk, so this one needs a
+        # repo -- a fixture one, not whatever happens to exist in the checkout.
+        with fake_repo():
+            out = convert('# P\n\n<a href="fine-tuning/">Fine Tuning</a>\n')
         self.assertIn('<a href="/docs/fine-tuning/">', out)
+
+    def test_html_anchor_href_to_a_missing_directory_is_untouched(self):
+        with fake_repo():
+            out = convert('# P\n\n<a href="no-such-section/">Nope</a>\n')
+        self.assertIn('<a href="no-such-section/">', out)
+
+    def test_external_url_containing_the_asset_path_is_not_localised(self):
+        # An absolute URL that happens to contain ".gitbook/assets/" belongs to
+        # someone else's site; localising it would raise a fatal missing asset.
+        ctx = context()
+        out = convert('# P\n\n[x](https://other.example/.gitbook/assets/a.png)\n', ctx=ctx)
+        self.assertIn("https://other.example/.gitbook/assets/a.png", out)
+        self.assertEqual(ctx.missing_assets, [])
 
     def test_html_anchor_href_with_parent_segments_is_rewritten(self):
         out = convert('# P\n\n<a href="../../developers/rest-api.md">API</a>\n',
@@ -388,11 +440,15 @@ class ArgsTest(unittest.TestCase):
         self.assertTrue(self.parse(["--list"]).list)
 
     def test_out_returns_an_absolute_directory(self):
-        self.assertEqual(self.parse(["--out", "scratch"]).out,
-                         os.path.abspath("scratch"))
+        with tempfile.TemporaryDirectory() as scratch:
+            relative = os.path.relpath(os.path.join(scratch, "out"))
+            self.assertEqual(self.parse(["--out", relative]).out,
+                             os.path.join(scratch, "out"))
 
     def test_out_accepts_the_equals_spelling(self):
-        self.assertEqual(self.parse(["--out=scratch"]).out, os.path.abspath("scratch"))
+        with tempfile.TemporaryDirectory() as scratch:
+            target = os.path.join(scratch, "out")
+            self.assertEqual(self.parse(["--out=%s" % target]).out, target)
 
     def test_out_without_a_directory_is_an_error(self):
         with self.assertRaises(SystemExit):
@@ -408,49 +464,141 @@ class ArgsTest(unittest.TestCase):
     def test_unknown_arguments_are_rejected(self):
         # Never fall through to the default run: that one starts by deleting
         # src/content/docs, which is forbidden once content is hand-edited.
-        for argv in (["--outt", "scratch"], ["garbage"], ["--out", "scratch", "--nope"]):
+        for argv in (["--outt", "/tmp/x"], ["garbage"], ["--out", "/tmp/x", "--nope"]):
             with self.subTest(argv=argv), self.assertRaises(SystemExit):
                 self.parse(argv)
 
 
-class TrackedContentGuardTest(unittest.TestCase):
+class GitGuardTest(unittest.TestCase):
     """From phase 3 on, src/content/docs is committed and must not be rebuilt."""
 
+    def git_says(self, returncode=0, stdout="", stderr=""):
+        result = mock.Mock(returncode=returncode, stdout=stdout, stderr=stderr)
+        return mock.patch.object(G.subprocess, "run", return_value=result)
+
+    def test_git_status_reads_the_ls_files_output(self):
+        with self.git_says(stdout="site/src/content/docs/index.md\n"):
+            self.assertEqual(G.git_status_of("x"), (G.TRACKED, ""))
+        with self.git_says(stdout="  \n"):
+            self.assertEqual(G.git_status_of("x"), (G.UNTRACKED, ""))
+
+    def test_git_failure_is_unknown_not_untracked(self):
+        # dubious ownership, a held index.lock, a damaged index: git answered,
+        # but not with "no".
+        with self.git_says(returncode=128, stderr="fatal: detected dubious ownership"):
+            state, detail = G.git_status_of("x")
+        self.assertEqual(state, G.UNKNOWN)
+        self.assertIn("dubious ownership", detail)
+
+    def test_missing_git_is_unknown(self):
+        with mock.patch.object(G.subprocess, "run", side_effect=OSError("no git")):
+            self.assertEqual(G.git_status_of("x")[0], G.UNKNOWN)
+
     def test_default_run_refuses_when_the_output_is_committed(self):
-        with mock.patch.object(G, "tracked_in_git", return_value=True) as tracked, \
-                mock.patch.object(G.shutil, "rmtree") as rmtree:
-            with self.assertRaises(SystemExit) as raised:
+        with fake_repo():
+            with mock.patch.object(G, "git_status_of", return_value=(G.TRACKED, "")), \
+                    mock.patch.object(G.shutil, "rmtree") as rmtree:
+                with self.assertRaises(SystemExit) as raised:
+                    silenced(lambda: G.main([]))
+            rmtree.assert_not_called()
+            self.assertIn("--out DIR", str(raised.exception))
+
+    def test_default_run_refuses_when_a_checkout_cannot_be_queried(self):
+        with fake_repo() as repo:
+            (repo / ".git").mkdir()
+            with mock.patch.object(G, "git_status_of", return_value=(G.UNKNOWN, "boom")), \
+                    mock.patch.object(G.shutil, "rmtree") as rmtree:
+                with self.assertRaises(SystemExit) as raised:
+                    silenced(lambda: G.main([]))
+            rmtree.assert_not_called()
+            self.assertIn("boom", str(raised.exception))
+
+    def test_default_run_proceeds_when_there_is_no_checkout(self):
+        with fake_repo() as repo:
+            with mock.patch.object(G, "git_status_of", return_value=(G.UNKNOWN, "no git")):
                 silenced(lambda: G.main([]))
-        tracked.assert_called_once_with(G.DOCS_OUT)
-        rmtree.assert_not_called()
-        self.assertIn("--out DIR", str(raised.exception))
+            self.assertTrue((repo / "site/src/content/docs/docs/one.md").exists())
 
-    def test_out_run_is_allowed_even_when_the_output_is_committed(self):
-        with tempfile.TemporaryDirectory() as scratch:
-            with mock.patch.object(G, "tracked_in_git", return_value=True) as tracked:
-                silenced(lambda: G.main(["--out", scratch]))
-            tracked.assert_not_called()
-            self.assertTrue(list(pathlib.Path(scratch).rglob("*.md")))
+    def test_out_run_skips_the_check_entirely(self):
+        with fake_repo(), tempfile.TemporaryDirectory() as scratch:
+            with mock.patch.object(G, "git_status_of") as asked:
+                silenced(lambda: G.main(["--out", os.path.join(scratch, "out")]))
+            asked.assert_not_called()
 
-    def test_tracked_in_git_reads_the_real_index(self):
-        self.assertTrue(G.tracked_in_git(os.path.join(G.SITE, "package.json")))
-        self.assertFalse(G.tracked_in_git(os.path.join(G.SITE, "no-such-path")))
 
-    def test_tracked_in_git_reports_false_when_git_is_unavailable(self):
-        with mock.patch.object(G.subprocess, "run", side_effect=OSError):
-            self.assertFalse(G.tracked_in_git(G.DOCS_OUT))
+class OutTargetTest(unittest.TestCase):
+    """--out must not be able to clobber anything. It has failed open three ways."""
+
+    def reject(self, target):
+        with fake_repo():
+            with self.assertRaises(SystemExit):
+                silenced(lambda: G.parse_args(["--out", target]))
+
+    def test_the_repo_itself_is_rejected(self):
+        # This one really happened: it rewrote 40 tracked source pages in place.
+        with fake_repo() as repo:
+            with self.assertRaises(SystemExit):
+                silenced(lambda: G.parse_args(["--out", str(repo)]))
+            self.assertIn("# One", (repo / "docs" / "one.md").read_text())
+
+    def test_a_directory_inside_the_repo_is_rejected(self):
+        with fake_repo() as repo:
+            for target in ("scratch", "docs", "site/src/content/docs"):
+                with self.subTest(target=target), self.assertRaises(SystemExit):
+                    silenced(lambda: G.parse_args(["--out", str(repo / target)]))
+
+    def test_an_ancestor_of_the_repo_is_rejected(self):
+        with fake_repo() as repo:
+            with self.assertRaises(SystemExit):
+                silenced(lambda: G.parse_args(["--out", str(repo.parent)]))
+            with self.assertRaises(SystemExit):
+                silenced(lambda: G.parse_args(["--out", "/"]))
+
+    def test_a_directory_holding_foreign_markdown_is_rejected(self):
+        with fake_repo(), tempfile.TemporaryDirectory() as scratch:
+            notes = pathlib.Path(scratch, "notes")
+            notes.mkdir()
+            (notes / "keep.md").write_text("# mine\n")
+            with self.assertRaises(SystemExit):
+                silenced(lambda: G.parse_args(["--out", scratch]))
+            self.assertEqual((notes / "keep.md").read_text(), "# mine\n")
+
+    def test_an_existing_file_is_rejected(self):
+        with fake_repo(), tempfile.TemporaryDirectory() as scratch:
+            target = pathlib.Path(scratch, "afile")
+            target.write_text("")
+            with self.assertRaises(SystemExit):
+                silenced(lambda: G.parse_args(["--out", str(target)]))
+
+    def test_padding_is_stripped_before_the_path_is_resolved(self):
+        with fake_repo(), tempfile.TemporaryDirectory() as scratch:
+            target = os.path.join(scratch, "out")
+            self.assertEqual(silenced(lambda: G.parse_args(["--out", " %s " % target])).out,
+                             target)
+
+    def test_a_fresh_directory_is_accepted(self):
+        with fake_repo(), tempfile.TemporaryDirectory() as scratch:
+            target = os.path.join(scratch, "out")
+            self.assertEqual(silenced(lambda: G.parse_args(["--out", target])).out, target)
+
+    def test_rerunning_into_our_own_output_is_accepted(self):
+        # The stamp is what tells our markdown apart from somebody else's.
+        with fake_repo(), tempfile.TemporaryDirectory() as scratch:
+            target = os.path.join(scratch, "out")
+            silenced(lambda: G.main(["--out", target]))
+            self.assertTrue(os.path.exists(os.path.join(target, G.OUT_STAMP)))
+            silenced(lambda: G.main(["--out", target]))
 
 
 class OutFlagTest(unittest.TestCase):
-    """The safety property --out exists for: it must never delete anything."""
+    """The safety property --out exists for: it must never delete or clobber."""
 
     def test_out_writes_pages_only_and_touches_nothing_else(self):
-        sidebar = pathlib.Path(G.SITE, "sidebar.json")
-        before = sidebar.stat().st_mtime_ns if sidebar.exists() else None
-
-        with tempfile.TemporaryDirectory() as scratch:
+        with fake_repo() as repo, tempfile.TemporaryDirectory() as scratch:
+            sidebar = pathlib.Path(G.SITE, "sidebar.json")
             sentinel = pathlib.Path(scratch, "sentinel.txt")
             sentinel.write_text("keep me")
+
             with mock.patch.object(G.shutil, "rmtree") as rmtree, \
                     mock.patch.object(G.shutil, "copy") as copy, \
                     mock.patch.object(G.shutil, "copytree") as copytree:
@@ -460,12 +608,20 @@ class OutFlagTest(unittest.TestCase):
             copy.assert_not_called()
             copytree.assert_not_called()
             self.assertEqual(sentinel.read_text(), "keep me")
-            self.assertEqual(len(list(pathlib.Path(scratch).rglob("*.md"))),
-                             len(G.find_sources()))
+            self.assertEqual(len(list(pathlib.Path(scratch).rglob("*.md"))), 2)
             self.assertEqual(list(pathlib.Path(scratch).rglob("*.mdx")), [])
+            self.assertFalse(sidebar.exists())
+            self.assertFalse(pathlib.Path(G.DOCS_OUT).exists())
+            self.assertIn("# One", (repo / "docs" / "one.md").read_text())
 
-        after = sidebar.stat().st_mtime_ns if sidebar.exists() else None
-        self.assertEqual(before, after)
+    def test_the_completion_message_does_not_overclaim(self):
+        with fake_repo(), tempfile.TemporaryDirectory() as scratch:
+            out = io.StringIO()
+            with contextlib.redirect_stdout(out), contextlib.redirect_stderr(io.StringIO()):
+                G.main(["--out", os.path.join(scratch, "out")])
+        message = out.getvalue()
+        self.assertNotIn("Nothing else was written", message)
+        self.assertIn("Left untouched:", message)
 
 
 class SidebarTest(unittest.TestCase):
