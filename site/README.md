@@ -9,7 +9,8 @@ generates a Starlight site from it.
 
 ## Try it locally
 
-Requires Node 20+ and Python 3.
+Requires **Node 22.12 or newer** (Astro 7's floor — older Node fails with
+confusing module errors) and Python 3.
 
 ```sh
 cd site
@@ -103,6 +104,54 @@ This is a preview, not a migration.
 - **No WYSIWYG editor yet.** Starlight pairs with git-backed CMSes such as
   [Keystatic](https://keystatic.com/) or [TinaCMS](https://tina.io/); neither
   is wired up here.
+
+## Troubleshooting
+
+**`npm run dev` fails intermittently** with
+`Class extends value undefined is not a constructor or null`, or similar
+module errors pointing inside `node_modules/astro/`, while `npm run build`
+works. The code is fine; the install is being modified underneath the dev
+server.
+
+The usual cause is a file-syncing client (Dropbox, iCloud Drive, OneDrive,
+Google Drive) rewriting files under `node_modules` while Vite reads them. The
+dev server imports modules lazily, one request at a time, so it sees whatever
+half-synced state exists at that moment — which is why it fails sometimes and
+not others. `astro build` reads everything in a single pass up front and
+usually survives.
+
+First reinstall from the lockfile:
+
+```sh
+cd site
+rm -rf node_modules
+npm ci
+```
+
+If it recurs, exclude the generated directories from syncing. On macOS
+Dropbox:
+
+```sh
+xattr -w com.dropbox.ignored 1 site/node_modules
+xattr -w com.dropbox.ignored 1 site/dist
+xattr -w com.dropbox.ignored 1 site/.astro
+```
+
+Moving the checkout outside the synced folder entirely also works, and is the
+more reliable option.
+
+Meanwhile, `npm run serve` builds and serves the static output in one step and
+does not depend on the dev server:
+
+```sh
+npm run serve                    # build + preview, on the default theme
+DOCS_THEME=nova npm run serve
+```
+
+**Converted far more pages than expected** (the count printed by
+`npm run convert` should match the number of docs, currently 41) means the
+converter picked up markdown it should have skipped, such as a stray
+`node_modules` at the repo root. `SKIP_DIRS` in the converter controls this.
 
 ## Deploying to Cloudflare Pages
 

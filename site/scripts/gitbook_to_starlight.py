@@ -30,6 +30,10 @@ GITBOOK_ASSETS = os.path.join(REPO, ".gitbook/assets")
 # GitBook hint styles -> Starlight aside types
 HINTS = {"info": "note", "success": "tip", "warning": "caution", "danger": "danger"}
 
+# Directory names never scanned for source markdown, at any depth. Dot
+# directories are skipped separately.
+SKIP_DIRS = {"site", "node_modules", "dist", "__pycache__", "venv", "env"}
+
 # Image used for the landing page hero
 HERO_SOURCE = "App3.png"
 
@@ -230,9 +234,11 @@ def main():
     os.makedirs(DOCS_OUT)
 
     sources = []
-    for root, _dirs, files in os.walk(REPO):
-        if os.sep + ".git" in root or os.sep + "site" in root:
-            continue
+    for root, dirs, files in os.walk(REPO):
+        # Prune in place so os.walk does not descend into these at all. Matching
+        # on directory names rather than path substrings means a stray
+        # node_modules anywhere (including the repo root) stays out.
+        dirs[:] = [d for d in dirs if d not in SKIP_DIRS and not d.startswith(".")]
         for name in files:
             if not name.endswith(".md"):
                 continue
