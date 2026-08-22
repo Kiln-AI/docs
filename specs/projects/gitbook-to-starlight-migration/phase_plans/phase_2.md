@@ -89,10 +89,13 @@ concentrated in links, assets, titles, and frontmatter.
 5. **Embed captions lose their caption semantics.** The text between
    `{% embed %}` and `{% endembed %}` is GitBook's video caption. Today only the
    opening and closing tags are removed, so the caption lands as a bare text node
-   glued to the end of the iframe/video HTML block. Six captions across
-   `docs/fine-tuning/fine-tuning-guide.md`,
-   `docs/evals-and-specs/evaluations.md`, and
-   `docs/synthetic-data-generation/generating-synthetic-data.md`.
+   glued to the end of the iframe/video HTML block. 8 captions across 4 pages:
+   `docs/fine-tuning/fine-tuning-guide.md` (5),
+   `docs/fine-tuning/guide-train-a-reasoning-model.md` (1),
+   `docs/evals-and-specs/evaluations.md` (1), and
+   `docs/synthetic-data-generation/generating-synthetic-data.md` (1). They
+   account for the 8 `<figure>` blocks the converter adds (68 in source, 76 in
+   output).
 
 6. **Link rewriting runs inside fenced code blocks.** `docs/skills.md`
    documents a skill whose example content contains
@@ -273,9 +276,23 @@ concentrated in links, assets, titles, and frontmatter.
    a bare `--out` check, or a typo like `--outt` — must be an error, never a
    fall-through to the default run, which begins by deleting
    `src/content/docs/`. The functional spec forbids that once content is
-   hand-edited. Documented in the module docstring and in `site/README.md`.
+   hand-edited. For the same reason `parse_args` rejects an empty `--out` (an
+   unset `$SCRATCH` in the phase 9 script) and `main` tests `args.out is None`
+   rather than its truthiness. Documented in the module docstring and in
+   `site/README.md`.
 
-11. **`site/package.json`** gains `"test": "python3 -m unittest discover -s
+11. **Refuse the destructive run over committed content.** `npm run build` and
+   `npm run dev` both shell out to this script, so from phase 3 on the ordinary
+   build a contributor or CI runs would `rmtree` the hand-maintained
+   `src/content/docs/` and regenerate it from `docs/`. `tracked_in_git(DOCS_OUT)`
+   asks git whether the output is committed, and the default run exits with the
+   `--out DIR` instruction if it is. `--out` runs skip the check — they delete
+   nothing. If git cannot answer (not installed, not a checkout) the check
+   reports False and the run proceeds, because a missing tool is not evidence of
+   hand-edited content. This is a backstop, not the plan: unwiring `convert`
+   from `build`/`dev` is now an explicit phase 3 step.
+
+12. **`site/package.json`** gains `"test": "python3 -m unittest discover -s
    scripts -p 'test_*.py' -t scripts"`.
 
 ## Tests
@@ -293,7 +310,11 @@ honest:
   `kiln_ai` surviving with its underscore.
 - `test_legacy_slugs_spell_ampersand_as_and`.
 - `test_repeated_heading_gets_numeric_suffix`.
-- `test_hand_written_anchor_ids_count_as_anchors`.
+- `test_hand_written_anchor_ids_count_as_anchors` and
+  `test_ids_inside_code_fences_are_not_anchors`.
+- `test_derived_duplicate_slug_is_itself_registered` — a literal `## Overview 1`
+  after two `## Overview` headings does not collide with the minted
+  `overview-1`, matching github-slugger.
 - `test_lift_title_removes_the_h1_and_leaves_the_rest`,
   `test_lift_title_ignores_a_hash_inside_a_code_fence`.
 - `test_h1_is_not_indexed_as_an_anchor` — the
@@ -339,7 +360,9 @@ honest:
 **Frontmatter and titles**
 
 - `test_folded_block_description_is_joined`,
+  `test_folded_block_treats_a_blank_line_as_a_line_break`,
   `test_literal_block_description_keeps_line_breaks`,
+  `test_double_quoted_escapes_are_decoded`,
   `test_single_quoted_description_keeps_inner_quotes`,
   `test_plain_description_is_passed_through`,
   `test_page_without_description_omits_the_field`.
@@ -365,6 +388,9 @@ honest:
   `test_out_returns_an_absolute_directory`,
   `test_out_accepts_the_equals_spelling`,
   `test_out_without_a_directory_is_an_error`.
+- `test_empty_out_is_rejected` — `--out ""`, `--out "   "` and `--out=` all
+  raise. An empty value is an unset shell variable, and reading it as "no --out"
+  would rebuild the site in place.
 - `test_unknown_arguments_are_rejected` — `--outt DIR`, bare `garbage`, and a
   trailing unknown flag all raise rather than falling through to the run that
   deletes `src/content/docs/`.
@@ -375,9 +401,21 @@ honest:
   copied. This is the single most safety-critical behaviour in the change, so
   it gets an end-to-end test rather than an assertion about `parse_args`.
 
+**Refusing to rebuild committed content**
+
+- `test_default_run_refuses_when_the_output_is_committed` — with
+  `tracked_in_git` patched true, `main([])` exits with the `--out DIR`
+  instruction and `shutil.rmtree` is never called.
+- `test_out_run_is_allowed_even_when_the_output_is_committed` — `--out` skips
+  the check entirely, since it deletes nothing.
+- `test_tracked_in_git_reads_the_real_index` and
+  `test_tracked_in_git_reports_false_when_git_is_unavailable`.
+
 **Sidebar** — built from a fixture `SUMMARY.md` rather than the live one, so a
 content rename cannot break it: `test_group_heading_becomes_a_sidebar_group`,
-`test_readme_is_not_a_sidebar_entry`, `test_labels_are_unescaped`,
+`test_readme_is_not_a_sidebar_entry`, `test_labels_are_rendered_as_text`
+(escapes, a code span and emphasis — the old assertion passed against the
+pre-change `label.replace("\\", "")` too),
 `test_a_parent_page_becomes_an_overview_entry_in_its_own_group`, plus
 `test_url_for` and `test_out_for`.
 

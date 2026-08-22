@@ -24,13 +24,20 @@ ability to convert anything else.
   systematic losses.
 
 - [ ] **Phase 3: Go Astro-native.** Run the transformer a final time, commit
-  its output, and remove the gitignore rules for generated paths. Move
-  referenced images into `src/assets/` and convert `<figure>` blocks per the
-  architecture. Prune the ~73 unreferenced assets, including the two oversized
-  videos. Delete the GitBook source tree (`docs/`, `developers/`, `README.md`,
-  `SUMMARY.md`, `.gitbook/`) using `git mv` where paths map cleanly. Update
-  `editLink` and rewrite `site/README.md` so it no longer describes a
-  transform pipeline. **Keep the transformer itself.**
+  its output, and remove the gitignore rules for generated paths. **Unwire
+  `npm run convert` from `npm run build` and `npm run dev`** — both call it
+  today, so once `src/content/docs/` is committed the ordinary build would
+  delete the hand-maintained content and regenerate it from `docs/`, which the
+  functional spec forbids. `convert` stays as a standalone script for the phase
+  9 reconciliation. (Phase 2 added a backstop: the default run refuses when
+  `src/content/docs/` is tracked in git. Unwiring is still the actual fix — the
+  backstop only stops the build rather than letting it work.) Move referenced
+  images into `src/assets/` and convert `<figure>` blocks per the architecture.
+  Prune the ~73 unreferenced assets, including the two oversized videos. Delete
+  the GitBook source tree (`docs/`, `developers/`, `README.md`, `SUMMARY.md`,
+  `.gitbook/`) using `git mv` where paths map cleanly. Update `editLink` and
+  rewrite `site/README.md` so it no longer describes a transform pipeline.
+  **Keep the transformer itself.**
 
 - [ ] **Phase 4: Redirects.** Build `redirects.csv` from the phase 1 inventory
   plus the known flat-alias pattern. Implement `build_redirects.py` (with unit

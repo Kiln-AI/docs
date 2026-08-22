@@ -23,6 +23,7 @@ import json
 import os
 import re
 import shutil
+import subprocess
 import sys
 import urllib.parse
 
@@ -126,19 +127,22 @@ def page_anchors(body):
 
     for raw in headings(body):
         text = heading_text(raw)
-        slug = starlight_slug(text)
-        # github-slugger disambiguates a repeated slug with a numeric suffix.
-        if slug in seen:
-            seen[slug] += 1
-            slug = "%s-%d" % (slug, seen[slug])
-        else:
-            seen[slug] = 0
+        # github-slugger disambiguates a repeated slug with a numeric suffix, and
+        # records the suffixed result too -- so a literal "Overview 1" heading
+        # cannot collide with the "overview-1" minted for a second "Overview".
+        base = slug = starlight_slug(text)
+        while slug in seen:
+            seen[base] += 1
+            slug = "%s-%d" % (base, seen[base])
+        seen[slug] = 0
         slugs.add(slug)
         for legacy in legacy_slugs(text):
             aliases.setdefault(legacy, slug)
 
     # GitBook pins some headings to a hand-written id with an inline anchor tag.
-    slugs.update(re.findall(r'\bid="([^"]+)"', body))
+    # Scanned over the prose only: an id in a documented HTML sample is not an
+    # anchor, and a phantom slug here would bless a dead link.
+    slugs.update(re.findall(r'\bid="([^"]+)"', without_code(body)))
 
     return slugs, {legacy: slug for legacy, slug in aliases.items() if legacy not in slugs}
 
@@ -164,6 +168,16 @@ def code_regions(text):
     if opener is not None:
         regions.append((start, len(text)))
     return regions
+
+
+def without_code(text):
+    """The text with every fenced code block removed."""
+    parts, last = [], 0
+    for start, end in code_regions(text):
+        parts.append(text[last:start])
+        last = end
+    parts.append(text[last:])
+    return "".join(parts)
 
 
 def heading_matches(text):
@@ -237,8 +251,15 @@ def parse_frontmatter(text):
     Descriptions that ran long got wrapped into a folded block scalar
     (`description: >-`), and ones containing quotes got single-quoted. A
     line-splitting parser reads the first as the literal string ">-" and drops a
-    leading quote from the second, so both need real scalar handling. There is
-    no yaml module in the standard library and this is the whole grammar in use.
+    leading quote from the second, so both need real scalar handling, and there
+    is no yaml module in the standard library.
+
+    Supported: `key: value` at the top level, with plain, single-quoted,
+    double-quoted, folded (`>`) and literal (`|`) scalars. Deliberately not
+    supported, because GitBook emits none of it and a page relying on it should
+    fail loudly rather than parse into something plausible: nested mappings,
+    sequences, anchors and aliases, explicit tags, multi-line plain scalars, and
+    the indentation-indicator form of a block header (`>2`).
     """
     m = FRONTMATTER.match(text)
     if not m:
@@ -252,13 +273,13 @@ def parse_frontmatter(text):
             continue
         key, value = entry.group(1), entry.group(2).strip()
 
-        block = re.match(r"^([|>])([+-]?)$", value)
+        block = re.match(r"^([|>])[+-]?$", value)
         if block:
-            folded, body = block.group(1) == ">", []
+            body = []
             while i < len(lines) and (not lines[i].strip() or lines[i][:1] in " \t"):
                 body.append(lines[i].strip())
                 i += 1
-            fields[key] = (" " if folded else "\n").join(body).strip()
+            fields[key] = (fold(body) if block.group(1) == ">" else "\n".join(body)).strip()
             continue
 
         fields[key] = unquote_scalar(value)
@@ -266,11 +287,32 @@ def parse_frontmatter(text):
     return fields, text[m.end():]
 
 
+def fold(lines):
+    """Join a YAML folded (`>`) block: a space between lines, but a blank line
+    is a real line break rather than a wider gap."""
+    folded = ""
+    for line in lines:
+        if not line:
+            folded += "\n"
+        elif folded and not folded.endswith("\n"):
+            folded += " " + line
+        else:
+            folded += line
+    return folded
+
+
+# The escapes a double-quoted YAML scalar can carry. Anything else after a
+# backslash is passed through as the character itself.
+DOUBLE_QUOTED_ESCAPES = {"n": "\n", "t": "\t", "r": "\r", "0": "\0"}
+
+
 def unquote_scalar(value):
     if len(value) >= 2 and value[0] == value[-1] == "'":
         return value[1:-1].replace("''", "'")
     if len(value) >= 2 and value[0] == value[-1] == '"':
-        return re.sub(r"\\(.)", r"\1", value[1:-1])
+        return re.sub(r"\\(.)",
+                      lambda m: DOUBLE_QUOTED_ESCAPES.get(m.group(1), m.group(1)),
+                      value[1:-1])
     return value
 
 
@@ -280,8 +322,8 @@ def unquote_scalar(value):
 class Conversion:
     """Everything a page conversion needs to resolve references site-wide."""
 
-    def __init__(self, sources=(), assets=None):
-        self.assets = {} if assets is None else assets
+    def __init__(self, sources, assets):
+        self.assets = assets
         self.asset_names = set(self.assets.values())
         self.anchors = {}
         for rel in sources:
@@ -585,7 +627,12 @@ def parse_args(argv):
         "--anchors", action="store_true",
         help="list every link pointing at an anchor no heading provides")
     args = parser.parse_args(argv)
-    if args.out:
+    if args.out is not None:
+        # An empty --out is almost always an unset shell variable, and truthiness
+        # checks downstream would read it as "no --out given" and rebuild the
+        # site. Reject it here so there is one place that can say no.
+        if not args.out.strip():
+            parser.error("--out needs a directory")
         args.out = os.path.abspath(args.out)
     return args
 
@@ -613,6 +660,26 @@ def report(ctx, list_anchors=False):
                          % len(ctx.missing_assets))
 
 
+def tracked_in_git(path):
+    """Does git have committed files under `path`?
+
+    From phase 3 on, src/content/docs is committed, hand-maintained content, and
+    the functional spec forbids a destructive full re-run over it. `npm run
+    build` and `npm run dev` both shell out to this script, so the refusal has to
+    live here rather than in a habit. If git cannot answer -- not installed, not
+    a checkout -- this reports False and the run proceeds as before, because a
+    missing tool is not evidence of hand-edited content.
+    """
+    try:
+        found = subprocess.run(
+            ["git", "ls-files", "--", path],
+            cwd=REPO, capture_output=True, text=True, timeout=30,
+        )
+    except (OSError, subprocess.SubprocessError):
+        return False
+    return found.returncode == 0 and bool(found.stdout.strip())
+
+
 def list_sources(sources):
     """Print what would be converted. Diagnostic for a surprising page count."""
     try:
@@ -634,14 +701,22 @@ def main(argv=None):
         list_sources(sources)
         return
 
+    if args.out is None and tracked_in_git(DOCS_OUT):
+        raise SystemExit(
+            "%s is committed to git, so it is hand-maintained content and a full\n"
+            "re-run would delete it. Convert into a scratch directory instead:\n"
+            "    python3 scripts/gitbook_to_starlight.py --out DIR\n"
+            "and copy in only the pages you actually need." % os.path.relpath(DOCS_OUT, REPO)
+        )
+
     # Convert everything before writing anything, so a missing asset stops the
     # run instead of leaving a half-written tree behind.
     ctx = Conversion(sources, build_asset_index())
     pages = {rel: convert(read(os.path.join(REPO, rel)), rel, ctx) for rel in sources}
     report(ctx, args.anchors)
 
-    docs_out = args.out or DOCS_OUT
-    if not args.out and os.path.isdir(docs_out):
+    docs_out = DOCS_OUT if args.out is None else args.out
+    if args.out is None and os.path.isdir(docs_out):
         shutil.rmtree(docs_out)
     os.makedirs(docs_out, exist_ok=True)
 
@@ -651,7 +726,7 @@ def main(argv=None):
         with open(out_path, "w") as f:
             f.write(converted)
 
-    if args.out:
+    if args.out is not None:
         print("Converted %d pages into %s. Nothing else was written or deleted."
               % (len(pages), docs_out))
         return

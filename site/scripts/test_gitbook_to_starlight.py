@@ -24,7 +24,7 @@ import gitbook_to_starlight as G
 
 def context(assets=None, pages=None):
     """A Conversion wired to fixtures instead of the repo."""
-    ctx = G.Conversion(assets=assets or {})
+    ctx = G.Conversion((), assets or {})
     for url, body in (pages or {}).items():
         ctx.anchors[url] = G.page_anchors(body)
     return ctx
@@ -96,6 +96,17 @@ class SlugTest(unittest.TestCase):
     def test_hand_written_anchor_ids_count_as_anchors(self):
         slugs, _ = G.page_anchors('### Philosophy <a id="setup-team-evals"></a>\n')
         self.assertIn("setup-team-evals", slugs)
+
+    def test_ids_inside_code_fences_are_not_anchors(self):
+        # The corpus documents HTML in fences; an id in a sample is not an anchor.
+        slugs, _ = G.page_anchors('## Real\n\n```html\n<a id="sample"></a>\n```\n')
+        self.assertEqual(slugs, {"real"})
+
+    def test_derived_duplicate_slug_is_itself_registered(self):
+        # github-slugger records the suffixed slug too, so a literal "Overview 1"
+        # cannot collide with the overview-1 minted for a second "Overview".
+        slugs, _ = G.page_anchors("## Overview\n\n## Overview\n\n## Overview 1\n")
+        self.assertEqual(slugs, {"overview", "overview-1", "overview-1-1"})
 
     def test_lift_title_removes_the_h1_and_leaves_the_rest(self):
         title, body = G.lift_title("Intro\n\n# Prompt Generators\n\n### Prompt Generators\n")
@@ -267,6 +278,14 @@ class FrontmatterTest(unittest.TestCase):
         fields, _ = G.parse_frontmatter("---\ndescription: |\n  one\n  two\n---\n")
         self.assertEqual(fields["description"], "one\ntwo")
 
+    def test_folded_block_treats_a_blank_line_as_a_line_break(self):
+        fields, _ = G.parse_frontmatter("---\ndescription: >\n  one\n  two\n\n  three\n---\n")
+        self.assertEqual(fields["description"], "one two\nthree")
+
+    def test_double_quoted_escapes_are_decoded(self):
+        fields, _ = G.parse_frontmatter('---\ndescription: "a\\nb \\"c\\""\n---\n')
+        self.assertEqual(fields["description"], 'a\nb "c"')
+
     def test_single_quoted_description_keeps_inner_quotes(self):
         out = convert("---\ndescription: '\"Teach the model, you will\" - ML Yoda'\n"
                       "---\n\n# Page\n")
@@ -379,12 +398,47 @@ class ArgsTest(unittest.TestCase):
         with self.assertRaises(SystemExit):
             self.parse(["--out"])
 
+    def test_empty_out_is_rejected(self):
+        # An empty --out is an unset shell variable. Truthiness checks downstream
+        # would read it as "no --out given" and rebuild the site in place.
+        for argv in (["--out", ""], ["--out", "   "], ["--out="]):
+            with self.subTest(argv=argv), self.assertRaises(SystemExit):
+                self.parse(argv)
+
     def test_unknown_arguments_are_rejected(self):
         # Never fall through to the default run: that one starts by deleting
         # src/content/docs, which is forbidden once content is hand-edited.
         for argv in (["--outt", "scratch"], ["garbage"], ["--out", "scratch", "--nope"]):
             with self.subTest(argv=argv), self.assertRaises(SystemExit):
                 self.parse(argv)
+
+
+class TrackedContentGuardTest(unittest.TestCase):
+    """From phase 3 on, src/content/docs is committed and must not be rebuilt."""
+
+    def test_default_run_refuses_when_the_output_is_committed(self):
+        with mock.patch.object(G, "tracked_in_git", return_value=True) as tracked, \
+                mock.patch.object(G.shutil, "rmtree") as rmtree:
+            with self.assertRaises(SystemExit) as raised:
+                silenced(lambda: G.main([]))
+        tracked.assert_called_once_with(G.DOCS_OUT)
+        rmtree.assert_not_called()
+        self.assertIn("--out DIR", str(raised.exception))
+
+    def test_out_run_is_allowed_even_when_the_output_is_committed(self):
+        with tempfile.TemporaryDirectory() as scratch:
+            with mock.patch.object(G, "tracked_in_git", return_value=True) as tracked:
+                silenced(lambda: G.main(["--out", scratch]))
+            tracked.assert_not_called()
+            self.assertTrue(list(pathlib.Path(scratch).rglob("*.md")))
+
+    def test_tracked_in_git_reads_the_real_index(self):
+        self.assertTrue(G.tracked_in_git(os.path.join(G.SITE, "package.json")))
+        self.assertFalse(G.tracked_in_git(os.path.join(G.SITE, "no-such-path")))
+
+    def test_tracked_in_git_reports_false_when_git_is_unavailable(self):
+        with mock.patch.object(G.subprocess, "run", side_effect=OSError):
+            self.assertFalse(G.tracked_in_git(G.DOCS_OUT))
 
 
 class OutFlagTest(unittest.TestCase):
@@ -426,6 +480,7 @@ class SidebarTest(unittest.TestCase):
         * [Fine Tuning](docs/fine-tuning/README.md)
           * [Fine Tuning Guide](docs/fine-tuning/fine-tuning-guide.md)
         * [Evaluate RAG Accuracy: Q\\&A Evals](docs/evals-and-specs/rag.md)
+        * [Using `kiln_ai` **now**](developers/library.md)
         """).lstrip("\n")
 
     def setUp(self):
@@ -446,9 +501,12 @@ class SidebarTest(unittest.TestCase):
     def test_readme_is_not_a_sidebar_entry(self):
         self.assertNotIn("Welcome", [i["label"] for i in self.groups[0]["items"]])
 
-    def test_labels_are_unescaped(self):
+    def test_labels_are_rendered_as_text(self):
+        # Escapes, code spans and emphasis all have to go: the sidebar shows the
+        # label verbatim, it does not render markdown.
         labels = [i["label"] for i in self.groups[0]["items"]]
         self.assertIn("Evaluate RAG Accuracy: Q&A Evals", labels)
+        self.assertIn("Using kiln_ai now", labels)
 
     def test_a_parent_page_becomes_an_overview_entry_in_its_own_group(self):
         parent = next(i for i in self.groups[0]["items"] if i["label"] == "Fine Tuning")

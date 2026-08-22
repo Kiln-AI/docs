@@ -111,9 +111,15 @@ The 68 `<figure>` blocks in the source are left as raw HTML and render as-is,
 | `--out DIR` | Write the converted pages to `DIR` and nothing else — no landing page, no assets, no `sidebar.json`, and no deletions. `--out=DIR` works too. |
 | `--anchors` | List every link pointing at an anchor no heading provides. Without it they are summarised in one line. |
 
-An argument the script does not recognise is an error, not a default run: the
+An argument the script does not recognise is an error, not a default run — and
+so is an empty `--out`, which is what an unset shell variable looks like. The
 default run starts by deleting `src/content/docs/`, and a typo must never reach
 it.
+
+That default run also refuses outright once `src/content/docs/` is committed to
+git, since at that point it is hand-maintained content. `npm run build` and
+`npm run dev` both call `npm run convert`, so from phase 3 that refusal is what
+a contributor sees until `convert` is unwired from them.
 
 `--out` is how late content gets reconciled once `src/content/docs/` is
 hand-maintained: convert into a scratch directory and copy in only the pages
