@@ -40,7 +40,14 @@ npm run serve     # build + preview in one step
 | `redirects.csv` | Every URL the old GitBook site served, and where it goes now. See [Redirects](#redirects). |
 | `public/_redirects` | Generated from `redirects.csv`. Read by Cloudflare Pages. |
 | `ref/**` | Evidence the redirects are built from: GitBook's sitemap, and the alias exclusion list. |
-| `astro.config.mjs` | Site config, theme, nav. |
+| `src/pages/[...slug].md.ts` | Serves every page's markdown at `<url>.md`. See [Machine-readable output](#machine-readable-output). |
+| `src/pages/robots.txt.ts` | `robots.txt`, generated so the origin comes from `site`. |
+| `src/lib/**` | The asset-URL rewriter shared by the `.md` endpoints and the "Copy page" blob. |
+| `src/components/Footer.astro` | Starlight's footer plus the visible `llms.txt` link. |
+| `src/starlightRouteData.ts` | Route middleware that rewrites each page's raw markdown before the theme reads it. |
+| `public/og.png` | The one social preview image, shared by every page. Rebuild with `npm run og`. |
+| `public/favicon.svg` | Placeholder favicon — see [Social preview and favicon](#social-preview-and-favicon). |
+| `astro.config.mjs` | Site config, theme, nav, `head` tags, analytics. |
 | `src/styles/custom.css` | Accent colours and a few content-level rules. |
 
 ## Images
@@ -140,6 +147,96 @@ The build also logs `No data found for font family Geist Mono`, from the
 theme's font configuration. It is harmless — the monospace stack falls back —
 and unrelated to the sidebar.
 
+## Machine-readable output
+
+GitBook published an `llms.txt` and a markdown copy of every page. Both are
+reproduced here.
+
+| URL | What it is |
+| --- | --- |
+| `/llms.txt` | Index, in the [llmstxt.org](https://llmstxt.org/) shape: what this project is, plus links to the two full-text files. |
+| `/llms-full.txt` | Every page, concatenated. |
+| `/llms-small.txt` | The same with notes, tips and `<details>` blocks stripped. |
+| `/docs/quickstart.md` | One page's markdown, at its own URL plus `.md`. One route, `src/pages/[...slug].md.ts`, covers all 45. |
+| `/robots.txt` | Points crawlers at `sitemap-index.xml`. |
+
+The first three come from the
+[`starlight-llms-txt`](https://github.com/delucis/starlight-llms-txt) plugin,
+configured in `astro.config.mjs`. All of it is linked from the site footer,
+because an unlinked `llms.txt` is one nobody finds — which is how we nearly
+missed that GitBook had one.
+
+### Why `.md` endpoints rather than redirects
+
+GitBook served a `.md` variant of every page. Redirecting those URLs to the
+HTML page would satisfy "the URL still resolves" while handing an agent
+exactly the thing it asked not to get, so they are served for real. They are
+not in `sitemap.xml` — GitBook did not advertise them either — but they are in
+`redirects.csv` as identity rows, which is what makes `verify_redirects.mjs`
+check that all 45 were actually built.
+
+The landing page has no `.md` form. It is a splash page whose body is JSX
+rather than prose, and the mechanical spelling would be `/.md`.
+
+### Absolute asset URLs
+
+Pages reference images the way the build needs them —
+`![](../../../assets/foo.png)` for `src/assets`, `/assets/foo.mp4` for
+`public/assets` — and neither form means anything to something that fetched
+the markdown over HTTP. `src/lib/markdown-assets.mjs` rewrites both to
+absolute URLs, and `src/lib/page-markdown.ts` looks up what the image pipeline
+actually emitted for each one, so a `.md` endpoint points at the same
+optimized WebP the HTML page uses.
+
+The same rewrite feeds the theme's "Copy page" blob, through the route
+middleware in `src/starlightRouteData.ts`. That is why the middleware exists:
+the blob is built inside the theme's `PageTitle` component, and rewriting the
+route data avoids copying 130 lines of theme markup into this repo.
+
+Internal *page* links are left as root-relative paths. They resolve against
+the origin the file was fetched from, which the `../../` asset paths did not.
+
+## Social preview and favicon
+
+`public/og.png` is one static 1200x630 image shared by every page, wired up as
+`og:image` and `twitter:image` in the `head` array in `astro.config.mjs`.
+Starlight already emits `twitter:card: summary_large_image`, so that is not
+restated. Regenerate the image with:
+
+```sh
+npm run og
+```
+
+`scripts/build_og_image.mjs` renders it from an inline SVG through `sharp`. It
+is a tool, not a build step — the PNG is committed, and text rasterises with
+whatever fonts the machine has, so reruns are not byte-identical.
+
+**Both `og.png` and `favicon.svg` are placeholders.** They are typography and
+a "K" tile in the site's own palette, because there is no Kiln logo anywhere
+in this repo or its history. Dropping in the real brand assets is a file swap:
+`favicon.svg` is hand-editable, and the OG image's wording and colours are
+constants at the top of the generator. Starlight links `/favicon.svg` from
+every page whether or not it exists, so the placeholder is what stops 47 pages
+404ing on it.
+
+## Analytics
+
+Cloudflare Web Analytics, injected as a `<script>` through the `head` array in
+`astro.config.mjs`. **It needs a site token, which is account-specific and not
+in this repo.** Until one is supplied no beacon tag is emitted at all, so the
+site ships without analytics rather than with a broken tag.
+
+To turn it on:
+
+1. Cloudflare dashboard, Web Analytics, add a site for `docs.kiln.tech`.
+2. Copy the site token out of the snippet it shows you.
+3. In the Pages project, set `CLOUDFLARE_ANALYTICS_TOKEN` as a build
+   environment variable (production and preview).
+
+Alternatively paste the token into the `CLOUDFLARE_ANALYTICS_TOKEN` fallback
+at the top of `astro.config.mjs`. Confirm afterwards that `beacon.min.js`
+appears in the built HTML — `grep -l cloudflareinsights dist/index.html`.
+
 ## Redirects
 
 Every URL GitBook served has to keep working. `redirects.csv` is the record of
@@ -159,14 +256,21 @@ old_path,new_path,status,source
 | --- | --- | --- |
 | `sitemap` | `ref/legacy_sitemap.xml`, GitBook's own sitemap | Yes |
 | `alias-generated` | The flat-alias pattern, applied to nested pages | **No — inferred** |
-| `structural` | Paths we chose to catch, e.g. `/docs` | No — deliberate |
+| `structural` | Paths we chose to catch, e.g. `/docs`, `/sitemap.xml` | No — deliberate |
+| `md-endpoint` | A page's `.md` URL, served rather than redirected | Yes, we serve it |
 | `alias` | A flat alias a probe confirmed returns 200 | Yes |
 | `crawl` | A crawl of the live site | Yes |
 | `gsc` | Search Console's indexed-pages export | Yes, historically |
 | `manual` | Added by hand | Your call |
 
-The first three are generated from files in `ref/`. The rest are human-supplied
+The first four are generated from files in `ref/`. The rest are human-supplied
 and live only in the CSV.
+
+`md-endpoint` rows are identity rows — `old_path` equals `new_path` — so they
+never become redirect rules. They are in the inventory so the verifier proves
+the `.md` endpoints were built. `/sitemap.xml` is a `structural` row because
+`@astrojs/sitemap` can only emit `sitemap-index.xml`; that is the URL to give
+Search Console, and the redirect covers the one it already has on file.
 
 **GitBook serves some nested pages at a flat path too** —
 `/docs/fine-tuning/fine-tuning-guide` is also served at
@@ -226,7 +330,7 @@ for the pre-cutover run against production, where a truncated `redirects.csv`
 is the failure you least want to sail through:
 
 ```sh
-node scripts/verify_redirects.mjs --dist dist --min-paths 129
+node scripts/verify_redirects.mjs --dist dist --min-paths 176
 ```
 
 ### Adding to the inventory
@@ -352,13 +456,16 @@ standard library:
 
 - `scripts/test_gitbook_to_starlight.py` and `scripts/test_build_redirects.py`
   (stdlib `unittest`) — `npm run test:py`
-- `scripts/verify_redirects.test.mjs` (`node:test`) — `npm run test:js`
+- `scripts/verify_redirects.test.mjs` and `scripts/markdown_assets.test.mjs`
+  (`node:test`) — `npm run test:js`
 
 They cover the parts that are easy to get subtly wrong and hard to eyeball: for
 the converter, the github-slugger port, anchor remapping, link and asset
 rewriting, figure conversion, asset naming and YAML frontmatter scalars; for
 the redirects, chain flattening, duplicate detection, the alias pattern, and
-the sitemap's whitespace-wrapped `<loc>` values.
+the sitemap's whitespace-wrapped `<loc>` values; for the machine-readable
+output, every asset-reference shape the corpus uses and the idempotence the
+route middleware relies on.
 
 ## Still to do
 
@@ -369,6 +476,11 @@ the sitemap's whitespace-wrapped `<loc>` values.
 - **No WYSIWYG editor.** Starlight pairs with git-backed CMSes such as
   [Keystatic](https://keystatic.com/) or [TinaCMS](https://tina.io/); neither
   is wired up.
+- **Analytics is wired but off.** It needs a Cloudflare Web Analytics site
+  token — see [Analytics](#analytics).
+- **The favicon and OG image are placeholders.** There is no Kiln logo in this
+  repo to build them from — see
+  [Social preview and favicon](#social-preview-and-favicon).
 
 ## Troubleshooting
 
@@ -418,11 +530,14 @@ this repo with build command `cd site && npm run build` and output directory
 `site/dist`. Search (Pagefind) is built at build time, so there is no Algolia
 account or other external service to set up.
 
+Set `CLOUDFLARE_ANALYTICS_TOKEN` on the project while you are there, or the
+site deploys without analytics — see [Analytics](#analytics).
+
 `public/_redirects` is committed, so the build needs no Python and the deployed
 rules are reviewable in git. Two gates keep that honest, both cheap enough for
 CI: `npm run redirects:check` fails if the file has drifted from
 `redirects.csv`, and
-`node scripts/verify_redirects.mjs --dist dist --min-paths 129` fails if any
+`node scripts/verify_redirects.mjs --dist dist --min-paths 176` fails if any
 inventoried URL no longer reaches the page `redirects.csv` names for it. Run the same verifier
 against the preview URL — without `--dist` — before pointing DNS at it. See
 [Verifying](#verifying).

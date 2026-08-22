@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Kiln">
+  <!--
+    Placeholder mark. There is no Kiln logo anywhere in this repo or its git
+    history, and Starlight links /favicon.svg from every page whether or not the
+    file exists, so this stands in for the real brand asset. Replace it; it is a
+    hand editable SVG. The accent matches the one set in src/styles/custom.css.
+  -->
+  <rect width="64" height="64" rx="14" fill="#6d5ef8"/>
+  <path d="M18 15h8v13.5L38 15h10L33 32l15 17H38L26 35.5V49h-8z" fill="#ffffff"/>
+</svg>

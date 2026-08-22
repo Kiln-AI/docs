@@ -1,5 +1,6 @@
 ---
 title: "Keyboard Shortcuts"
+description: "Shortcuts for navigating the dataset, rating runs, and invoking runs"
 ---
 <figure>
 

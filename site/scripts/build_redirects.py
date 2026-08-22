@@ -33,6 +33,7 @@ REDIRECTS_PATH = SITE_DIR / "public" / "_redirects"
 SITEMAP_PATH = SITE_DIR / "ref" / "legacy_sitemap.xml"
 EXCLUSIONS_PATH = SITE_DIR / "ref" / "alias_exclusions.txt"
 CONTENT_DIR = SITE_DIR / "src" / "content" / "docs"
+PUBLIC_DIR = SITE_DIR / "public"
 
 LEGACY_ORIGIN = "docs.kiln.tech"
 
@@ -40,7 +41,7 @@ CSV_HEADER = ["old_path", "new_path", "status", "source"]
 
 # Sources this script derives from files in `ref/`. `--refresh-csv` rewrites
 # every row carrying one of these and leaves everything else alone.
-GENERATED_SOURCES = ("sitemap", "alias-generated", "structural")
+GENERATED_SOURCES = ("sitemap", "alias-generated", "structural", "md-endpoint")
 
 # Sources only a human can supply. `alias` means a flat alias that phase 1's
 # probe confirmed returns 200 — deliberately a different value from
@@ -54,6 +55,9 @@ SOURCE_BLURBS = {
     "sitemap": "verbatim from ref/legacy_sitemap.xml",
     "alias-generated": "inferred from the flat-alias pattern, NOT probe-confirmed",
     "structural": "paths we chose to catch, not ones we observed",
+    "md-endpoint": (
+        "per-page .md URL GitBook served; served here too, so never a rule"
+    ),
     "alias": "flat alias confirmed live by the phase 1 probe",
     "crawl": "found by the phase 1 link crawl",
     "gsc": "from the Search Console indexed-pages export",
@@ -64,14 +68,46 @@ SOURCE_BLURBS = {
 # window the functional spec allows; nothing uses it today.
 VALID_STATUSES = (301, 302)
 
-# Section roots the nav points into. Neither is built as a page and neither is
-# in the legacy sitemap, but both are trivially hand-typeable.
+# Section roots the nav points into, plus the sitemap URL GitBook served.
+# None of them is built as a page and none is in the legacy sitemap, but all
+# are trivially hand-typeable or already on file at Search Console.
+#
+# `@astrojs/sitemap` always emits an index plus numbered children and has no
+# option to collapse them into a single `sitemap.xml`, so the URL Google knows
+# has to be a redirect. Phase 8 should submit `/sitemap-index.xml` itself.
 STRUCTURAL_REDIRECTS = (
     ("/docs", "/docs/quickstart/"),
     ("/docs/", "/docs/quickstart/"),
     ("/developers", "/developers/python-library-quickstart/"),
     ("/developers/", "/developers/python-library-quickstart/"),
+    ("/sitemap.xml", "/sitemap-index.xml"),
 )
+
+# Root paths the build emits that are neither content pages nor files checked
+# into `public/`, so `target_exists` cannot find them on disk. Each is produced
+# by an integration or route that only exists at build time:
+#
+#   /sitemap-index.xml, /sitemap-0.xml  @astrojs/sitemap, added by Starlight
+#   /llms*.txt                          starlight-llms-txt
+#   /robots.txt                         src/pages/robots.txt.ts
+#
+# `verify_redirects.mjs --dist` is what actually proves they were built; this
+# set only stops this script rejecting a rule before the build has run.
+BUILD_EMITTED_TARGETS = frozenset(
+    {
+        "/sitemap-index.xml",
+        "/sitemap-0.xml",
+        "/llms.txt",
+        "/llms-full.txt",
+        "/llms-small.txt",
+        "/robots.txt",
+    }
+)
+
+# Suffix of the per-page markdown URLs GitBook served and `src/pages/[...slug].md.ts`
+# reproduces. Rows carrying it are identity rows: they exist so
+# `verify_redirects.mjs` checks the endpoints were built, not to redirect.
+MD_ENDPOINT_SUFFIX = ".md"
 
 # Cloudflare Pages caps static redirect rules. The architecture records ~2,000
 # and asks for it to be confirmed against current Cloudflare docs before
@@ -426,25 +462,49 @@ def check_slash_variants(rows: list[Row]) -> None:
             )
 
 
-def validate_targets(rows: list[Row], content_dir: Path) -> None:
+def target_exists(path: str, content_dir: Path, public_dir: Path) -> bool:
+    """Will something be served at `path`?
+
+    Three ways for that to be true: a page in the content collection, a file
+    copied verbatim out of `public/`, or one of the root files an integration
+    generates at build time.
+    """
+    if page_exists(path, content_dir):
+        return True
+    if path in BUILD_EMITTED_TARGETS:
+        return True
+    relative = path.strip("/")
+    return bool(relative) and (public_dir / relative).is_file()
+
+
+def validate_targets(rows: list[Row], content_dir: Path, public_dir: Path) -> None:
     missing = sorted(
-        {row.new_path for row in rows if not page_exists(row.new_path, content_dir)}
+        {
+            row.new_path
+            for row in rows
+            if not target_exists(row.new_path, content_dir, public_dir)
+        }
     )
     if missing:
         raise RedirectError(
-            "redirect targets with no page in "
-            f"{content_dir}: {', '.join(missing)}"
+            "redirect targets that nothing serves (looked in "
+            f"{content_dir}, {public_dir}, and the build-emitted set): "
+            f"{', '.join(missing)}"
         )
 
 
-def build_rules(rows: list[Row], content_dir: Path | None = CONTENT_DIR) -> list[Row]:
+def build_rules(
+    rows: list[Row],
+    content_dir: Path | None = CONTENT_DIR,
+    public_dir: Path = PUBLIC_DIR,
+) -> list[Row]:
     """CSV rows -> the rules that actually get written out."""
     rules = [row for row in rows if row.old_path != row.new_path]
     rules = dedupe(rules)
     check_slash_variants(rules)
     rules = flatten_chains(rules)
     if content_dir is not None:
-        validate_targets(rules, content_dir)
+        validate_targets(rules, content_dir, public_dir)
     if len(rules) > MAX_RULES:
         raise RedirectError(
             f"{len(rules)} rules exceeds the Cloudflare Pages cap of {MAX_RULES}"
@@ -513,10 +573,34 @@ def refresh_rows(
         if old not in claimed
     ]
 
+    md_rows = _md_endpoint_rows(sitemap_paths, claimed)
+
     return Refresh(
-        rows=sitemap_rows + alias_rows + structural_rows + preserved,
+        rows=sitemap_rows + alias_rows + structural_rows + md_rows + preserved,
         **dropped,
     )
+
+
+def _md_endpoint_rows(sitemap_paths: list[str], claimed: set[str]) -> list[Row]:
+    """Identity rows for the per-page `.md` URLs GitBook served.
+
+    `src/pages/[...slug].md.ts` serves these rather than redirecting them — an
+    agent asking for markdown should get markdown — so they never become rules.
+    They are in the inventory so `verify_redirects.mjs` proves the endpoints
+    were actually built.
+
+    The site root has no `.md` form: the landing page is a splash page whose
+    body is JSX, and the mechanical spelling would be `/.md`.
+    """
+    rows = []
+    for path in sitemap_paths:
+        if path == "/":
+            continue
+        md_path = path.rstrip("/") + MD_ENDPOINT_SUFFIX
+        if md_path in claimed:
+            continue
+        rows.append(Row(md_path, md_path, 301, "md-endpoint"))
+    return rows
 
 
 def _alias_rows(

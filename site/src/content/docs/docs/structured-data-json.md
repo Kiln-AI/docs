@@ -1,5 +1,6 @@
 ---
 title: "Structured Data / JSON"
+description: "Define JSON schemas for task inputs and outputs, with automatic validation"
 ---
 <figure>
 

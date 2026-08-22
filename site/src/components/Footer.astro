@@ -1,0 +1,40 @@
+---
+import Default from '@astrojs/starlight/components/Footer.astro';
+---
+
+{/*
+  Starlight's own footer (edit link, last updated, pagination), plus a visible
+  pointer at the machine-readable copies of the docs. GitBook surfaced its
+  `llms.txt` in page chrome and we only found out it existed by auditing the
+  live site, so discoverability is the whole point of putting this here rather
+  than leaving the files unlinked.
+*/}
+<Default><slot /></Default>
+
+<p class="llms-links print:hidden">
+  <span>For LLMs:</span>
+  <a href="/llms.txt">llms.txt</a>
+  <a href="/llms-full.txt">llms-full.txt</a>
+</p>
+
+<style>
+  .llms-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--sl-color-hairline);
+    font-size: var(--sl-text-xs);
+    color: var(--sl-color-gray-3);
+  }
+
+  .llms-links a {
+    color: inherit;
+    text-decoration-color: var(--sl-color-gray-4);
+  }
+
+  .llms-links a:hover {
+    color: var(--sl-color-white);
+  }
+</style>

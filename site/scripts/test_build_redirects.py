@@ -49,6 +49,18 @@ def content_tree(*page_paths):
         yield directory
 
 
+@contextlib.contextmanager
+def public_tree(*file_paths):
+    """A stand-in for `site/public` holding just the named files."""
+    with tempfile.TemporaryDirectory() as root:
+        directory = pathlib.Path(root)
+        for file_path in file_paths:
+            target = directory / file_path
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_bytes(b"x")
+        yield directory
+
+
 def rows_from(*specs):
     return [B.Row(*spec) for spec in specs]
 
@@ -380,6 +392,28 @@ class BuildRulesTest(unittest.TestCase):
         rows = rows_from(("/a", "/ghost/", 301, "manual"))
         self.assertEqual(len(B.build_rules(rows, content_dir=None)), 1)
 
+    def test_target_may_be_a_file_in_public(self):
+        rows = rows_from(("/old.txt", "/handout.txt", 301, "manual"))
+        with content_tree("index.md") as tree, public_tree("handout.txt") as public:
+            self.assertEqual(len(B.build_rules(rows, tree, public)), 1)
+
+    def test_target_may_be_a_file_the_build_emits(self):
+        rows = rows_from(("/sitemap.xml", "/sitemap-index.xml", 301, "structural"))
+        with content_tree("index.md") as tree, public_tree() as public:
+            self.assertEqual(len(B.build_rules(rows, tree, public)), 1)
+
+    def test_a_directory_in_public_is_not_a_target(self):
+        rows = rows_from(("/a", "/assets/", 301, "manual"))
+        with content_tree("index.md") as tree, public_tree("assets/logo.png") as public:
+            with self.assertRaisesRegex(B.RedirectError, "/assets/"):
+                B.build_rules(rows, tree, public)
+
+    def test_unknown_target_still_raises_and_names_where_it_looked(self):
+        rows = rows_from(("/a", "/ghost/", 301, "manual"))
+        with content_tree("index.md") as tree, public_tree() as public:
+            with self.assertRaisesRegex(B.RedirectError, "nothing serves"):
+                B.build_rules(rows, tree, public)
+
 
 class RenderTest(unittest.TestCase):
     def test_emits_one_rule_per_line(self):
@@ -477,6 +511,43 @@ class RefreshTest(unittest.TestCase):
     def test_is_idempotent(self):
         first = self.refresh().rows
         self.assertEqual(self.refresh(existing=first).rows, first)
+
+    def test_generates_the_sitemap_redirect(self):
+        self.assertIn(
+            B.Row("/sitemap.xml", "/sitemap-index.xml", 301, "structural"),
+            self.refresh().rows,
+        )
+
+    def test_md_endpoint_rows_cover_every_page_but_the_root(self):
+        rows = [row for row in self.refresh().rows if row.source == "md-endpoint"]
+        self.assertEqual(
+            [row.old_path for row in rows],
+            ["/docs/quickstart.md", "/docs/fine-tuning/fine-tuning-guide.md"],
+        )
+
+    def test_md_endpoint_rows_are_identity_rows(self):
+        rows = [row for row in self.refresh().rows if row.source == "md-endpoint"]
+        self.assertTrue(rows)
+        for row in rows:
+            self.assertEqual(row.old_path, row.new_path)
+
+    def test_md_endpoint_rows_never_become_rules(self):
+        rows = self.refresh().rows
+        # Target validation is off: the structural rows point at pages this
+        # fixture tree does not have, and they are not what is under test.
+        rules = B.build_rules(rows, content_dir=None)
+        self.assertEqual([rule for rule in rules if rule.source == "md-endpoint"], [])
+
+    def test_no_md_endpoint_row_for_the_site_root(self):
+        paths = {row.old_path for row in self.refresh().rows}
+        self.assertNotIn("/.md", paths)
+        self.assertNotIn("/index.md", paths)
+
+    def test_a_human_row_still_wins_over_a_generated_md_row(self):
+        human = B.Row("/docs/quickstart.md", "/docs/quickstart/", 301, "manual")
+        rows = self.refresh(existing=[human]).rows
+        claiming = [row for row in rows if row.old_path == "/docs/quickstart.md"]
+        self.assertEqual(claiming, [human])
 
 
 class CommandTest(unittest.TestCase):
