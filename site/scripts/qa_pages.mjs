@@ -564,29 +564,17 @@ export function parseArgs(args) {
 	return options;
 }
 
-async function main(args) {
-	const options = parseArgs(args);
-	const contentDir = path.resolve(SITE_DIR, options.content);
-	const distDir = path.resolve(SITE_DIR, options.dist);
-
-	/** @type {{where: string, check: string, message: string, detail?: string}[]} */
-	const failures = [];
-	const notes = [];
-	const record = (where, finding) => {
-		(isAdvisory(finding) ? notes : failures).push({ where, ...finding });
-	};
-
-	let pageCount = 0;
-	for (const file of await contentFiles(contentDir)) {
-		pageCount++;
-		const source = await readFile(path.join(contentDir, file), 'utf8');
-		for (const finding of residualGitbookMarkup(source)) record(file, finding);
-	}
-	console.log(`scanned ${pageCount} content files for residual GitBook markup`);
-
-	if (options.browser) {
-		const { chromium } = loadPlaywright();
-		const local = options.baseUrl ? null : await serveDist(distDir);
+/**
+ * The browser half: render every built page at each viewport and judge it.
+ *
+ * Separate from `main` so that the one thing that can stop it before it starts
+ * — Playwright not being installed — is catchable without also swallowing the
+ * static findings.
+ */
+async function sweepInBrowser(options, distDir, record) {
+	const { chromium } = loadPlaywright();
+	const local = options.baseUrl ? null : await serveDist(distDir);
+	try {
 		const origin = options.baseUrl ?? local.origin;
 		const pages = await builtPages(distDir);
 		const browser = await chromium.launch();
@@ -607,9 +595,49 @@ async function main(args) {
 			}
 		} finally {
 			await browser.close();
-			local?.server.close();
 		}
 		console.log(`rendered ${pages.length} pages at ${VIEWPORTS.map((v) => `${v.width}px`).join(' and ')}`);
+	} finally {
+		local?.server.close();
+	}
+}
+
+async function main(args) {
+	const options = parseArgs(args);
+	const contentDir = path.resolve(SITE_DIR, options.content);
+	const distDir = path.resolve(SITE_DIR, options.dist);
+
+	/** @type {{where: string, check: string, message: string, detail?: string}[]} */
+	const failures = [];
+	const notes = [];
+	const record = (where, finding) => {
+		(isAdvisory(finding) ? notes : failures).push({ where, ...finding });
+	};
+
+	let pageCount = 0;
+	for (const file of await contentFiles(contentDir)) {
+		pageCount++;
+		const source = await readFile(path.join(contentDir, file), 'utf8');
+		for (const finding of residualGitbookMarkup(source)) record(file, finding);
+	}
+	console.log(`scanned ${pageCount} content files for residual GitBook markup`);
+
+	/**
+	 * A half that could not run at all — no Playwright, no `dist` to serve.
+	 *
+	 * Held rather than thrown, because throwing here would discard the static
+	 * findings already collected. For a tool whose whole thesis is that markup
+	 * which degrades quietly raises no error anywhere, silently dropping its own
+	 * results is the one failure mode it cannot have.
+	 */
+	let incomplete = null;
+	if (options.browser) {
+		try {
+			await sweepInBrowser(options, distDir, record);
+		} catch (error) {
+			if (!(error instanceof QaError)) throw error;
+			incomplete = error;
+		}
 	}
 
 	const print = (label, items) => {
@@ -624,6 +652,12 @@ async function main(args) {
 	print(`${notes.length} note(s), not failures:`, notes);
 	print(`${failures.length} finding(s):`, failures);
 
+	// 1: the sweep ran and found something. 2: the sweep could not finish, so a
+	// clean report means nothing — anything it did find is printed above first.
+	if (incomplete) {
+		console.error(`\n${incomplete.message}`);
+		return 2;
+	}
 	if (failures.length > 0) return 1;
 	console.log('\nno findings');
 	return 0;

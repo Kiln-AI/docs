@@ -13,6 +13,7 @@
     "redirects": "python3 scripts/build_redirects.py",
     "redirects:check": "python3 scripts/build_redirects.py --check",
     "verify:redirects": "node scripts/verify_redirects.mjs --min-paths 176",
+    "qa": "node scripts/qa_pages.mjs",
     "test": "npm run test:py && npm run test:js",
     "test:py": "python3 -m unittest discover -s scripts -p 'test_*.py' -t scripts",
     "test:js": "node --test \"scripts/*.test.mjs\"",

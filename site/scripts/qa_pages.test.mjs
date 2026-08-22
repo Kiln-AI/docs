@@ -14,6 +14,12 @@
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { execFile } from 'node:child_process';
+import { mkdtemp, mkdir, writeFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { promisify } from 'node:util';
 
 import {
   QaError,
@@ -351,4 +357,46 @@ test('parseArgs accepts both spellings and strips a trailing slash', () => {
 test('parseArgs rejects an unknown argument rather than ignoring it', () => {
   assert.throws(() => parseArgs(['--browserr']), QaError);
   assert.throws(() => parseArgs(['--dist']), QaError);
+});
+
+// --------------------------------------------------------------------------
+// The CLI
+// --------------------------------------------------------------------------
+
+const SCRIPT = fileURLToPath(new URL('./qa_pages.mjs', import.meta.url));
+const run = promisify(execFile);
+
+/** A content directory holding one page with two pieces of residual GitBook markup. */
+async function fixtureSite() {
+  const root = await mkdtemp(path.join(tmpdir(), 'qa-pages-'));
+  await mkdir(path.join(root, 'content'));
+  await mkdir(path.join(root, 'dist'));
+  await writeFile(
+    path.join(root, 'content', 'fixture.md'),
+    '---\ntitle: Fixture\n---\n<table data-view="cards"><tr><th data-hidden></th></tr></table>\n',
+  );
+  return root;
+}
+
+async function runCli(args) {
+  return run(process.execPath, [SCRIPT, ...args]).catch((error) => error);
+}
+
+test('the static report is printed and exits non-zero', async () => {
+  const root = await fixtureSite();
+  const result = await runCli(['--content', `${root}/content`, '--dist', `${root}/dist`]);
+  assert.equal(result.code, 1);
+  assert.match(result.stdout, /gitbook-card-table/);
+  assert.match(result.stdout, /gitbook-hidden-column/);
+});
+
+test('--browser never swallows the static findings, however it ends', async () => {
+  // The half that cannot run must not take the half that did with it: without
+  // this, a page full of residual markup reports nothing when Playwright is
+  // missing, which is indistinguishable from a clean page.
+  const root = await fixtureSite();
+  const result = await runCli(['--browser', '--content', `${root}/content`, '--dist', `${root}/dist`]);
+  assert.notEqual(result.code, 0);
+  assert.match(result.stdout, /gitbook-card-table/);
+  assert.match(result.stdout, /gitbook-hidden-column/);
 });
