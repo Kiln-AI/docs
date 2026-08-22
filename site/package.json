@@ -29,6 +29,7 @@
     "starlight-theme-black": "^0.7.1"
   },
   "devDependencies": {
+    "starlight-links-validator": "^0.25.3",
     "yaml": "^2.9.0"
   }
 }
