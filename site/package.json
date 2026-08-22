@@ -8,7 +8,6 @@
     "npm": ">=9.6.5"
   },
   "scripts": {
-    "convert": "python3 scripts/gitbook_to_starlight.py",
     "og": "node scripts/build_og_image.mjs",
     "redirects": "python3 scripts/build_redirects.py",
     "redirects:check": "python3 scripts/build_redirects.py --check",

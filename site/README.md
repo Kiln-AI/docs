@@ -526,9 +526,29 @@ slash, which is what the 45 `sitemap` rows redirect.
 
 `scripts/gitbook_to_starlight.py` is the one-shot tool that produced this
 content out of the GitBook tree. **It is not part of the build.** `npm run dev`
-and `npm run build` are plain Astro commands; the converter is kept only for
-the final reconciliation step, which picks up any GitBook page that landed
-after the content freeze.
+and `npm run build` are plain Astro commands, and there is no `npm run convert`
+— the only supported way to run this script is `--out`, by hand, from a
+worktree, as below.
+
+**Reconciliation is finished.** The content freeze was `1dde281`, and the
+GitBook pages that landed after it — the evals/judges edits from PR #15 — came
+across in the ordinary phase 3 conversion, because `origin/main` was merged into
+this branch at `3e16f5a` before that conversion ran. As of `origin/main`
+`722d4cd` the GitBook sources are bit-identical to the ones this content was
+built from, so there is no late page waiting to be copied in. Do not go looking
+for one.
+
+The script is kept for one reason: **GitBook is still live.** The cutover has
+not happened, so someone can still edit GitBook, and such an edit would arrive
+on `main` as a new `GITBOOK-nnn` commit that this tool is the only way to
+convert. Once the cutover completes and GitBook is decommissioned, this script
+and `scripts/test_gitbook_to_starlight.py` should be deleted — nothing else in
+the repo depends on them.
+
+Until then, leave it where it is. The procedure below depends on the *current*
+copy being reachable at `HEAD`; the copy inside the commit that procedure tells
+you to check out is an older, wrong-output version, so a deleted script here
+turns a signposted procedure into a silent failure.
 
 **Its inputs are not in this checkout.** `.gitbook/`, `docs/`, `developers/`
 and `SUMMARY.md` were deleted once their content moved here, so a run has to

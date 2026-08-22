@@ -71,3 +71,20 @@ ability to convert anything else.
   and copy them in individually — never a destructive full re-run. Once
   reconciled, delete `gitbook_to_starlight.py`, the `npm run convert` wiring,
   and the remaining migration scripts.
+
+  **Half done, deliberately.** *Reconciliation is complete:* nothing landed on
+  `origin/main` after the freeze that is not already here. Main was merged into
+  this branch at `3e16f5a` before phase 3 converted, so PR #15's 8 files went
+  through the audited transformer in the ordinary full conversion; `origin/main`
+  `722d4cd` is that merge's own second parent and its GitBook sources are
+  bit-identical to the ones this content was built from. No page needed copying
+  in, so the `.mdx` merge hazard was never reached. *The transformer is not
+  deleted*, because phase 8 is unperformed: GitBook is still live and still
+  editable, and this is the only tool that can convert a further edit. Deleting
+  it would also strand the recovery procedure, which needs today's copy at
+  `HEAD` — the copy at `GITBOOK_TREE_COMMIT` is an older version whose output is
+  wrong in ways nothing validates. The `npm run convert` wiring *was* removed:
+  it could only invoke the destructive mode the backstop refuses. Delete
+  `gitbook_to_starlight.py` and `test_gitbook_to_starlight.py` once phase 8
+  decommissions GitBook; the checkbox stays unticked until then. See
+  `phase_plans/phase_9.md`.
