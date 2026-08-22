@@ -150,9 +150,12 @@ green signal. Follow it with a table of what each link proves, so a reader can
 tell which property they lost when one fails. Then the browser half, which CI
 cannot run, as a separate two-command step.
 
-Deliberately **not** a new npm script: this is the CI set in the CI order, and
-a `verify:precutover` script would be a second place for the list to drift
-from `.github/workflows/ci.yml`.
+Deliberately **not** a new npm script. The honest reason is not that it
+mirrors CI — it does not: it is the CI set *plus* `npm run qa`, which CI runs
+in neither half. It is that a `verify:precutover` script would be a second
+place for the list to live, drifting from `ci.yml` on one side and from the
+runbook prose that explains each link on the other. A chain the reader can see
+is a chain they can shorten when one link is inapplicable.
 
 ### 4. Verify every claim in the section that can be checked locally
 
@@ -255,6 +258,73 @@ Fix by copying the sweep into a scratch tree with the stub in *its*
 `node_modules`, so ordinary resolution finds it. The sweep imports nothing but
 node builtins, which is what makes this safe.
 
+### 11. Fix the fourth broken command: the 404 fix path verified a stale `dist`
+
+Found in review, in the worst possible place — the post-cutover incident path.
+*Watching for 404s* > *The fix* was `add row → --refresh-csv → move the floor →
+npm run verify:redirects -- --dist dist`. `--refresh-csv` writes
+`public/_redirects`; only `npm run build` copies it into `dist/_redirects`,
+which is what the verifier reads. There was no build in the list.
+
+Reproduced: adding one `gsc` row and following the four steps verbatim gives
+`nothing redirects it; redirects.csv says it should reach /docs/quickstart/`
+against the row just added correctly. On a fresh clone there is no `dist` and
+it is `ENOENT`. Same wrong-diagnosis-under-pressure shape as step 9, landing on
+someone responding to a live 404 spike.
+
+Step 4 becomes `npm run build && npm run verify:redirects -- --dist dist`, with
+a note saying why the build is load-bearing. The other two copies of the terse
+command (*Verifying*, *Continuous integration*) both already have `npm run
+build` immediately above; *Adding to the inventory* escapes by delegating.
+Checked all four.
+
+### 12. Close two more zero-work-reports-success holes in `qa_pages.mjs`
+
+Step 8's guard was right in intent and too narrow in both directions.
+
+- **`options.baseUrl && !options.browser` tests truthiness**, so
+  `--base-url ""` is falsy and slips through to the same silent no-op, exit 0.
+  Reachable straight from this runbook's own `URL=…` idiom when the variable
+  never got set. Test `!== null`, and reject an empty value at parse time for
+  `--base-url`, `--dist` and `--content` alike.
+- **A zero-page sweep reported success.** `--browser --base-url <prod>` against
+  an unbuilt `dist` printed `rendered 0 pages` / `no findings`, exit 0, without
+  resolving the host — the page list comes from `dist` even when the pages are
+  fetched. Throw when `pages.length === 0`.
+
+Both are the defect class step 8 was written to kill, arriving by other doors.
+
+### 13. Keep the alias probe's `Location`
+
+The probe recorded `%{http_code}` only. A `301` proves the alias existed; it
+does not say where GitBook sent it — and *Adding to the inventory* step 2 then
+promotes the row to `alias`, freezing our *inferred* destination as confirmed
+fact on evidence that never mentioned it. Add `%{redirect_url}`. Group 1's
+whole framing is "save raw output, this is unrepeatable", and this is the field
+you cannot go back for.
+
+### 14. Correct the "can only be too few" claim's reasoning
+
+The conclusion holds — verified independently: no `alias-generated` `old_path`
+collides with a built page, another row's `old_path`, or any row's `new_path`.
+But the reason given was wrong. It is not "nothing links to it, so the rule
+never fires"; it is that `_alias_rows` in `build_redirects.py` skips an alias
+`page_exists()` matches and one two nested pages both claim.
+
+That distinction has teeth, because the guard runs at **generation** time. A
+page added later at a path an existing alias row claims is shadowed silently —
+neither `redirects:check` nor the link validator compares the two. Record the
+real reason and the caveat.
+
+### 15. Note that `--refresh-csv` ends a 302 window
+
+If the launch-week 302 option is taken, the refresh rebuilds every generated
+row at its default `301`. Verified: 130 rows at `302` come out of a refresh as
+130 at `301` — including `md-endpoint`, so it is every row, not the three
+sources first assumed. That means following *The fix* during a 302 window
+reverts the whole map. Loud, but easy to scroll past. One paragraph in *If it
+goes wrong*.
+
 ## Tests
 
 - `parseArgs refuses --base-url without --browser rather than ignoring it` —
@@ -263,8 +333,18 @@ node builtins, which is what makes this safe.
 - `a browser that fails after it loads does not swallow them either` — existing
   test, made hermetic. Must pass **both** with Playwright installed in
   `site/node_modules` and without it; run both ways.
+- `parseArgs rejects an empty value rather than reading it as absent` — all
+  three value-taking flags, and `--base-url ""` still refused when `--browser`
+  is present. Empty is invalid, not merely unpaired.
+- `--browser refuses to report on a dist with no built pages` — exits 2, says
+  `no built pages`, and still prints the static findings it did have.
 - The full suite (`npm test`) run with Playwright present, since that is the
-  state the runbook puts the reader's tree in.
+  state the runbook puts the reader's tree in — and again with it absent, since
+  that is CI's state.
+
+Note that the zero-page guard preempts the launch-failure path, so the stub
+test now writes a `dist/index.html` to get as far as `launch()`. Without it
+that test silently stops testing what it names.
 
 ## Verification performed in this phase
 
@@ -276,17 +356,24 @@ here*.
 | The whole pre-cutover chain runs as written from the repo root | Ran it verbatim | Passes, ends `PRE-CUTOVER CHECKS PASSED` |
 | `npm run verify:redirects -- --dist dist` checks 176 paths | Ran | `checked 176 paths`, 84 rules, all resolve |
 | 84 rules, 130 rows, 34 `alias-generated` | Counted in `redirects.csv` / `public/_redirects` | Confirmed; 17 slashless aliases |
-| `npm run qa -- --browser` is green | Ran, 47 pages × 2 viewports | No findings; only unreachable-external-image notes |
+| `npm run qa -- --browser` is green | Ran, 46 pages × 2 viewports | No findings; only unreachable-external-image notes |
 | Both Playwright install commands work as written from `site/` | Ran both | Work; `--no-save` leaves `package-lock.json` byte-identical |
 | `npm run qa -- --base-url X` without `--browser` | Ran | **Silent no-op, exit 0** — fixed, step 8 |
-| `npm test` with Playwright installed | Ran | **Failed 1/45** — fixed, step 10 |
+| `npm test` with Playwright installed | Ran | **Failed 1/44** in the JS suite — fixed, step 10 |
 | `--refresh-csv` is idempotent today | Ran in a scratch copy | No change to `redirects.csv` |
 | The disproved-alias settle-up works as documented | Simulated in a scratch copy: deleted both rows, added the exclusion, refreshed | Rows dropped correctly, 130 → 128 |
 | …and what it does to the verifier | Ran the verifier after | **Fails the 176 floor** — fixed, step 9 |
 | `--allow-temporary` exists for the 302 window | Read `verify_redirects.mjs` | Exists, undocumented; now documented |
 | The `.md` and alias probe command shapes are correct | Ran both against a local `astro preview` | Correct output shape |
-| Every internal anchor in `README.md` resolves | `github-slugger` over headings and `](#…)` links | 54 anchors, all resolve |
+| Every internal anchor in `README.md` resolves | `github-slugger` over headings and `](#…)` links | 57 anchors, all resolve |
 | The sitemap URL to submit | `dist/` contents and `redirects.csv` | `sitemap-index.xml` is real; `/sitemap.xml` is a redirect row |
+| The 404 fix path, step 4 | Added a `gsc` row, refreshed, ran it verbatim | **Failed on a stale `dist`**; `ENOENT` with no `dist` — fixed, step 11 |
+| …and with `npm run build` first | Same scratch copy | 177 paths, 85 rules, all resolve |
+| `--base-url ""` | Ran | **`no findings`, exit 0** — fixed, step 12 |
+| `--browser` against an unbuilt `dist` | Ran | **`rendered 0 pages`, exit 0** — fixed, step 12 |
+| No `alias-generated` row shadows anything | Compared all 34 against built pages, other `old_path`s and all `new_path`s | No collisions; guard is in `_alias_rows` |
+| `%{redirect_url}` captures the destination | Ran the probe against a local 301/404/200 server | Records the `Location`; empty on 404 and 200 |
+| `--refresh-csv` reverts a 302 window | Set all 130 rows to `302` in a scratch copy, refreshed | All 130 back to `301` — documented, step 15 |
 
 ## Not verifiable from here — a human must confirm
 
@@ -309,6 +396,11 @@ the checklist is on it by definition.
 - **The current DNS record for `docs.kiln.tech`**, and whether `kiln.tech` is
   on Cloudflare. The runbook covers both cases; which one applies is unknown
   here, and the record's current value is the rollback anchor.
+- **Whether the custom domain must be detached before or after DNS is
+  restored, on rollback.** The runbook says detach first, reasoning that an
+  attached domain may let Cloudflare re-assert its record, and a rollback that
+  appears not to take is the worst thing to debug in the moment. That is
+  reasoning, not observation, and it is flagged as such in place.
 - **The Cloudflare static-redirect rule cap.** `MAX_RULES` is 2,000 from the
   architecture, unconfirmed. We emit 84, so this is bookkeeping.
 - **Whether analytics receives data.** Needs the token, the project and real
@@ -334,6 +426,11 @@ For phase 9, and for whoever performs the cutover.
 - **The 302 launch-week option is a live decision, not a default.** If it is
   taken, flipping back to 301 is a tracked follow-up the functional spec
   requires, and the verifier's `--allow-temporary` must come back off with it.
+- **The alias probe's `Location` output has no consumer yet.**
+  `ref/alias_probe.txt` is written by hand and read by a human against
+  *Adding to the inventory*. If the probe ever runs, a row whose recorded
+  `Location` disagrees with its `new_path` is a *wrong* row, not a confirmed
+  one, and nothing automates that comparison.
 - **`npm ci` removes an `--no-save` Playwright install.** The pre-cutover chain
   starts with `npm ci`, so the browser sweep's two install commands belong
   after it, which is how the runbook orders them. Worth knowing before someone

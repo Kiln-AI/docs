@@ -369,6 +369,21 @@ test('parseArgs refuses --base-url without --browser rather than ignoring it', (
   assert.equal(parseArgs(['--browser', '--base-url', 'https://x']).baseUrl, 'https://x');
 });
 
+// The guard above tests for null, not truthiness. An unset shell variable —
+// `URL=` on one line, `--base-url "$URL"` on another — arrives as '', and a
+// truthiness test would wave it through to the same false green.
+test('parseArgs rejects an empty value rather than reading it as absent', () => {
+  for (const flag of ['--base-url', '--dist', '--content']) {
+    assert.throws(
+      () => parseArgs([flag, '']),
+      (error) => error instanceof QaError && /empty value/.test(error.message),
+      `${flag} accepted an empty value`,
+    );
+  }
+  // Still refused with --browser present: empty is invalid, not merely unpaired.
+  assert.throws(() => parseArgs(['--browser', '--base-url', '']), QaError);
+});
+
 // --------------------------------------------------------------------------
 // The CLI
 // --------------------------------------------------------------------------
@@ -449,10 +464,33 @@ test('--browser never swallows the static findings, however it ends', async () =
   assert.match(result.stdout, /gitbook-hidden-column/);
 });
 
+// `dist` supplies the page list even when the pages are fetched from a
+// deployment, so an unbuilt dist sweeps nothing. Reporting that as a pass is
+// the defect the --base-url guard exists to prevent, arriving by another door.
+test('--browser refuses to report on a dist with no built pages', async () => {
+  const root = await fixtureSite();
+  const result = await runScript(await stubbedSweepPath(root), [
+    '--browser',
+    '--base-url',
+    'https://example.invalid',
+    '--content',
+    `${root}/content`,
+    '--dist',
+    `${root}/dist`,
+  ]);
+  assert.equal(result.code, 2);
+  assert.match(result.stderr, /no built pages/);
+  // and the static findings still survive it
+  assert.match(result.stdout, /gitbook-card-table/);
+});
+
 test('a browser that fails after it loads does not swallow them either', async () => {
   // The failure that is not a QaError: Playwright resolves, its browser binary
   // does not exist. Catching only QaError would print nothing but a stack.
   const root = await fixtureSite();
+  // A built page, so the sweep gets as far as launching. Without it the
+  // no-built-pages guard stops it earlier and this stops testing the launch.
+  await writeFile(path.join(root, 'dist', 'index.html'), '<html><body>fixture</body></html>');
   const result = await runScript(await stubbedSweepPath(root), [
     '--browser',
     '--content',

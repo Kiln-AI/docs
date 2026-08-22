@@ -548,9 +548,14 @@ export function parseArgs(args) {
 	const options = { dist: 'dist', content: 'src/content/docs', browser: false, baseUrl: null };
 	for (let index = 0; index < args.length; index++) {
 		const arg = args[index];
+		// An empty value is rejected rather than accepted: the runbook's idiom is
+		// `URL=…` on one line and `--base-url "$URL"` on another, so an unset
+		// variable arrives here as `''`. Treating that as "not passed" is how a
+		// check against production silently becomes a check against nothing.
 		const value = () => {
 			const next = args[++index];
 			if (next === undefined) throw new QaError(`${arg} needs a value`);
+			if (next === '') throw new QaError(`${arg} was given an empty value`);
 			return next;
 		};
 		if (arg === '--browser') options.browser = true;
@@ -566,7 +571,7 @@ export function parseArgs(args) {
 	// sources off disk and would not notice a URL. Accepting the flag on its own
 	// would print "no findings" for a deployment nothing had contacted — the
 	// exact false green a cutover check must not produce.
-	if (options.baseUrl && !options.browser) {
+	if (options.baseUrl !== null && !options.browser) {
 		throw new QaError(
 			'--base-url only means something with --browser: the static checks read ' +
 				'src/content/docs off disk and never fetch anything. Add --browser, or ' +
@@ -589,6 +594,16 @@ async function sweepInBrowser(options, distDir, record) {
 	try {
 		const origin = options.baseUrl ?? local.origin;
 		const pages = await builtPages(distDir);
+		// The page list comes from `dist` even when the pages are fetched from a
+		// deployment, so an unbuilt or stale `dist` sweeps nothing and reports
+		// "no findings" — without so much as resolving the host. A checker that
+		// checks nothing must not pass.
+		if (pages.length === 0) {
+			throw new QaError(
+				`--browser found no built pages in ${distDir}. The page list comes from ` +
+					'dist even with --base-url, so run `npm run build` first.',
+			);
+		}
 		const browser = await chromium.launch();
 		try {
 			for (const viewport of VIEWPORTS) {

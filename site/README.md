@@ -970,15 +970,22 @@ redone.
       ```sh
       awk -F, '$4=="alias-generated" && $1 !~ /\/$/ {print $1}' redirects.csv \
       | while read -r path; do
-          printf '%s %s\n' \
-            "$(curl -sS -o /dev/null -w '%{http_code}' "https://docs.kiln.tech$path")" \
-            "$path"
+          printf '%s %s\n' "$path" \
+            "$(curl -sS -o /dev/null -w '%{http_code} %{redirect_url}' \
+                 "https://docs.kiln.tech$path")"
         done | tee ref/alias_probe.txt
       ```
 
+      **Keep the `redirect_url`.** A `301` proves the alias existed; it does
+      not say where GitBook *sent* it, and promoting a row to `alias` freezes
+      our inferred destination as confirmed fact. If the `Location` disagrees
+      with the row's `new_path`, the row is wrong rather than confirmed. This
+      is the one field you cannot go back for.
+
       **What the probe is really for.** A generated row that GitBook never
-      served is dead weight, not a bug — nothing links to that URL, so the rule
-      never fires. The risk runs the other way: aliases the pattern *failed* to
+      served is dead weight, not a bug — the generator already refuses to
+      create an alias that would shadow a real page, so an unused one costs
+      nothing. The risk runs the other way: aliases the pattern *failed* to
       generate are live URLs with no redirect, and they are what a 404 spike is
       made of. So the 404s in that output are hygiene; the reason to run it is
       to find out whether the pattern is right at all. Also try the shape phase
@@ -1139,9 +1146,10 @@ proves:
 | `npm run verify:redirects -- --dist dist` | All 176 paths resolve when the rules in `dist/_redirects` are applied — offline, so this is about the rules, not the host. |
 | `npm run qa` | No residual GitBook markup in the content sources. |
 
-This is the same set CI runs on every PR, in the same order, minus the one
-thing CI cannot do. Add that one by hand — it needs a browser, and it is the
-half worth having before a launch:
+This is the set CI runs on every PR, in the same order, **plus `npm run qa`** —
+which CI does not run in either half, because the part worth gating needs a
+browser and CI has none (see [Page QA](#page-qa)). Add the browser half by
+hand; it is the one worth having before a launch:
 
 ```sh
 npm install --no-save playwright && npx playwright install chromium
@@ -1272,11 +1280,16 @@ Rollback is putting the old DNS record back. It works because step 8 has not
 happened — GitBook is still serving, and the only thing that changed is where
 the name points.
 
-1. **Restore the DNS record you wrote down** in group 3. If Cloudflare replaced
+1. **Remove `docs.kiln.tech` as a custom domain** on the Pages project first,
+   so Cloudflare stops claiming the hostname. Doing this before touching DNS is
+   deliberate: with the domain still attached, Cloudflare may re-assert its own
+   record, and a rollback that appears not to take is the worst thing to be
+   debugging at that moment. **Unconfirmed against a real Pages project** — if
+   it turns out the custom domain must go second, the order here is the thing
+   to fix.
+2. **Restore the DNS record you wrote down** in group 3. If Cloudflare replaced
    it when you added the custom domain, delete the Pages record and recreate
    the original.
-2. **Remove `docs.kiln.tech` as a custom domain** on the Pages project, so
-   Cloudflare stops claiming the hostname.
 3. **Wait out the TTL.** This is the 60 seconds you set a day ahead, not the
    hour it may have been before.
 4. Confirm with a resolver you have not used yet — `curl -sSI
@@ -1296,6 +1309,16 @@ verifier — without it, a temporary redirect is reported as a failure, which is
 the correct default and exactly wrong during a deliberate 302 window. Flipping
 back to 301 is a tracked follow-up, not an optional one: 302s do not pass
 ranking signals on.
+
+**While a 302 window is open, `--refresh-csv` closes it.** The refresh
+rebuilds every generated row from `ref/` — `sitemap`, `alias-generated`,
+`structural` and `md-endpoint`, which today is all 130 of them — and writes
+them back at their default `301`. Verified: a CSV with all 130 rows at `302`
+comes out of a refresh with all 130 at `301`. So running
+[the 404 fix](#watching-for-404s), whose step 2 is a refresh, reverts the whole
+map to permanent redirects. It is loud about it (a `changed` line per
+row), but it is easy to scroll past when you are chasing a 404. Re-apply the
+`302` after any refresh taken during the window.
 
 **When to roll back, and when not to.** Roll back for: the site not serving at
 all past the certificate window, or `verify:redirects` failing broadly against
@@ -1341,13 +1364,33 @@ inventory. From `site/`:
 2. `python3 scripts/build_redirects.py --refresh-csv`
 3. Move the floor if the path count changed — the verifier's error message
    names the new number. See [The floor](#the-floor).
-4. `npm run verify:redirects -- --dist dist`, review the diff, ship it.
+4. `npm run build && npm run verify:redirects -- --dist dist`, review the diff,
+   ship it.
+
+   **The build is not optional here.** `--refresh-csv` writes
+   `public/_redirects`; only a build copies it to `dist/_redirects`, which is
+   what the verifier reads. Skip it and the verifier applies the *old* rules
+   and reports `nothing redirects it` against the row you just added correctly
+   — the wrong diagnosis, arriving while you are responding to a live 404
+   spike. On a fresh clone there is no `dist` at all and it dies with `ENOENT`.
 
 Full detail, including the alias promote-and-exclude rules, is in
 [Adding to the inventory](#adding-to-the-inventory).
 
-**Why the inferred rows cannot cause this.** A generated alias for a URL
-GitBook never served is a rule that never fires: nothing links to it, so
-nothing requests it. The 34 `alias-generated` rows can only fail by being *too
-few*, never by being wrong — which is why the response to a 404 spike is always
-to add rows, and never to remove them.
+**Why the inferred rows cannot cause this — and the one way that could
+change.** A generated alias for a URL GitBook never served is a rule that never
+fires, so the 34 `alias-generated` rows can only fail by being *too few*. That
+is why the response to a 404 spike is always to add rows, never to remove them.
+
+The reason it holds is not that nothing links to those URLs. It is that
+`_alias_rows` in `scripts/build_redirects.py` refuses to generate an alias that
+would shadow something: it skips a path `page_exists()` matches, and skips a
+leaf two nested pages both claim. Verified against the current data — no
+`alias-generated` `old_path` collides with a built page, with another row's
+`old_path`, or with any row's `new_path`.
+
+**That guard runs at generation time, not at build time.** So a page added
+later at a path an existing alias row already claims would be shadowed by the
+redirect, silently: neither `redirects:check` nor the link validator compares
+the two. If you add a page whose URL is a flattened form of a nested one, run
+`python3 scripts/build_redirects.py --refresh-csv` and read what it reports.
