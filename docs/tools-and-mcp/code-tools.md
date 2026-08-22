@@ -125,7 +125,7 @@ Code tools can call other code tools — they're just tools.
 There is no sandbox: no import restrictions and no resource limits beyond the wall-clock timeout. Code can read your files, make network calls, and anything else Python can do.
 {% endhint %}
 
-The trust gate is the security boundary. Adding or editing code in a project requires confirming that you trust it. Running code you've already saved and trusted doesn't prompt you again.
+The trust gate is the security boundary. Adding or editing code in a project requires confirming that you trust it; running code you've already saved and trusted doesn't prompt you again. Trust is granted for the session, so Kiln asks again after a restart.
 
 This matters most when a project came from somewhere else. Kiln projects are designed to be [shared across teams with Git](../collaboration/), and a project you sync or import may contain code tools written by someone else. Importing a project authored elsewhere requires explicit approval before its code will run — treat that prompt the way you'd treat running an unfamiliar script from the internet, and read the code first.
 

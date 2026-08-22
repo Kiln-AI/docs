@@ -120,9 +120,9 @@ Pairs will also be saved with tags that identify:
 
 ### Setting up a Judge
 
-Before evaluating different run configurations, you need to create a judge. The eval you created defines the goal, but the judge defines how it's run (judge algorithm, model, and instructions).
+Before evaluating different run configurations, you need to create a judge. The eval you created defines the goal, but the judge defines how it's run (judge type, and for an LLM judge the model and instructions).
 
-Click "Create Judge" to get started. For detailed guidance on selecting judge algorithms (LLM as Judge vs G-Eval), models, and customizing evaluation steps, see Add a Judge section.
+Click "Create Judge" to get started. For detailed guidance on selecting a judge model and customizing evaluation instructions, see our [LLM Judges](llm-judges.md) guide. For the other judge types available, see [Judge Types](judge-types.md).
 
 ### Finding the Ideal Run Configuration
 

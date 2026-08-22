@@ -44,34 +44,24 @@ You'll configure:
 
 * **Expected Tools**: the tools you expect the agent to call. For each one, you can also specify expected arguments, matched exactly, by substring, or by regular expression.
 * **Match Mode**:
-  * `all`: every expected tool was called
-  * `any`: at least one expected tool was called
-  * `ordered`: the expected tools were called, in the order you listed them
-  * `never`: none of the listed tools were called
-* **Unexpected Tools**: ignore any other tool the agent calls, or fail the check if it calls anything not on your list.
+  * All (any order): every expected tool was called
+  * Any: at least one expected tool was called
+  * Ordered (in list order): the expected tools were called, in the order you listed them
+  * Never: none of the listed tools were called
+* **Unlisted Tool Calls**: allow any other tool the agent calls, or fail the check if it calls anything not on your list.
 
 Some examples of what these combinations express:
 
 | Goal | Configuration |
 | ---- | ------------- |
-| The agent must search before answering | `search` with match mode `all` |
-| The agent must search, then fetch the page | `search`, `fetch_url` with match mode `ordered` |
-| The agent must never email a customer directly | `send_email` with match mode `never` |
-| The agent must stay within its allowed tools | your tool list, with unexpected tools set to fail |
+| The agent must search before answering | `search`, match mode All |
+| The agent must search, then fetch the page | `search`, `fetch_url`, match mode Ordered |
+| The agent must never email a customer directly | `send_email`, match mode Never |
+| The agent must stay within its allowed tools | your tool list, with Unlisted Tool Calls set to fail |
 
 #### No Golden Set Required
 
 A Tool Call Check doesn't approximate human judgement, so there's no judge to align: you don't need a golden dataset, human ratings, or the [Compare Judges](evaluations.md#finding-the-ideal-judge) flow. Populate your test dataset and go straight to [comparing run methods](evaluate-appropriate-tool-use.md#finding-the-ideal-run-configuration).
-
-#### Generate Synthetic Test Data
-
-Populate your test dataset using synthetic data generation. Click "Add Eval Data" from the Evals UI and select "Synthetic Data" to launch the generator with the proper eval tags already populated.
-
-{% hint style="info" %}
-**Tool-Specific Behaviour**: when generating outputs, the tools available to your task are enabled for this step, ensuring your model has the opportunity to call them when appropriate. The system captures the full conversation trace, including whether the tool was called and what parameters were used.
-
-See our [Synthetic Data Generation docs](../synthetic-data-generation/) for more guidance.
-{% endhint %}
 
 ### Evaluating Judgement with an LLM Judge
 
@@ -130,6 +120,16 @@ For detailed guidance on selecting judge models and customizing evaluation steps
 
 {% hint style="success" %}
 You can add both to one eval. A Tool Call Check that asserts the mechanics, plus an LLM judge for the judgement call, gives you a cheap signal that runs on everything and a nuanced one where it matters.
+{% endhint %}
+
+### Generate Synthetic Test Data
+
+Populate your test dataset using synthetic data generation. Click "Add Eval Data" from the Evals UI and select "Synthetic Data" to launch the generator with the proper eval tags already populated.
+
+{% hint style="info" %}
+**Tool-Specific Behaviour**: when generating outputs, the tools available to your task are enabled for this step, ensuring your model has the opportunity to call them when appropriate. The system captures the full conversation trace, including whether the tool was called and what parameters were used.
+
+See our [Synthetic Data Generation docs](../synthetic-data-generation/) for more guidance.
 {% endhint %}
 
 ### Finding the Ideal Run Configuration

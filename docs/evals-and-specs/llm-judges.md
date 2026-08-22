@@ -6,7 +6,7 @@ description: Grade your task's output with a model and a rubric you write
 
 An LLM judge uses a model to grade the output of your task, against criteria you write. It combines a "thinking" stage (chain of thought/reasoning), followed by asking the model to produce scores matching the goals you laid out in your eval.
 
-LLM judges are the right tool for subjective qualities — tone, helpfulness, toxicity, etc. For anything you can state as a rule, a [programmatic judge](judge-types.md#programmatic-judges) will be faster, cheaper, and perfectly consistent.
+LLM judges are the right tool for subjective qualities like tone, helpfulness, toxicity, etc. For anything you can state as a rule, a [programmatic judge](judge-types.md#programmatic-judges) will be faster, cheaper, and perfectly consistent.
 
 This guide covers the options you'll configure when adding an LLM judge. For the overall eval workflow, see [Evaluations](evaluations.md).
 
@@ -44,23 +44,17 @@ The UI will only show the G-Eval option if you select a supported model + provid
 Unfortunately [Ollama doesn't support logprobs yet](https://github.com/ollama/ollama/issues/2415).
 {% endhint %}
 
-### Advanced: Customize a Task Description
+### Evaluation Instructions
 
-The evaluator model can almost always perform better if you give it a high level summary of the task. Keep this short, usually just one sentence. We'll add more detailed asks of the evaluators in the next section.
+LLM judges give the model time to "think" using chain-of-thought/reasoning before generating the output scores. Evaluation instructions are an ordered list of steps, giving the model a process for "thinking through" the eval prior to answering.
 
-This will be pre-populated from your eval, and customizing it is optional.
-
-### Advanced: Customize Evaluation Steps / Thinking Steps
-
-LLM judges give the model time to "think" using chain-of-thought/reasoning before generating the output scores. Your judge defines an ordered list of evaluation instructions/steps, giving the model steps for "thinking through" the eval prior to answering. If you selected a template when creating the eval, Kiln will automatically fill in template steps for you. You can edit the templates as much as you wish, adding, removing and editing steps.
-
-This will be pre-populated from your eval, and customizing it is optional.
+This section appears when your judge prompt doesn't already carry its own steps — typically an eval you created without a template. If you created your eval from a template, the steps come from that template, and you edit them in the judge prompt itself (see below).
 
 <details>
 
-<summary>Advanced tactics for defining eval steps</summary>
+<summary>Advanced tactics for defining evaluation instructions</summary>
 
-If you start editing the eval's steps, here are some advanced tactics/guidance that can help improve your eval performance:
+If you start editing the eval's instructions, here are some advanced tactics/guidance that can help improve your eval performance:
 
 * Include Multi-shot examples: for a step, give examples of different outputs and how they should be scored. Be sure to not include examples in your eval datasets.
 * If your eval has multiple output scores, include at least 1 step for each score.
@@ -69,6 +63,16 @@ If you start editing the eval's steps, here are some advanced tactics/guidance t
 * Consider weighting guidance for overall scores: if you have many steps producing an overall score, tell the LLM which steps matter the most.
 
 </details>
+
+### Advanced: Judge Prompt
+
+The judge prompt is the Jinja2 template Kiln uses to prompt the judge model, and it's what actually carries your rubric. Kiln assembles a default for you from your task's description, the data to evaluate, and your evaluation instructions — so editing it is optional.
+
+Open "Advanced: Judge Prompt" to edit it, or to set a **System Prompt** for the judge model. This is also where you edit template-derived evaluation steps, since those arrive as part of the prompt rather than as a separate list.
+
+{% hint style="info" %}
+The evaluator model can almost always perform better if it knows what the task was. Kiln includes your task's description in the default judge prompt for exactly this reason — keep that description short and clear, usually a sentence, and your judges benefit along with your task.
+{% endhint %}
 
 ### Align your Judge to Human Preference
 
