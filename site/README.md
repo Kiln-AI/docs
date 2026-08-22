@@ -27,6 +27,33 @@ npm run build     # output in site/dist
 npm run preview   # serve site/dist locally
 ```
 
+## Switching themes
+
+Starlight themes are plugins, so the visual design is one env var. Set
+`DOCS_THEME` on either `dev` or `build`:
+
+```sh
+npm run dev                    # black (the default)
+DOCS_THEME=nova npm run dev    # nova
+DOCS_THEME=none npm run dev    # stock Starlight, no theme
+```
+
+| Value | Theme | Notes |
+| --- | --- | --- |
+| `black` (default) | [starlight-theme-black](https://github.com/adrian-ub/starlight-theme-black) | shadcn-inspired. Adds a top nav bar and a per-page "Copy page" menu with open-in-ChatGPT/Claude actions. |
+| `nova` | [starlight-theme-nova](https://github.com/dinesh-b-mahato/starlight-theme-nova) | A more polished take on stock Starlight; keeps collapsible sidebar groups. |
+| `none` | — | Stock Starlight. |
+
+Themes are configured in `astro.config.mjs`. Adding another is an npm install
+plus one entry in the `THEMES` map.
+
+`src/styles/theme-black-fixes.css` loads only under `DOCS_THEME=black`. It
+fixes a real bug in that theme: sidebar links are given a fixed `30px` height
+against a `22.4px` line-height, so any label wrapping to two lines overflows
+its box and collides with the next entry. Three of our sidebar labels hit it
+("Evaluate RAG Accuracy: Q&A Evals", "Evaluate Appropriate Tool Use", "Input
+Templates & Feature Engineering"). The override lets the box grow.
+
 ## How it works
 
 `scripts/gitbook_to_starlight.py` reads the GitBook markdown at the repo root
