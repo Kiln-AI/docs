@@ -9,8 +9,12 @@ import Default from '@astrojs/starlight/components/Footer.astro';
   live site, so discoverability is the whole point of putting this here rather
   than leaving the files unlinked.
 */}
-<Default><slot /></Default>
+<Default />
 
+{/*
+  A sibling of the <footer> Starlight renders, not a child of it: Starlight's
+  Footer component owns that element and exposes no slot inside it.
+*/}
 <p class="llms-links print:hidden">
   <span>For LLMs:</span>
   <a href="/llms.txt">llms.txt</a>

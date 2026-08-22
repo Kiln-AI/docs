@@ -42,7 +42,8 @@ npm run serve     # build + preview in one step
 | `ref/**` | Evidence the redirects are built from: GitBook's sitemap, and the alias exclusion list. |
 | `src/pages/[...slug].md.ts` | Serves every page's markdown at `<url>.md`. See [Machine-readable output](#machine-readable-output). |
 | `src/pages/robots.txt.ts` | `robots.txt`, generated so the origin comes from `site`. |
-| `src/lib/**` | The asset-URL rewriter shared by the `.md` endpoints and the "Copy page" blob. |
+| `src/lib/**` | The asset-URL rewriter shared by the `.md` endpoints and the "Copy page" blob, and the frontmatter builder. |
+| `scripts/build_integrations.mjs` | Two post-build assertions: the `.md` `Content-Type`, and that no unoptimized originals leaked into `dist/_astro`. |
 | `src/components/Footer.astro` | Starlight's footer plus the visible `llms.txt` link. |
 | `src/starlightRouteData.ts` | Route middleware that rewrites each page's raw markdown before the theme reads it. |
 | `public/og.png` | The one social preview image, shared by every page. Rebuild with `npm run og`. |
@@ -160,6 +161,15 @@ reproduced here.
 | `/docs/quickstart.md` | One page's markdown, at its own URL plus `.md`. One route, `src/pages/[...slug].md.ts`, covers all 45. |
 | `/robots.txt` | Points crawlers at `sitemap-index.xml`. |
 
+**`Content-Type` comes from `dist/_headers`, not from the endpoint.** Astro's
+static build throws away the headers an endpoint returns — it keeps them only
+for adapters that declare `staticHeaders`, and this is a plain static build —
+so the `Content-Type` in `src/pages/[...slug].md.ts` never reaches Cloudflare.
+`scripts/build_integrations.mjs` writes a `_headers` file at the end of every
+build instead, naming each `.md` path explicitly. Confirm it survives the
+first real deployment: `curl -sI https://<preview>/docs/quickstart.md` should
+report `text/markdown`.
+
 The first three come from the
 [`starlight-llms-txt`](https://github.com/delucis/starlight-llms-txt) plugin,
 configured in `astro.config.mjs`. All of it is linked from the site footer,
@@ -192,6 +202,14 @@ The same rewrite feeds the theme's "Copy page" blob, through the route
 middleware in `src/starlightRouteData.ts`. That is why the middleware exists:
 the blob is built inside the theme's `PageTitle` component, and rewriting the
 route data avoids copying 130 lines of theme markup into this repo.
+
+The blob and the endpoint therefore have identical **bodies**. Their
+frontmatter differs: `src/lib/frontmatter.mjs` quotes every scalar
+(`title: "Evaluate RAG Accuracy: Q&A Evals"`), matching what
+`gitbook_to_starlight.py` writes into the content files, while the theme
+interpolates the title raw. Two of the 45 titles and descriptions contain YAML
+metacharacters, so the theme's blob is not parseable frontmatter for those
+pages. That is the theme's to fix; the endpoints are correct.
 
 Internal *page* links are left as root-relative paths. They resolve against
 the origin the file was fetched from, which the `../../` asset paths did not.
@@ -257,7 +275,7 @@ old_path,new_path,status,source
 | `sitemap` | `ref/legacy_sitemap.xml`, GitBook's own sitemap | Yes |
 | `alias-generated` | The flat-alias pattern, applied to nested pages | **No — inferred** |
 | `structural` | Paths we chose to catch, e.g. `/docs`, `/sitemap.xml` | No — deliberate |
-| `md-endpoint` | A page's `.md` URL, served rather than redirected | Yes, we serve it |
+| `md-endpoint` | A page's `.md` URL, served rather than redirected | **No — the spelling is inferred** |
 | `alias` | A flat alias a probe confirmed returns 200 | Yes |
 | `crawl` | A crawl of the live site | Yes |
 | `gsc` | Search Console's indexed-pages export | Yes, historically |
@@ -268,9 +286,16 @@ and live only in the CSV.
 
 `md-endpoint` rows are identity rows — `old_path` equals `new_path` — so they
 never become redirect rules. They are in the inventory so the verifier proves
-the `.md` endpoints were built. `/sitemap.xml` is a `structural` row because
-`@astrojs/sitemap` can only emit `sitemap-index.xml`; that is the URL to give
-Search Console, and the redirect covers the one it already has on file.
+the `.md` endpoints were built. Note what that does and does not establish:
+GitBook is *recorded* as serving a markdown copy of every page, but nobody has
+fetched one, so `/docs/quickstart.md` is our reading of the spelling rather
+than an observed URL. These rows assert our build output, not GitBook's URL
+inventory — which is why the verifier's "176 paths" is 131 inventory paths
+plus 45 build-output assertions, not 176 old URLs.
+
+`/sitemap.xml` is a `structural` row because `@astrojs/sitemap` can only emit
+`sitemap-index.xml`; that is the URL to give Search Console, and the redirect
+covers the one it already has on file.
 
 **GitBook serves some nested pages at a flat path too** —
 `/docs/fine-tuning/fine-tuning-guide` is also served at
@@ -332,6 +357,9 @@ is the failure you least want to sail through:
 ```sh
 node scripts/verify_redirects.mjs --dist dist --min-paths 176
 ```
+
+176 is today's count: 131 URLs from the inventory, plus 45 `md-endpoint`
+identity rows that assert our own build output rather than GitBook's.
 
 ### Adding to the inventory
 
@@ -456,16 +484,17 @@ standard library:
 
 - `scripts/test_gitbook_to_starlight.py` and `scripts/test_build_redirects.py`
   (stdlib `unittest`) — `npm run test:py`
-- `scripts/verify_redirects.test.mjs` and `scripts/markdown_assets.test.mjs`
-  (`node:test`) — `npm run test:js`
+- `scripts/verify_redirects.test.mjs`, `scripts/markdown_assets.test.mjs` and
+  `scripts/frontmatter.test.mjs` (`node:test`) — `npm run test:js`
 
 They cover the parts that are easy to get subtly wrong and hard to eyeball: for
 the converter, the github-slugger port, anchor remapping, link and asset
 rewriting, figure conversion, asset naming and YAML frontmatter scalars; for
 the redirects, chain flattening, duplicate detection, the alias pattern, and
 the sitemap's whitespace-wrapped `<loc>` values; for the machine-readable
-output, every asset-reference shape the corpus uses and the idempotence the
-route middleware relies on.
+output, every asset-reference shape the corpus uses, the idempotence the route
+middleware relies on, and every frontmatter scalar parsed back with a real
+YAML parser rather than eyeballed.
 
 ## Still to do
 

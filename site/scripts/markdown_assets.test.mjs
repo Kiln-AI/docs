@@ -150,3 +150,20 @@ test('srcAssetNames collects each referenced image once and ignores the rest', (
 test('srcAssetNames is empty for a page with no local images', () => {
   assert.deepEqual([...srcAssetNames('# Title\n\nJust prose.')], []);
 });
+
+test('ignores attributes that merely end in src or href', () => {
+  for (const markup of [
+    '<img data-src="/assets/x.png">',
+    '<use xlink:href="/assets/x.png">',
+    '<div my-href="/assets/x.png"></div>',
+  ]) {
+    assert.equal(rewrite(markup), markup);
+  }
+});
+
+test('still rewrites a src or href that opens a tag or follows whitespace', () => {
+  assert.equal(
+    rewrite('<img src="/assets/x.png" alt=""><a\nhref="/assets/y.png">y</a>'),
+    `<img src="${ORIGIN}/assets/x.png" alt=""><a\nhref="${ORIGIN}/assets/y.png">y</a>`,
+  );
+});

@@ -265,9 +265,11 @@ Two passes per page: `srcAssetNames` to find what this body needs, then
 see the correction above for why resolving everything up front is wrong and
 why the metadata is read through `image.clone`.
 
-The frontmatter header matches the shape the theme already uses for its copy
-blob (`title`, `description`), so the copy blob and the `.md` endpoint return
-the same bytes for the same page.
+The frontmatter header carries the same fields the theme uses for its copy
+blob (`title`, `description`), but is built by `src/lib/frontmatter.mjs`
+rather than by string interpolation — see the correction below. The **bodies**
+of the blob and the endpoint are byte-identical, because both come from
+`absolutizePageBody`; the headers are owned separately.
 
 ### 3. `site/src/pages/[...slug].md.ts` — per-page markdown endpoints
 
@@ -275,11 +277,49 @@ the same bytes for the same page.
 the landing-page note above). `GET` returns `pageMarkdown(entry, site)` as
 `text/markdown; charset=utf-8`.
 
+### 3b. `site/src/lib/frontmatter.mjs` — quoted YAML scalars
+
+Added after code review. The first draft built the header by interpolation
+(`title: ${title}`), which emits invalid YAML for two of the 45 pages —
+`Evaluate RAG Accuracy: Q&A Evals` (a bare colon) and the description
+`"Teach the model, you will" - ML Yoda` (leading quote plus ` - `). Every
+consumer of these files is a parser, so this is the one defect they would all
+hit.
+
+`pageFrontmatter({ title, description })` quotes both with `JSON.stringify`;
+every JSON string is a valid YAML double-quoted flow scalar. This is the
+convention `scripts/gitbook_to_starlight.py:687` already uses when it writes
+frontmatter into `src/content/docs`, and it matches how the committed content
+files are spelled (`title: "Repairing Responses"`).
+
+### 3c. `site/scripts/build_integrations.mjs` — two post-build assertions
+
+Also from code review. Both guard failures that leave the build green.
+
+`markdownContentType()` writes `dist/_headers`. Astro's static build discards
+endpoint response headers — `core/build/generate.js` keeps `responseHeaders`
+only when an adapter declares `staticHeaders`, and there is no adapter — so
+the `Content-Type` set in `[...slug].md.ts` never ships and Cloudflare is left
+to infer one. Every `.md` path is listed explicitly rather than matched with
+`/*.md`: Cloudflare documents `*` in `_headers` paths but not whether a splat
+may precede a literal suffix, and `developers.cloudflare.com` is blocked from
+this environment, so that could not be confirmed. Generating from the emitted
+files removes both the glob question and the drift a committed list would
+have.
+
+`optimizedImagesOnly()` fails the build if `dist/_astro` holds more than four
+unoptimized originals. The `image.clone` trick below is undocumented and its
+`?? image` fallback is silent: if Astro drops `clone`, every original gets
+pinned, `dist` gains ~7 MB, and nothing in 300 tests notices. **Verified by
+patching `plainMetadata` to `return image`:** the build now fails with
+`dist/_astro holds 68 unoptimized images, expected at most 4`. One original
+survives normally — `hero.png`, kept by the splash hero.
+
 ### 4. `site/src/starlightRouteData.ts` — the copy-page fix
 
 `defineRouteMiddleware` that replaces `starlightRoute.entry` with a shallow
 copy whose `body` has been run through `absolutizeAssetReferences`. Registered
-as `routeMiddleware: ['./src/starlightRouteData.ts']` in the Starlight config.
+as `routeMiddleware: './src/starlightRouteData.ts'` in the Starlight config.
 
 ### 5. `site/src/components/Footer.astro` — the visible `llms.txt` link
 
@@ -318,7 +358,8 @@ is a tool, not a build step.
 ### 9. `site/astro.config.mjs`
 
 - `import starlightLlmsTxt from 'starlight-llms-txt'` and add it to `plugins`,
-  configured with `details` pointing at the site and `promote: ['index*']`.
+  configured with `details` and `optionalLinks`. The ordering options
+  (`promote`, `demote`) are left at their defaults.
 - `head`: `og:image`, `og:image:width`, `og:image:height`, `og:image:alt`,
   `twitter:image` — all absolute, built from the configured `site`.
 - `head`: the Cloudflare beacon, emitted only when
@@ -394,6 +435,19 @@ Python (`scripts/test_build_redirects.py`), all in existing test classes:
 - `test_a_human_row_still_wins_over_a_generated_md_row` — the existing
   provenance rule holds for the new source.
 
+JavaScript (`scripts/frontmatter.test.mjs`), which **parse what the code emits
+with a real YAML parser** (`yaml`, added as a devDependency) rather than
+eyeballing the string — the whole point being that the defect they were
+written for looked fine by eye:
+
+- The corpus title that broke bare YAML, and every other punctuated title in
+  the corpus.
+- A description containing a colon, and the fourteen YAML metacharacters that
+  break unquoted scalars (`#`, `- `, `[`, `{`, `*`, `&`, quotes, `yes`,
+  `3.14`, `null`, trailing space, backslash).
+- `description` omitted entirely when absent or empty, and the block ending in
+  a delimiter so a body can follow.
+
 JavaScript (`scripts/markdown_assets.test.mjs`), covering every reference
 shape the corpus actually contains plus the properties the callers rely on:
 
@@ -411,6 +465,9 @@ shape the corpus actually contains plus the properties the callers rely on:
 - `throws when a src/assets reference has no built URL`.
 - `srcAssetNames` collects each name once, ignores remote images, and is empty
   for a page with none — this is what keeps `getImage` off unreferenced files.
+- `ignores attributes that merely end in src or href` — `data-src`,
+  `xlink:href`, `my-href` — with a companion test that real `src=`/`href=`
+  still match at a tag boundary and after a newline.
 
 ## Verification
 
@@ -432,8 +489,9 @@ Beyond the two suites, all offline:
    only bytes that move are inside `data-content`.
 3. `npm run redirects:check` clean, and
    `node scripts/verify_redirects.mjs --dist dist --min-paths 176` — 176 is
-   today's count (129 before this phase, plus 45 `.md` paths, plus
-   `/sitemap.xml` and `/sitemap-index.xml`).
+   today's count: 131 inventory paths (129 before this phase, plus
+   `/sitemap.xml` and `/sitemap-index.xml`) and 45 `md-endpoint` rows, which
+   assert our own build output rather than a preserved GitBook URL.
 4. `/favicon.svg` no longer 404s: re-run the phase 2 dangling-reference sweep
    over `dist` and confirm zero.
 
@@ -441,7 +499,7 @@ Beyond the two suites, all offline:
 
 All of the above ran and passed on a clean build:
 
-- 300 tests green (236 Python, 64 JavaScript).
+- 311 tests green (236 Python, 75 JavaScript).
 - 45 `.md` endpoints, no `/index.md`. Every `_astro` and `/assets` URL they
   emit resolves to a file in `dist`. The only surviving `../` anywhere in the
   `.md` output or the copy blobs is the literal `{task}/.../eval_configs/{id}`
@@ -454,11 +512,23 @@ All of the above ran and passed on a clean build:
   This is the phase 2 `/favicon.svg` finding closed.
 - With `CLOUDFLARE_ANALYTICS_TOKEN` set, `beacon.min.js` appears on 47/47
   pages; with it unset, on 0.
-- Served from `dist` over HTTP: `/docs/quickstart.md` returns 200
-  `text/markdown`, `/llms.txt` and `/robots.txt` 200 `text/plain`,
-  `/favicon.svg` 200 `image/svg+xml`, `/og.png` 200 `image/png`.
-  (`/sitemap.xml` 404s under `astro preview`, which does not implement
-  `_redirects` — the same known gap phase 4 documented.)
+- Served from `dist` over HTTP, every path returns 200: `/docs/quickstart.md`,
+  `/llms.txt`, `/robots.txt`, `/favicon.svg`, `/og.png`. **Correction:** an
+  earlier version of this line reported the `.md` content type as proof the
+  endpoint's header ships. It is not — a local static server derives that from
+  its own mimetypes table, and Astro discards the endpoint's headers entirely.
+  `dist/_headers` is what actually carries it, and only a real deployment can
+  confirm it (see Carried forward). (`/sitemap.xml` 404s under `astro
+  preview`, which does not implement `_redirects` — the same known gap phase 4
+  documented.)
+- **All 45 endpoints' frontmatter parses** under `yaml.safe_load`. The same
+  check over the theme's copy blobs fails on 2 of 45, which is the defect
+  quoting was added for and which this phase cannot reach.
+- The blob and the endpoint have **identical bodies on all 45 pages**; only
+  the frontmatter quoting differs.
+- `optimizedImagesOnly()` was proved to fire, not merely written: patching
+  `plainMetadata` to `return image` fails the build with a message naming the
+  count and the function.
 
 ## Carried forward
 
@@ -474,12 +544,50 @@ New findings, on top of the phase 2, 3 and 4 lists later phases inherit.
 - **`/sitemap.xml` is a redirect, not a file.** Phase 8 should submit
   `https://docs.kiln.tech/sitemap-index.xml` to Search Console. The redirect
   exists for the URL Search Console already holds from GitBook.
-- **The `.md` endpoints reproduce a URL family nobody has probed.** The
-  decision to serve them is argued from the sitemap and the phase 1 brief, not
-  from an observation of the live site. If phase 1's crawl ever runs, it costs
-  nothing to confirm — and if GitBook turns out to use a different spelling
-  (`/docs/quickstart/index.md`, say), the fix is one line in
-  `src/pages/[...slug].md.ts` plus a `redirects.csv` refresh.
+- **Phase 8, required before cutover: fetch one real `.md` URL from GitBook.**
+  The `.md` endpoints reproduce a URL family nobody has probed — the decision
+  is argued from the sitemap and the phase 1 brief, not from an observation of
+  the live site. `curl -sI https://docs.kiln.tech/docs/quickstart.md` settles
+  the spelling in one request, and **this is the last moment it is physically
+  possible**: once GitBook is decommissioned the evidence is gone permanently.
+  If the spelling differs (`/docs/quickstart/index.md`, say), the fix is one
+  line in `src/pages/[...slug].md.ts` plus a `redirects.csv` refresh. Not
+  optional, and not contingent on phase 1's crawl running.
+- **"176 paths, all resolve" is not 176 preserved URLs.** 131 of them come
+  from the inventory; the other 45 are `md-endpoint` identity rows asserting
+  our own build output for a URL family whose real spelling is inferred. The
+  number reads like coverage and is partly a self-check. Said the same way in
+  `site/README.md` and wherever the figure appears.
+- **The theme's "Copy page" blob emits invalid YAML on two pages.**
+  `starlight-theme-black`'s `PageTitle.astro` interpolates the title and
+  description straight into a frontmatter block, so
+  `docs/evals-and-specs/evaluate-rag-accuracy-q-and-a-evals` (bare colon) and
+  `docs/repairing-responses` (leading quote and ` - `) produce blobs that no
+  YAML parser accepts. The `.md` endpoints quote properly, so they are
+  correct; the blob is upstream's. Worth an upstream issue, and worth phase 7
+  knowing that "Copy page" and the `.md` URL now differ in their headers even
+  though their bodies are byte-identical.
+- **`dist/_headers` is generated, not committed.** `scripts/build_integrations.mjs`
+  writes it because Astro discards endpoint response headers and because a
+  `/*.md` glob could not be confirmed against Cloudflare's docs from this
+  environment. Phase 6 should confirm on the preview URL that
+  `curl -sI https://<preview>/docs/quickstart.md` reports `text/markdown`; if
+  it does not, the file's shape is what to look at first. Note also that a
+  hand-added `public/_headers` would now be the thing Cloudflare reads for
+  everything else — the integration refuses to overwrite a file it did not
+  write, and warns.
+- **`plainMetadata`'s `image.clone` escape hatch is undocumented Astro
+  behaviour.** `optimizedImagesOnly()` fails the build if it ever stops
+  working, so a dependency bump in phase 6 or 7 will surface it loudly rather
+  than silently adding ~7 MB to `dist`. If it does break, the fix is either a
+  new way to read metadata without touching the proxy, or accepting the
+  originals and dropping the assertion — not raising the threshold quietly.
+- **`llms-full.txt` and `llms-small.txt` keep root-relative `/_astro/…` image
+  paths** while the `.md` endpoints are absolute. Plugin behaviour: it renders
+  each page to HTML and converts back, so the paths are whatever the page
+  emitted. They resolve correctly against the origin the file was fetched
+  from, so this is an inconsistency rather than a fault. Recorded so it is not
+  re-discovered as a bug.
 - **`llms.txt` is an index of the two full-text files, not of the 45 pages.**
   GitBook's was a page list. The plugin follows the llmstxt.org convention
   instead, and `llms-full.txt` carries everything a page list would have
@@ -502,8 +610,10 @@ New findings, on top of the phase 2, 3 and 4 lists later phases inherit.
   The new copy is faithful to the pages and matches the corpus's house style,
   but it is ours, not theirs — worth 30 seconds of a human's attention during
   phase 7.
-- **`--min-paths` is now 176.** Phase 4 left it at 129; the README, this plan
-  and phase 4's CI note all need to agree. Phase 6 should spell the CI gate
+- **`--min-paths` is now 176.** Phase 4 left it at 129. The stale line in
+  `phase_4.md` has been updated in place, since that is the one a phase 6
+  agent is most likely to copy; the README and this plan agree. Phase 6 should
+  spell the CI gate
   `node scripts/verify_redirects.mjs --dist dist --min-paths 176`. It is a
   floor, not an equality — raise it when the inventory grows.
 - **`ruff format --check` fails on all four Python files**, including the two

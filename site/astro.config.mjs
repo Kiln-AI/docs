@@ -4,6 +4,7 @@ import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
 import starlightThemeBlack from 'starlight-theme-black';
 import starlightLlmsTxt from 'starlight-llms-txt';
+import { markdownContentType, optimizedImagesOnly } from './scripts/build_integrations.mjs';
 
 const SITE = 'https://docs.kiln.tech';
 
@@ -63,6 +64,10 @@ export default defineConfig({
   trailingSlash: 'always',
   build: { format: 'directory' },
   integrations: [
+    // Both are post-build assertions about `dist` rather than build steps; see
+    // scripts/build_integrations.mjs for what each one is defending against.
+    markdownContentType(),
+    optimizedImagesOnly(),
     starlight({
       title: 'Kiln AI',
       description: 'Rapid AI Prototyping and Dataset Collaboration Tool',

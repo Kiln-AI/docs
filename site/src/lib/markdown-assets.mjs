@@ -24,8 +24,15 @@ const PUBLIC_ASSET_REFERENCE = /^\/assets\/[^/]+$/;
 /** Markdown image destinations: the `…` in `![alt](…)`. */
 const MARKDOWN_IMAGE = /(!\[[^\]]*\]\()([^)\s]*)(\))/g;
 
-/** `src="…"` and `href="…"` in the raw HTML blocks pages still use. */
-const HTML_ATTRIBUTE = /((?:src|href)=")([^"]*)(")/g;
+/**
+ * `src="…"` and `href="…"` in the raw HTML blocks pages still use.
+ *
+ * The lookbehind keeps it off attributes that merely end in those letters —
+ * `data-src`, `xlink:href`, `poster-src` — whose values are not necessarily
+ * URLs we own. No page uses one today; this is here so that stays true by
+ * construction rather than by luck.
+ */
+const HTML_ATTRIBUTE = /(?<![\w:-])((?:src|href)=")([^"]*)(")/g;
 
 /**
  * The filename an `../…/assets/NAME` reference points at.

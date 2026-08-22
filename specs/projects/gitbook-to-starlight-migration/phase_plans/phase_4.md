@@ -509,10 +509,12 @@ inherit.
 
   ```sh
   npm run redirects:check
-  node scripts/verify_redirects.mjs --dist dist --min-paths 129
+  node scripts/verify_redirects.mjs --dist dist --min-paths 176
   ```
 
   `--min-paths` is what stops a truncated `redirects.csv` passing as "all paths
-  resolve". 129 is today's count — 84 `old_path`s plus 46 distinct `new_path`s,
-  less `/` counted once. Raise it when the inventory grows; it is a floor, not
-  an equality.
+  resolve". It was 129 when this phase landed — 84 `old_path`s plus 46 distinct
+  `new_path`s, less `/` counted once. **Phase 5 raised it to 176** by adding
+  `/sitemap.xml`, `/sitemap-index.xml` and 45 `.md` endpoint rows; the line
+  above is updated so a phase 6 agent copying it gets the current floor. Raise
+  it again when the inventory grows; it is a floor, not an equality.

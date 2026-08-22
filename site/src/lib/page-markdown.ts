@@ -6,6 +6,7 @@ import {
 	decodeAssetName,
 	srcAssetNames,
 } from './markdown-assets.mjs';
+import { pageFrontmatter } from './frontmatter.mjs';
 
 /**
  * Images under `src/assets/` are served from a content-hashed,
@@ -80,7 +81,8 @@ async function resolveReferencedAssets(markdown: string): Promise<Map<string, st
  * Rewrite a page body's asset references to absolute URLs.
  *
  * Shared by the per-page `.md` endpoints and the route middleware that feeds
- * the theme's "Copy page" blob, so the two cannot drift.
+ * the theme's "Copy page" blob, so the bodies of the two cannot drift. Their
+ * frontmatter headers have separate owners — see `pageMarkdown`.
  */
 export async function absolutizePageBody(body: string, origin: string): Promise<string> {
 	const urls = await resolveReferencedAssets(body);
@@ -90,15 +92,17 @@ export async function absolutizePageBody(body: string, origin: string): Promise<
 /**
  * The markdown for one page, as machines should see it: a small frontmatter
  * header and the page body with every asset reference made absolute.
+ *
+ * The *body* is byte-identical to the theme's "Copy page" blob, because both
+ * come from `absolutizePageBody`. The *header* deliberately is not: the theme
+ * interpolates the title raw, which produces
+ * `title: Evaluate RAG Accuracy: Q&A Evals` — invalid YAML — on two of the 45
+ * pages. Quoting here fixes the endpoint; the blob is the theme's to fix.
  */
 export async function pageMarkdown(
 	entry: CollectionEntry<'docs'>,
 	origin: string,
 ): Promise<string> {
 	const body = await absolutizePageBody(entry.body ?? '', origin);
-	const { title, description } = entry.data;
-	const header = ['---', `title: ${title}`];
-	if (description) header.push(`description: ${description}`);
-	header.push('---', '');
-	return `${header.join('\n')}\n${body}`.trim() + '\n';
+	return `${pageFrontmatter(entry.data)}\n${body}`.trim() + '\n';
 }
