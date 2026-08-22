@@ -212,7 +212,7 @@ Pages' 25 MiB per-file limit. The largest surviving file is `Datagen720.mp4` at
 4.8 MB. The full list is below rather than left to git archaeology: it is the one
 piece of working here that nobody can re-derive once the tree is gone, and a
 squash-merge would take the history with it. The files are all present in
-**`3e16f5a`**, the last commit that carries the GitBook tree.
+**`3e16f5af77fc0e0e27a6785ec78a5f6c1761a889`**, the last commit that carries the GitBook tree.
 
 <details>
 <summary>The 75 pruned assets</summary>
@@ -481,14 +481,37 @@ Phase 3 removed the inputs, so phase 3 records the recovery.
 `require_gitbook_sources()` runs before anything reads the tree and replaces
 that traceback with the procedure:
 
-```
-git worktree add /tmp/gitbook 3e16f5a
+```sh
+git worktree add /tmp/gitbook 3e16f5af77fc0e0e27a6785ec78a5f6c1761a889
+cp site/scripts/gitbook_to_starlight.py /tmp/gitbook/site/scripts/
 cd /tmp/gitbook/site && python3 scripts/gitbook_to_starlight.py --out /tmp/converted
 ```
 
-A worktree rather than `git checkout 3e16f5a -- .gitbook docs SUMMARY.md`, so
-the restored tree cannot be committed back by accident. `GITBOOK_TREE_COMMIT` in
-the converter holds the SHA, and `site/README.md` carries the same procedure.
+**The `cp` line is not optional, and an earlier draft of this plan omitted it.**
+The worktree is checked out at a commit that predates this phase, so
+`scripts/gitbook_to_starlight.py` inside it *is* the phase 2 converter —
+`safe_asset_name`, `convert_figures`, `image_asset`, `src_asset_path` and
+`is_image_destination` are all new here. Running both against the same restored
+tree, **29 of the 45 pages differ**: the old one emits
+`<figure><img src="/assets/agentsbg-2.png" …>` where this one emits a markdown
+image into `../../../assets/`. Since `agentsbg-2.png` now lives in `src/assets`
+and not `public/assets`, a page reconciled from that run ships a **404 that
+nothing validates** — Astro does not check raw `<img src>` — and silently skips
+the optimizer. It also prints no asset mapping, so the operator loses the
+guidance below. With the `cp`, the run reproduces the committed tree
+byte-for-byte; verified both ways.
+
+Copying is the only option: the main checkout's script cannot be pointed at the
+worktree, because `REPO` derives from `__file__`, so it would look back at the
+main checkout and re-trigger this same error.
+
+A worktree rather than `git checkout … -- .gitbook docs SUMMARY.md`, so the
+restored tree cannot be committed back by accident. `GITBOOK_TREE_COMMIT` holds
+the **full 40-character SHA** — an abbreviation can go ambiguous as the repo
+grows, and the whole recovery path depends on that commit resolving — and
+`site/README.md` carries the same procedure. The check also covers `docs/`, so
+a partial restore fails here rather than converting zero pages and dying in
+`copy_assets`.
 
 The same gap has a second half: `--out` copies no assets, so a reconciled page
 arrives referencing `../../../assets/some-safe-name.png` with no such file.
@@ -540,8 +563,8 @@ phase closes. Rewrite it around the site as it now is:
 
 ## Tests
 
-38 new cases in `site/scripts/test_gitbook_to_starlight.py`, taking the suite
-from 93 to 131. Fixtures only — nothing here reads the live corpus or `.git`.
+40 new cases in `site/scripts/test_gitbook_to_starlight.py`, taking the suite
+from 93 to 133. Fixtures only — nothing here reads the live corpus or `.git`.
 
 **Asset names** (`AssetNameTest`) — Astro resolves a markdown image path
 literally, so the naming rule is load-bearing:
@@ -621,7 +644,15 @@ converter reads:
   `test_an_out_run_checks_too` — a `SystemExit` naming the missing paths, the
   commit and the `git worktree add` line, instead of a `FileNotFoundError`
   traceback out of `build_asset_index()`.
-- `test_a_complete_checkout_is_accepted`.
+- `test_a_complete_checkout_is_accepted`, and
+  `test_a_partial_restore_is_rejected` — restoring `.gitbook` and `SUMMARY.md`
+  but not `docs/` used to pass, convert zero pages and die in `copy_assets`.
+- `test_the_full_sha_is_recorded` — 40 characters, since an abbreviation can go
+  ambiguous and the recovery path depends on the commit resolving.
+- The recovery message must carry the `cp` line, asserted in
+  `test_a_checkout_without_the_gitbook_tree_names_the_recovery`. It is the
+  difference between reproducing the corpus and shipping 29 pages of silent
+  404s.
 - `test_out_names_the_assets_its_pages_reference` — the `--out` summary prints
   `.gitbook/assets/<original>` → `site/src/assets/<safe name>` for each asset
   its pages reference, since it copies none of them.
@@ -638,11 +669,15 @@ converter reads:
 
 Whole-corpus checks, run against the committed state:
 
-- **Re-converted from a clean worktree of `3e16f5a` and diffed against the
+- **Re-converted from a clean worktree of `3e16f5af77fc0e0e27a6785ec78a5f6c1761a889` and diffed against the
   committed tree**: `src/content/docs`, `src/assets`, `public/assets` and
   `sidebar.json` all byte-identical, after the review-round changes as well as
   before them.
-- `npm test` — 131 tests, green.
+- `npm test` — 133 tests, green.
+- **The recovery procedure was executed as written**, twice: once with the `cp`
+  line and once without. With it, the `--out` tree is byte-identical to the
+  committed pages. Without it, 29 of 45 pages differ and `agentsbg-2.png` is
+  confirmed absent from `public/assets`, i.e. the 404 is real.
 - `npm run build`, which is now plain `astro build` — 47 pages, 68 images
   optimized to WebP, no `ImageNotFound`.
 - **Rendered figure nesting**, read out of `site/dist`:
@@ -679,9 +714,12 @@ New findings, on top of the phase 2 list that phases 5 and 7 already inherit:
   `<table data-view="cards">` becomes a real card grid, those covers become
   images and should move to `src/assets/` to pick up the optimizer. They are
   the only images on the site that skip it for a reason that is going to
-  disappear. Their filenames are already safe, so no rename is needed; if one
-  ever is, an angle-bracketed or percent-encoded reference works too — see the
-  correction at the top of this document before planning around it.
+  disappear. **Eight of the nine filenames are already safe; `rag icon 2-2.png`
+  is not** — it is referenced as `/assets/rag%20icon%202-2.png` in
+  `docs/optimizers.md`. Moving that one to `src/assets/` under its original
+  name and writing a raw-space markdown reference is precisely the
+  silent-literal-text failure documented at the top of this file. Rename it, or
+  keep the reference angle-bracketed or percent-encoded.
 - **`docs/tools-and-mcp/index.md` links the model library at
   `https://app.gitbook.com/u/lbKlVk0pqscWejhogcdq9NRaUtP2`.** Pre-existing,
   came through the converter unchanged, and out of scope here — but it is a

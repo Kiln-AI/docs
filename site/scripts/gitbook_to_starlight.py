@@ -1015,9 +1015,11 @@ def git_status_of(path):
 def refuse_to_rebuild_committed_output():
     """Stop the destructive run when src/content/docs is hand-maintained content.
 
-    From phase 3 on it is committed, and the functional spec forbids a full
-    re-run over it. `npm run build` and `npm run dev` both shell out to this
-    script, so the refusal has to live here rather than in a habit.
+    It is committed now, and the functional spec forbids a full re-run over it.
+    Unwiring this script from `npm run build` and `npm run dev` -- which is what
+    used to make the refusal urgent -- means nothing reaches it by accident any
+    more. It stays because the cost of being wrong is asymmetric: refusing costs
+    a re-run, guessing wrong costs the content.
     """
     relative = os.path.relpath(DOCS_OUT, REPO)
     advice = ("Convert into a scratch directory instead:\n"
@@ -1048,7 +1050,7 @@ def report_assets_to_copy(ctx):
     """Name the assets an --out run's pages reference but did not copy.
 
     --out deliberately writes pages and nothing else, so a reconciled page
-    arrives referencing ../../assets/some-safe-name.png with no such file. The
+    arrives referencing ../../../assets/some-safe-name.png with no such file. The
     mapping is right here in the Conversion and is otherwise thrown away, which
     would leave the operator to rediscover safe_asset_name() by hand.
     """
@@ -1087,8 +1089,8 @@ def copy_assets(ctx):
         clash = safe_names.get(safe.casefold())
         if clash is not None:
             raise SystemExit(
-                "Assets %r and %r both sanitize to %r. Rename one in "
-                ".gitbook/assets." % (clash, name, safe))
+                "%r would be written to site/src/assets/%s, which %r already "
+                "claims. Rename one in .gitbook/assets." % (name, safe, clash))
         safe_names[safe.casefold()] = name
         shutil.copy(os.path.join(GITBOOK_ASSETS, name), os.path.join(SRC_ASSETS, safe))
 
@@ -1111,7 +1113,8 @@ def copy_assets(ctx):
 
 # The last commit that still carries the GitBook tree. Phase 3 deleted it, so
 # any later run has to restore it first, and the error below has to say so.
-GITBOOK_TREE_COMMIT = "3e16f5a"
+# Spelled in full: the whole recovery path depends on it resolving.
+GITBOOK_TREE_COMMIT = "3e16f5af77fc0e0e27a6785ec78a5f6c1761a889"
 
 
 def require_gitbook_sources():
@@ -1121,7 +1124,7 @@ def require_gitbook_sources():
     the working tree. Without this the first thing a reconciliation run hits is
     a bare FileNotFoundError out of build_asset_index().
     """
-    missing = [rel for rel in (".gitbook/assets", "SUMMARY.md")
+    missing = [rel for rel in (".gitbook/assets", "docs", "SUMMARY.md")
                if not os.path.exists(os.path.join(REPO, rel))]
     if not missing:
         return
@@ -1130,10 +1133,19 @@ def require_gitbook_sources():
         "It was deleted once its content moved into site/src/content/docs.\n"
         "Restore it into a worktree and convert from there:\n"
         "    git worktree add /tmp/gitbook %s\n"
+        "    cp %s /tmp/gitbook/site/scripts/\n"
         "    cd /tmp/gitbook/site && python3 scripts/gitbook_to_starlight.py --out /tmp/converted\n"
+        "\n"
+        "The copy is not optional. The worktree is checked out at a commit that predates\n"
+        "this script, so without it you would run that older converter, which writes\n"
+        "<img src=\"/assets/NAME\"> for images that now live in site/src/assets -- a 404\n"
+        "nothing validates. This script cannot simply be run in place, either: it locates\n"
+        "the repo from its own path, so it would look right back here and fail again.\n"
+        "\n"
         "A worktree rather than `git checkout %s -- .gitbook docs SUMMARY.md`, so the\n"
         "restored tree cannot be committed back by accident."
-        % (", ".join(missing), GITBOOK_TREE_COMMIT, GITBOOK_TREE_COMMIT))
+        % (", ".join(missing), GITBOOK_TREE_COMMIT,
+           os.path.abspath(__file__), GITBOOK_TREE_COMMIT))
 
 
 def list_sources(sources):

@@ -919,6 +919,12 @@ class MissingSourcesTest(unittest.TestCase):
         self.assertIn("SUMMARY.md", message)
         self.assertIn(G.GITBOOK_TREE_COMMIT, message)
         self.assertIn("git worktree add", message)
+        # Without the copy the operator runs the converter the worktree is
+        # checked out at, which predates this one and emits absolute /assets
+        # URLs for images that now live in src/assets.
+        self.assertIn("cp %s /tmp/gitbook/site/scripts/" % os.path.abspath(G.__file__),
+                      message)
+        self.assertIn("docs", message)
 
     def test_an_out_run_checks_too(self):
         # --out is the only supported mode, so it is the one that must not
@@ -928,6 +934,20 @@ class MissingSourcesTest(unittest.TestCase):
             with self.assertRaises(SystemExit) as raised:
                 silenced(lambda: G.main(["--out", os.path.join(scratch, "out")]))
         self.assertIn("git worktree add", str(raised.exception))
+
+    def test_a_partial_restore_is_rejected(self):
+        # Restoring .gitbook and SUMMARY.md but not docs/ used to pass the
+        # check, convert zero pages, and die in copy_assets instead.
+        with fake_repo() as repo:
+            shutil.rmtree(repo / "docs")
+            with self.assertRaises(SystemExit) as raised:
+                silenced(lambda: G.main(["--list"]))
+        self.assertIn("docs", str(raised.exception))
+
+    def test_the_full_sha_is_recorded(self):
+        # An abbreviation can go ambiguous as the repo grows, and the whole
+        # recovery path depends on this commit resolving.
+        self.assertEqual(len(G.GITBOOK_TREE_COMMIT), 40)
 
     def test_a_complete_checkout_is_accepted(self):
         with fake_repo():
@@ -1015,7 +1035,9 @@ class CopyAssetsTest(unittest.TestCase):
                 "![](../.gitbook/assets/Shot.png)\n")
             with self.assertRaises(SystemExit) as raised:
                 self.run_default()
-            self.assertIn("sanitize", str(raised.exception))
+            message = str(raised.exception)
+            self.assertIn("Shot.png", message)
+            self.assertIn("already claims", message)
 
     def test_the_copy_count_matches_what_was_copied(self):
         with fake_repo():

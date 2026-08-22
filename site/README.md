@@ -151,12 +151,22 @@ restore them first. Use a worktree, not `git checkout … -- <paths>`, so the
 restored tree cannot be committed back by accident:
 
 ```sh
-git worktree add /tmp/gitbook 3e16f5a      # last commit with the GitBook tree
+# last commit carrying the GitBook tree
+git worktree add /tmp/gitbook 3e16f5af77fc0e0e27a6785ec78a5f6c1761a889
+# today's converter, not the one the worktree checked out
+cp site/scripts/gitbook_to_starlight.py /tmp/gitbook/site/scripts/
 cd /tmp/gitbook/site
 python3 scripts/gitbook_to_starlight.py --out /tmp/converted
 ```
 
-The script says as much if you forget.
+**Do not skip the `cp`.** The worktree is checked out at a commit that predates
+this script, so the copy inside it is the older converter — it writes
+`<img src="/assets/NAME">` for images that now live in `src/assets/`, which is
+a 404 nothing validates, and it skips the image optimizer. The script cannot be
+run in place from this checkout either: it finds the repo from its own path, so
+it would look right back here and fail again.
+
+The script prints this whole procedure if you forget it.
 
 `--out` writes the converted pages to a scratch directory and nothing else — no
 assets, no `sidebar.json`, no deletions — so pages can be copied in one at a
