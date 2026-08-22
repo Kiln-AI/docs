@@ -14,6 +14,7 @@ import contextlib
 import io
 import os
 import pathlib
+import shutil
 import tempfile
 import textwrap
 import unittest
@@ -513,6 +514,18 @@ class GitGuardTest(unittest.TestCase):
             rmtree.assert_not_called()
             self.assertIn("boom", str(raised.exception))
 
+    def test_default_run_refuses_when_dot_git_is_a_worktree_file(self):
+        # A worktree or submodule checkout has .git as a file holding a gitdir:
+        # pointer -- and those are the container setups where git fails to answer.
+        with fake_repo() as repo:
+            (repo / ".git").write_text("gitdir: /elsewhere/.git/worktrees/wt\n")
+            with mock.patch.object(G, "git_status_of", return_value=(G.UNKNOWN, "boom")), \
+                    mock.patch.object(G.shutil, "rmtree") as rmtree:
+                with self.assertRaises(SystemExit) as raised:
+                    silenced(lambda: G.main([]))
+            rmtree.assert_not_called()
+            self.assertIn("boom", str(raised.exception))
+
     def test_default_run_proceeds_when_there_is_no_checkout(self):
         with fake_repo() as repo:
             with mock.patch.object(G, "git_status_of", return_value=(G.UNKNOWN, "no git")):
@@ -580,6 +593,64 @@ class OutTargetTest(unittest.TestCase):
         with fake_repo(), tempfile.TemporaryDirectory() as scratch:
             target = os.path.join(scratch, "out")
             self.assertEqual(silenced(lambda: G.parse_args(["--out", target])).out, target)
+
+    def test_a_symlinked_subdirectory_cannot_be_written_through(self):
+        # The write-time assertion, isolated: the symlink points at an in-repo
+        # directory holding no markdown, so the parse-time stray-markdown check
+        # finds nothing and the run is accepted. Nothing may still be written.
+        with fake_repo() as repo, tempfile.TemporaryDirectory() as scratch:
+            wrapper = pathlib.Path(scratch, "wrapper")
+            wrapper.mkdir()
+            (wrapper / "docs").symlink_to(repo / ".gitbook" / "assets")
+            self.assertIsNone(G.stray_markdown(str(wrapper)))
+
+            with self.assertRaises(SystemExit) as raised:
+                silenced(lambda: G.main(["--out", str(wrapper)]))
+
+            self.assertIn("outside the output directory", str(raised.exception))
+            self.assertEqual(sorted(os.listdir(repo / ".gitbook" / "assets")), ["shot.png"])
+
+    def test_a_symlink_swapped_in_after_stamping_is_still_refused(self):
+        # The stamp short-circuits stray_markdown, so on a re-run the write-time
+        # assertion is the only thing left. It has to be enough on its own.
+        with fake_repo() as repo, tempfile.TemporaryDirectory() as scratch:
+            target = pathlib.Path(scratch, "out")
+            silenced(lambda: G.main(["--out", str(target)]))
+            source = (repo / "docs" / "one.md").read_text()
+
+            shutil.rmtree(target / "docs")
+            (target / "docs").symlink_to(repo / "docs")
+            self.assertIsNone(G.stray_markdown(str(target)))
+
+            with self.assertRaises(SystemExit):
+                silenced(lambda: G.main(["--out", str(target)]))
+            self.assertEqual((repo / "docs" / "one.md").read_text(), source)
+
+    def test_a_symlinked_subdirectory_holding_markdown_is_rejected_at_parse_time(self):
+        # The secondary check: os.walk has to follow the link to see what a
+        # write would reach.
+        with fake_repo() as repo, tempfile.TemporaryDirectory() as scratch:
+            wrapper = pathlib.Path(scratch, "wrapper")
+            wrapper.mkdir()
+            (wrapper / "docs").symlink_to(repo / "docs")
+            source = (repo / "docs" / "one.md").read_text()
+
+            with self.assertRaises(SystemExit):
+                silenced(lambda: G.parse_args(["--out", str(wrapper)]))
+            self.assertEqual((repo / "docs" / "one.md").read_text(), source)
+
+    def test_stray_markdown_survives_a_symlink_cycle(self):
+        with tempfile.TemporaryDirectory() as scratch:
+            (pathlib.Path(scratch, "loop")).symlink_to(scratch)
+            self.assertIsNone(G.stray_markdown(scratch))
+
+    def test_a_dangling_symlink_is_a_parser_error_not_a_traceback(self):
+        with fake_repo(), tempfile.TemporaryDirectory() as scratch:
+            target = pathlib.Path(scratch, "dangling")
+            target.symlink_to(pathlib.Path(scratch, "nowhere"))
+            with self.assertRaises(SystemExit) as raised:
+                silenced(lambda: G.parse_args(["--out", str(target)]))
+            self.assertEqual(raised.exception.code, 2)
 
     def test_rerunning_into_our_own_output_is_accepted(self):
         # The stamp is what tells our markdown apart from somebody else's.

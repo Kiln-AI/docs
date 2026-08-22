@@ -635,15 +635,49 @@ def is_within(parent, child):
 
 
 def stray_markdown(directory):
-    """The first .md file under `directory` that this converter did not write."""
+    """The first .md file under `directory` that this converter did not write.
+
+    Follows symlinks: a symlinked subdirectory is markdown that a write would
+    reach, so it is markdown this check has to see. Directories are visited by
+    real path, which both stops a symlink cycle from looping forever and keeps
+    an aliased subtree from being reported twice.
+    """
     if not os.path.isdir(directory) or os.path.exists(os.path.join(directory, OUT_STAMP)):
         return None
-    for root, dirs, files in os.walk(directory):
-        dirs[:] = [d for d in dirs if not d.startswith(".")]
+    seen = set()
+    for root, dirs, files in os.walk(directory, followlinks=True):
+        dirs[:] = sorted(d for d in dirs if not d.startswith(".")
+                         and os.path.realpath(os.path.join(root, d)) not in seen)
+        seen.update(os.path.realpath(os.path.join(root, d)) for d in dirs)
         for name in sorted(files):
             if name.endswith(".md"):
                 return os.path.join(root, name)
     return None
+
+
+def path_within(root, relative):
+    """Absolute path for `root/relative`, refusing anything that escapes `root`.
+
+    `--out` is validated once, at parse time, on the target root. But the write
+    happens later, on paths derived from it, and `open()` follows symlinks -- so
+    a symlinked subdirectory under an accepted target was enough to lay converted
+    pages on top of the GitBook sources while the run reported it had left them
+    alone. Enumerating bad targets cannot close that: the gap is the distance
+    between validating a path and acting on it.
+
+    So containment is asserted again here, for every single file, immediately
+    before it is opened. `realpath` resolves every existing component, and any
+    component that does not exist yet cannot be a symlink -- which makes the
+    property hold by construction rather than by having listed the ways in.
+    """
+    resolved = os.path.realpath(os.path.join(root, relative))
+    if not is_within(os.path.realpath(root), resolved):
+        raise SystemExit(
+            "Refusing to write %s: it resolves to\n    %s\nwhich is outside the "
+            "output directory\n    %s\nA symlinked directory under the output "
+            "target would put converted pages on top of real files."
+            % (relative, resolved, os.path.realpath(root)))
+    return os.path.join(root, relative)
 
 
 def unusable_out_dir(target):
@@ -674,6 +708,9 @@ def unusable_out_dir(target):
         return ("%s contains the repo, so writing the converted tree into it "
                 "would overwrite the source markdown. Use a directory outside %s."
                 % (resolved, repo))
+
+    if os.path.islink(target) and not os.path.isdir(target):
+        return "%s is a symlink that does not point at a directory." % target
 
     if os.path.exists(resolved) and not os.path.isdir(resolved):
         return "%s exists and is not a directory." % resolved
@@ -793,7 +830,10 @@ def refuse_to_rebuild_committed_output():
             "%s is committed to git, so it is hand-maintained content and a full\n"
             "re-run would delete it. %s" % (relative, advice))
 
-    if state == UNKNOWN and os.path.isdir(os.path.join(REPO, ".git")):
+    # exists, not isdir: in a worktree or submodule checkout .git is a *file*
+    # holding a gitdir: pointer, and those are exactly the container setups the
+    # dubious-ownership failure shows up in.
+    if state == UNKNOWN and os.path.exists(os.path.join(REPO, ".git")):
         # A checkout whose git we cannot query. Refusing costs a build; guessing
         # "not committed" costs the content this guard exists to protect.
         raise SystemExit(
@@ -840,13 +880,13 @@ def main(argv=None):
     os.makedirs(docs_out, exist_ok=True)
 
     for rel, converted in pages.items():
-        out_path = os.path.join(docs_out, out_for(rel))
+        out_path = path_within(docs_out, out_for(rel))
         os.makedirs(os.path.dirname(out_path), exist_ok=True)
         with open(out_path, "w") as f:
             f.write(converted)
 
     if args.out is not None:
-        with open(os.path.join(docs_out, OUT_STAMP), "w") as f:
+        with open(path_within(docs_out, OUT_STAMP), "w") as f:
             f.write("Converted pages written by site/scripts/gitbook_to_starlight.py"
                     " --out. Safe to delete.\n")
         print("Converted %d pages into %s.\nLeft untouched: %s, %s, %s."
@@ -857,7 +897,8 @@ def main(argv=None):
         return
 
     # Hand-written landing page (the GitBook card table doesn't convert).
-    shutil.copy(os.path.join(SITE, "src/landing/index.mdx"), os.path.join(docs_out, "index.mdx"))
+    shutil.copy(os.path.join(SITE, "src/landing/index.mdx"),
+                path_within(docs_out, "index.mdx"))
 
     os.makedirs(SRC_ASSETS, exist_ok=True)
     shutil.copy(os.path.join(GITBOOK_ASSETS, HERO_SOURCE), os.path.join(SRC_ASSETS, "hero.png"))

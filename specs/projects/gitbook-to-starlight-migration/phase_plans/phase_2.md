@@ -296,6 +296,21 @@ concentrated in links, assets, titles, and frontmatter.
    or deleted" — it names what it left untouched. Documented in the module
    docstring and in `site/README.md`.
 
+   **`path_within(root, relative)` re-checks containment at the moment of every
+   write**, and this is the part that actually closes the class. A fourth face
+   of the same bug — a symlinked subdirectory under an *accepted* target —
+   showed that the flaw was never "some targets are bad". It is that a path is
+   validated at one moment and acted on at a later moment without being
+   re-checked, and `open()` follows symlinks. Enumerating more rejection rules
+   cannot close that gap; asserting the property where the write happens does.
+   Every file the converter writes — the 45 pages, the stamp, the landing page
+   copy — goes through it, and `realpath` resolves every existing component
+   while a component that does not exist yet cannot be a symlink. The
+   `stray_markdown` walk also gained `followlinks=True` (visiting directories by
+   real path, so a cycle terminates), but that is the secondary check: it is
+   short-circuited by the stamp on a re-run, and the write-time assertion has to
+   hold on its own.
+
 11. **Refuse the destructive run over committed content.** `npm run build` and
    `npm run dev` both shell out to this script, so from phase 3 on the ordinary
    build a contributor or CI runs would `rmtree` the hand-maintained
@@ -310,8 +325,11 @@ concentrated in links, assets, titles, and frontmatter.
    `index.lock`, a damaged index. Those are exactly the CI and Docker conditions
    this guard exists for, so when `.git` is present and git could not answer the
    run refuses and prints git's own stderr; with no `.git` it proceeds, because a
-   missing tool is not evidence of hand-edited content. This is a backstop, not
-   the plan: unwiring `convert` from `build`/`dev` is an explicit phase 3 step.
+   missing tool is not evidence of hand-edited content. Presence is tested with
+   `os.path.exists`, not `isdir`: a worktree or submodule checkout has `.git` as
+   a *file* holding a `gitdir:` pointer, and those are the very setups where the
+   dubious-ownership failure appears. This is a backstop, not the plan: unwiring
+   `convert` from `build`/`dev` is an explicit phase 3 step.
 
 12. **`site/package.json`** gains `"test": "python3 -m unittest discover -s
    scripts -p 'test_*.py' -t scripts"`.
@@ -430,6 +448,17 @@ honest:
   `test_rerunning_into_our_own_output_is_accepted` via the stamp file.
 - `test_the_completion_message_does_not_overclaim` — the run must not say
   "Nothing else was written" when it may have written outside the scratch tree.
+- The write-time guarantee, each case asserting the fixture's source page is
+  byte-identical afterwards:
+  `test_a_symlinked_subdirectory_cannot_be_written_through` (the symlink points
+  at an in-repo directory with no markdown, so parse-time validation passes and
+  only the write-time assertion can stop it),
+  `test_a_symlink_swapped_in_after_stamping_is_still_refused` (the stamp
+  short-circuits `stray_markdown`, leaving the assertion alone again),
+  `test_a_symlinked_subdirectory_holding_markdown_is_rejected_at_parse_time`
+  (the secondary `followlinks` check),
+  `test_stray_markdown_survives_a_symlink_cycle`, and
+  `test_a_dangling_symlink_is_a_parser_error_not_a_traceback`.
 - `test_unknown_arguments_are_rejected` — `--outt DIR`, bare `garbage`, and a
   trailing unknown flag all raise rather than falling through to the run that
   deletes `src/content/docs/`.
@@ -456,6 +485,8 @@ cover. Same reasoning that put the sidebar tests on a fixture.
   `test_default_run_refuses_when_a_checkout_cannot_be_queried` — `main([])`
   exits with the `--out DIR` instruction, git's stderr is surfaced, and
   `shutil.rmtree` is never called.
+- `test_default_run_refuses_when_dot_git_is_a_worktree_file` — `.git` as a file,
+  which `isdir` missed entirely.
 - `test_default_run_proceeds_when_there_is_no_checkout` — no `.git`, so UNKNOWN
   is not evidence of hand-edited content.
 - `test_out_run_skips_the_check_entirely` — `--out` never even asks.
@@ -472,7 +503,11 @@ Whole-corpus checks re-run after the change (the substituted baseline diff):
 
 - `npm run build` succeeds and still emits 47 pages.
 - Every `/assets/...` reference in the converted output resolves to a real file
-  in `.gitbook/assets` (87 references, currently 4 broken → 0).
+  in `.gitbook/assets` (87 references, currently 4 broken → 0). Count them with
+  the converter's own `MD_LINK` and `HTML_ATTR` patterns and percent-decode
+  before comparing: the output percent-encodes spaces and parentheses, and a
+  looser regex over the same tree picks up the hand-written `index.mdx` hero and
+  a fragment of an external `github.com/user-attachments/...` URL.
 - Walking `site/dist`, no internal link points at a missing page (currently 15
   broken → 0, `/favicon.svg` excepted and recorded above).
 - Broken anchors drop from 27 to the 24 stale-source ones, which are listed.

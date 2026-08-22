@@ -124,13 +124,24 @@ conversion safe and a bad target makes it the opposite. It is refused when it
   so it would overwrite its own input — and `find_sources()` walks everything
   outside `SKIP_DIRS`, so a scratch tree at the repo root would be read back as
   source on the next run and silently double the page set;
-- **contains the repo** (`--out /`, `--out ~`);
+- **contains the repo** — `/`, or any parent of the checkout (`~` only when the
+  checkout actually lives under it);
 - **already holds markdown this converter did not write**, which would be
-  clobbered. A directory it wrote before carries a `.gitbook-to-starlight-out`
-  stamp, so re-running into the same scratch directory is fine;
-- **exists and is not a directory**.
+  clobbered. The walk follows symlinks, so a symlinked subdirectory counts. A
+  directory it wrote before carries a `.gitbook-to-starlight-out` stamp, so
+  re-running into the same scratch directory is fine;
+- **exists and is not a directory**, including a symlink that does not point at
+  one.
 
-Use somewhere outside the checkout — `mktemp -d` is the obvious choice.
+Beyond that, every output path is re-checked at the moment it is opened: if it
+resolves outside the target — through a symlinked subdirectory, say — the run
+stops rather than writing. Target validation happens once, but the writes happen
+later, and that gap is where `--out` has gone wrong before.
+
+What is *not* checked is whether the target holds unrelated non-markdown
+content, so `--out ~` will happily scatter 45 pages across a home directory that
+does not contain the checkout. Use a fresh directory outside the checkout —
+`mktemp -d` is the obvious choice.
 
 That default run also refuses outright once `src/content/docs/` is committed to
 git, since at that point it is hand-maintained content. `npm run build` and
