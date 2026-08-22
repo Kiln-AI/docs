@@ -1,0 +1,20 @@
+# Flat-alias paths that do NOT exist on the live GitBook site.
+#
+# `build_redirects.py --refresh-csv` generates a flat alias for every nested
+# page it finds in legacy_sitemap.xml, because GitBook serves some — but not
+# necessarily all — nested pages at a flattened path as well. Those rows are
+# marked `alias-generated` in redirects.csv: inferred from the pattern, never
+# requested against the live site, because this environment cannot reach it.
+#
+# When the phase 1 alias probe runs, it settles each one:
+#
+#   confirmed 200 -> edit the row in redirects.csv, changing its source from
+#                    `alias-generated` to `alias`. Refresh preserves it and
+#                    stops regenerating over it.
+#   confirmed 404 -> delete the row from redirects.csv and add its slashless
+#                    path here, so refresh does not resurrect it. Both slash
+#                    forms are dropped by a single entry.
+#
+# One path per line. Blank lines and `#` comments are ignored.
+#
+# Nothing is excluded yet — the probe has not run.

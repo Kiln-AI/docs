@@ -15,6 +15,11 @@ try {
 
 export default defineConfig({
   site: 'https://docs.kiln.tech',
+  // Set explicitly rather than inherited from Astro's defaults: the canonical
+  // URL form is what `redirects.csv` targets and what Starlight stamps into
+  // <link rel="canonical"> and sitemap-0.xml. See specs phase_plans/phase_4.md.
+  trailingSlash: 'always',
+  build: { format: 'directory' },
   integrations: [
     starlight({
       title: 'Kiln AI',

@@ -9,7 +9,12 @@
   },
   "scripts": {
     "convert": "python3 scripts/gitbook_to_starlight.py",
-    "test": "python3 -m unittest discover -s scripts -p 'test_*.py' -t scripts",
+    "redirects": "python3 scripts/build_redirects.py",
+    "redirects:check": "python3 scripts/build_redirects.py --check",
+    "verify:redirects": "node scripts/verify_redirects.mjs",
+    "test": "npm run test:py && npm run test:js",
+    "test:py": "python3 -m unittest discover -s scripts -p 'test_*.py' -t scripts",
+    "test:js": "node --test \"scripts/*.test.mjs\"",
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",

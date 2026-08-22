@@ -37,6 +37,9 @@ npm run serve     # build + preview in one step
 | `src/assets/**` | Images. Referenced from pages with relative markdown links, which is what puts them through Astro's image pipeline. |
 | `public/assets/**` | Videos, and the handful of images referenced from raw HTML. Served verbatim. |
 | `sidebar.json` | The sidebar, read by `astro.config.mjs`. |
+| `redirects.csv` | Every URL the old GitBook site served, and where it goes now. See [Redirects](#redirects). |
+| `public/_redirects` | Generated from `redirects.csv`. Read by Cloudflare Pages. |
+| `ref/**` | Evidence the redirects are built from: GitBook's sitemap, and the alias exclusion list. |
 | `astro.config.mjs` | Site config, theme, nav. |
 | `src/styles/custom.css` | Accent colours and a few content-level rules. |
 
@@ -137,6 +140,111 @@ The build also logs `No data found for font family Geist Mono`, from the
 theme's font configuration. It is harmless — the monospace stack falls back —
 and unrelated to the sidebar.
 
+## Redirects
+
+Every URL GitBook served has to keep working. `redirects.csv` is the record of
+what those URLs are; `public/_redirects` is generated from it and read by
+Cloudflare Pages.
+
+```csv
+old_path,new_path,status,source
+/docs/quickstart,/docs/quickstart/,301,sitemap
+/docs/fine-tuning-guide,/docs/fine-tuning/fine-tuning-guide/,301,alias-generated
+/docs,/docs/quickstart/,301,structural
+```
+
+`source` says where the row came from, and therefore how much to trust it:
+
+| `source` | Where it came from | URL known to exist? |
+| --- | --- | --- |
+| `sitemap` | `ref/legacy_sitemap.xml`, GitBook's own sitemap | Yes |
+| `alias-generated` | The flat-alias pattern, applied to nested pages | **No — inferred** |
+| `structural` | Paths we chose to catch, e.g. `/docs` | No — deliberate |
+| `alias` | A flat alias a probe confirmed returns 200 | Yes |
+| `crawl` | A crawl of the live site | Yes |
+| `gsc` | Search Console's indexed-pages export | Yes, historically |
+| `manual` | Added by hand | Your call |
+
+The first three are generated from files in `ref/`. The rest are human-supplied
+and live only in the CSV.
+
+**GitBook serves some nested pages at a flat path too** —
+`/docs/fine-tuning/fine-tuning-guide` is also served at
+`/docs/fine-tuning-guide`, and both are indexed by Google. Which pages have an
+alias can only be learned by asking the live site. That probe has not run, so
+every `alias-generated` row is an inference from the pattern rather than an
+observed URL. They are marked as such rather than quietly mixed in with the
+real ones.
+
+```sh
+npm run redirects          # redirects.csv -> public/_redirects
+npm run redirects:check    # fail if public/_redirects is stale (CI gate)
+```
+
+`public/_redirects` is committed, so deploying needs nothing but `astro build`
+and Cloudflare Pages needs no Python.
+
+### Verifying
+
+```sh
+npm run build
+node scripts/verify_redirects.mjs --dist dist
+```
+
+That is the offline check: it applies the rules in `dist/_redirects` itself and
+confirms every source path and every destination path lands on a file that was
+actually built. No server required.
+
+Against a running site:
+
+```sh
+npm run preview   # in another shell
+node scripts/verify_redirects.mjs --base-url http://localhost:4321 --dist dist
+```
+
+`astro preview` does not implement `_redirects` — that file means nothing
+outside Cloudflare Pages — so `--dist` is needed to apply the rules locally
+before each request. **Drop `--dist` when checking a real deployment:**
+
+```sh
+node scripts/verify_redirects.mjs --base-url https://<preview>.pages.dev
+```
+
+Without it the server has to do the redirecting itself, which is the thing
+actually being tested. A path passes if it returns 200, or redirects
+permanently (301 or 308 — Cloudflare's own trailing-slash normalisation uses
+308) to something that returns 200.
+
+### Adding to the inventory
+
+Rows added by hand are never touched by the generator, so a new redirect is
+just a new line in `redirects.csv` with `source` set to `manual`, followed by
+`npm run redirects`.
+
+When the live-site crawl, alias probe and Search Console export land, merge
+them like this rather than rebuilding:
+
+1. Add each newly discovered URL as a row with `source` set to `gsc`, `crawl`
+   or `alias`.
+2. For a flat alias the probe **confirmed**, change the existing row's `source`
+   from `alias-generated` to `alias`. Refresh then leaves it alone instead of
+   regenerating it.
+3. For a flat alias the probe **disproved**, delete the row and add its path to
+   `ref/alias_exclusions.txt` so it does not come back.
+4. Run `python3 scripts/build_redirects.py --refresh-csv`. It regenerates the
+   `sitemap`, `alias-generated` and `structural` rows from `ref/`, keeps every
+   other row verbatim, prints what changed, and rewrites `public/_redirects`.
+5. Review the diff and re-run the verification above.
+
+### Trailing slashes
+
+`astro.config.mjs` sets `trailingSlash: 'always'` and `build.format:
+'directory'` explicitly. Starlight already generated trailing-slash URLs — its
+canonical tags, its internal links and `dist/sitemap-0.xml` all use them — so
+this records the choice rather than changing it, and gives the redirect targets
+something stable to point at. GitBook served the same paths without a trailing
+slash, which is what the 45 `sitemap` rows redirect.
+
 ## The GitBook converter
 
 `scripts/gitbook_to_starlight.py` is the one-shot tool that produced this
@@ -222,16 +330,25 @@ that does not contain the checkout. Use a fresh directory outside the checkout �
 npm test
 ```
 
-Unit tests for the converter live in `scripts/test_gitbook_to_starlight.py`
-(stdlib `unittest`, no extra dependencies). They cover the parts that are easy
-to get subtly wrong and hard to eyeball: the github-slugger port, anchor
-remapping, link and asset rewriting, figure conversion, asset naming, and YAML
-frontmatter scalars.
+`npm test` runs both suites, neither of which needs anything beyond the
+standard library:
+
+- `scripts/test_gitbook_to_starlight.py` and `scripts/test_build_redirects.py`
+  (stdlib `unittest`) — `npm run test:py`
+- `scripts/verify_redirects.test.mjs` (`node:test`) — `npm run test:js`
+
+They cover the parts that are easy to get subtly wrong and hard to eyeball: for
+the converter, the github-slugger port, anchor remapping, link and asset
+rewriting, figure conversion, asset naming and YAML frontmatter scalars; for
+the redirects, chain flattening, duplicate detection, the alias pattern, and
+the sitemap's whitespace-wrapped `<loc>` values.
 
 ## Still to do
 
-- **No redirects yet.** GitBook URLs that change need rules in
-  `public/_redirects`.
+- **The redirect inventory is incomplete.** It is built from GitBook's sitemap
+  plus an inferred alias pattern. The live-site crawl, alias probe and Search
+  Console export have not landed — see
+  [Adding to the inventory](#adding-to-the-inventory).
 - **No WYSIWYG editor.** Starlight pairs with git-backed CMSes such as
   [Keystatic](https://keystatic.com/) or [TinaCMS](https://tina.io/); neither
   is wired up.
@@ -283,3 +400,11 @@ spaces — see [Images](#images).
 this repo with build command `cd site && npm run build` and output directory
 `site/dist`. Search (Pagefind) is built at build time, so there is no Algolia
 account or other external service to set up.
+
+`public/_redirects` is committed, so the build needs no Python and the deployed
+rules are reviewable in git. Two gates keep that honest, both cheap enough for
+CI: `npm run redirects:check` fails if the file has drifted from
+`redirects.csv`, and `node scripts/verify_redirects.mjs --dist dist` fails if
+any inventoried URL no longer lands on a built page. Run the same verifier
+against the preview URL — without `--dist` — before pointing DNS at it. See
+[Verifying](#verifying).
