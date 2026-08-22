@@ -42,4 +42,4 @@
 # Blank lines and `#` comments are ignored.
 
 docs/collaboration/index.md                                  /docs/collaboration/#option-3-combining-git-and-shared-drives
-docs/synthetic-data-generation/generating-synthetic-data.md   /docs/synthetic-data-generation/generating-synthetic-data/#set-up-a-data-guide
+docs/synthetic-data-generation/generating-synthetic-data.md  /docs/synthetic-data-generation/generating-synthetic-data/#set-up-a-data-guide

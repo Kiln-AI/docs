@@ -36,6 +36,7 @@ npm run serve     # build + preview in one step
 | --- | --- |
 | `src/content/docs/**` | Every page. Directory structure is the URL structure. |
 | `src/content/docs/index.mdx` | The landing page — an MDX splash page using Starlight's `Card`/`LinkCard` components. |
+| `src/content/docs/docs/fine-tuning/index.mdx`, `src/content/docs/docs/optimizers.mdx` | The two content pages that are MDX rather than markdown, because they render card grids with a component. See [Card grids](#card-grids) — and read [The GitBook converter](#the-gitbook-converter) before reconciling either of them. |
 | `src/assets/**` | Images. Referenced from pages with relative markdown links, which is what puts them through Astro's image pipeline. |
 | `public/assets/**` | Videos, and the handful of images referenced from raw HTML. Served verbatim. |
 | `sidebar.json` | The sidebar, read by `astro.config.mjs`. |
@@ -47,7 +48,9 @@ npm run serve     # build + preview in one step
 | `src/lib/**` | The asset-URL rewriter shared by the `.md` endpoints and the "Copy page" blob, and the frontmatter builder. |
 | `scripts/build_integrations.mjs` | Three post-build assertions: the `.md` `Content-Type`, that no unoptimized originals leaked into `dist/_astro`, and that the stale-anchor list is still true. |
 | `scripts/stale_anchors.mjs` | Reads `ref/stale_anchors.txt`, and re-derives on every build whether each line still describes a broken anchor. |
+| `scripts/qa_pages.mjs` | The page-QA sweep: residual GitBook markup in the sources, plus an optional real-browser render of every built page. `npm run qa`, and see [Page QA](#page-qa). |
 | `src/components/Footer.astro` | Starlight's footer plus the visible `llms.txt` link. |
+| `src/components/CoverCard.astro` | A `LinkCard` with a cover image above the title. What GitBook's card-table widget became. See [Card grids](#card-grids). |
 | `src/starlightRouteData.ts` | Route middleware that rewrites each page's raw markdown before the theme reads it. |
 | `public/og.png` | The one social preview image, shared by every page. Rebuild with `npm run og`. |
 | `public/favicon.svg` | Placeholder favicon — see [Social preview and favicon](#social-preview-and-favicon). |
@@ -105,6 +108,72 @@ Width goes on the `<figure>` as `max-width`, never on the image as a `width`
 attribute: an `<img>` with attributes has to be raw HTML, which drops it out of
 the optimizer. `src/styles/custom.css` zeroes the margin on the paragraph
 CommonMark generates around the image, so the figure controls its own spacing.
+
+#### Inside a numbered or bulleted list
+
+The blank lines are necessary there too, and **not sufficient**. Indent the
+whole block — opening tag, image, caption and closing tag — to the list item's
+content column, four spaces in from the item's text:
+
+```markdown
+3.  Select the set of tools that the model should learn to call.
+
+    <figure style="max-width:375px">
+
+    ![](../../../../assets/selecting-tools.png)
+
+    <figcaption><p>Selecting tools available to the fine-tuned model</p></figcaption>
+    </figure>
+
+4.  The next step, still a list item.
+```
+
+Get it wrong — the opening tag indented but the image and the closing tag left
+at the margin — and the damage runs past the figure: the list **closes early**,
+every following item renders as literal text (`4.  The next step…`, markdown
+links included), and a four-space-indented `<figure>` in what is no longer a
+list is read as an **indented code block**, so the raw tag is displayed in a
+code frame.
+
+None of that raises anything. The build is green, the page count matches, and
+`starlight-links-validator` is silent precisely *because* the link stopped
+being a link — the same silent-degradation failure as the raw-space image
+above. `npm run qa -- --browser` is what catches it — see [Page QA](#page-qa).
+
+### Card grids
+
+`src/components/CoverCard.astro` renders a link card with a cover image above
+the title; `docs/fine-tuning/index.mdx` and `docs/optimizers.mdx` lay a set of
+them out in Starlight's `<CardGrid>`. It is what GitBook's
+`<table data-view="cards">` widget became — Starlight rendered that as a plain
+four-column table, with raw filenames as the link text.
+
+The cover is passed as an `ImageMetadata`, imported by the page:
+
+```mdx
+import { CardGrid } from '@astrojs/starlight/components';
+import CoverCard from '../../../../components/CoverCard.astro';
+import fineTuningGuideCover from '../../../../assets/tuning2.png';
+
+<CardGrid>
+  <CoverCard
+    title="Fine Tuning Guide"
+    description="Our end-to-end walkthrough of fine-tuning a model in Kiln."
+    href="/docs/fine-tuning/fine-tuning-guide/"
+    cover={fineTuningGuideCover}
+  />
+</CardGrid>
+```
+
+Count the `../` from the page just as you would for a markdown image — the
+example above is from `src/content/docs/docs/fine-tuning/index.mdx`.
+
+Passing the import rather than a filename is the point: the covers then take
+the same optimized path through `astro:assets` that a markdown image takes,
+which is why they live in `src/assets/` like everything else. **Using a
+component means the page has to be `.mdx`** — which has consequences for the
+converter, so read [The GitBook converter](#the-gitbook-converter) before
+reconciling either page.
 
 ### Videos
 
@@ -462,6 +531,11 @@ time. Because it copies no assets, it finishes by printing every asset its
 pages reference and the `src/assets`/`public/assets` name to copy it to; bring
 those across by hand from the worktree.
 
+**Two pages are the exception and must not be copied over** — `fine-tuning/index.mdx`
+and `optimizers.mdx`. See
+[Two pages are `.mdx`: merge, never copy over](#two-pages-are-mdx-merge-never-copy-over)
+below, *before* you copy anything in.
+
 Its default run rebuilds `src/content/docs/` from scratch, which would delete
 hand-maintained content, so it refuses to start once that directory is
 committed to git. `--out` is the only mode to use.
@@ -502,6 +576,35 @@ content, so `--out ~` will happily scatter 45 pages across a home directory
 that does not contain the checkout. Use a fresh directory outside the checkout —
 `mktemp -d` is the obvious choice.
 
+### Two pages are `.mdx`: merge, never copy over
+
+**`src/content/docs/docs/fine-tuning/index.mdx` and
+`src/content/docs/docs/optimizers.mdx` are the exception to "copy the page in".**
+
+Both carried GitBook's `<table data-view="cards">` widget, which Starlight
+renders as an ordinary four-column table with a `Cover image` header and raw
+filenames (`tuning2.png`) as the link text. They now use a component instead —
+see [Card grids](#card-grids) — and a component means the page must be MDX.
+
+The converter knows nothing about that. It writes `.md`, one file per page, so
+for these two its output is a *different file* from the one in the tree:
+
+- Copying `index.md` in beside `index.mdx` gives Astro **two pages for one
+  URL**, and the build fails on the collision.
+- Deleting the `.mdx` to resolve that collision **restores the card table** —
+  the exact defect the migration removed, and it comes back looking like
+  ordinary converter output, so nothing flags it. The link validator is happy;
+  the table is a valid table.
+
+So: **diff the converter's `.md` against the `.mdx` and merge the prose changes
+into the MDX by hand.** The frontmatter and the body text transfer normally;
+the card table in the converted output is the part that has already been
+replaced and must be dropped. Keep the file `.mdx`, and keep its
+`import`/`<CardGrid>` block.
+
+`npm run qa` is the backstop if this goes wrong anyway: its
+`gitbook-card-table` check fails on `data-view="cards"` in any content file.
+
 ### Tests
 
 ```sh
@@ -514,8 +617,8 @@ standard library:
 - `scripts/test_gitbook_to_starlight.py` and `scripts/test_build_redirects.py`
   (stdlib `unittest`) — `npm run test:py`
 - `scripts/verify_redirects.test.mjs`, `scripts/markdown_assets.test.mjs`,
-  `scripts/frontmatter.test.mjs` and `scripts/stale_anchors.test.mjs`
-  (`node:test`) — `npm run test:js`
+  `scripts/frontmatter.test.mjs`, `scripts/stale_anchors.test.mjs` and
+  `scripts/qa_pages.test.mjs` (`node:test`) — `npm run test:js`
 
 They cover the parts that are easy to get subtly wrong and hard to eyeball: for
 the converter, the github-slugger port, anchor remapping, link and asset
@@ -524,9 +627,11 @@ the redirects, chain flattening, duplicate detection, the alias pattern, and
 the sitemap's whitespace-wrapped `<loc>` values; for the machine-readable
 output, every asset-reference shape the corpus uses, the idempotence the route
 middleware relies on, and every frontmatter scalar parsed back with a real
-YAML parser rather than eyeballed; and for the stale-anchor allowlist, that an
+YAML parser rather than eyeballed; for the stale-anchor allowlist, that an
 entry excuses exactly one link on one page and stops excusing it the moment it
-stops being true.
+stops being true; and for the QA sweep, that each detector fires on the real
+defect shape and stays quiet on the thing that resembles it — a checker that
+reports nothing because it checks nothing looks exactly like a clean site.
 
 ## Link validation
 
@@ -545,13 +650,26 @@ Two settings are not the defaults:
   of the root-relative form. Stock behaviour is to ignore them.
 - **`exclude`**, built from `ref/stale_anchors.txt`.
 
-### The 24 anchors that were already broken
+### The two anchors that are still broken
 
-24 links point at headings that no longer exist. They were broken in the
+24 links pointed at headings that no longer exist. They were broken in the
 GitBook source before this migration started — headings renamed upstream,
-links never updated — so they are broken on the live site today, and repairing
-them means writing content, which the migration deliberately does not do.
-Phase 7 owns them.
+links never updated — so they are broken on the live site today too.
+
+Phase 7 repaired **22** of them, two ways: where the section was renamed but
+stayed on the page, its old id was put back on the heading that replaced it
+(`<a id="…"></a>`), which is the only repair that also rescues the indexed
+anchor URL, since no redirect can reach a fragment; where the section moved to
+another page, the link was repointed.
+
+**Two are left**, and both need someone who knows what the page meant, because
+repairing either means writing a section that does not exist:
+
+- `/docs/collaboration/#option-3-combining-git-and-shared-drives` — the page
+  has no Option 3 any more and nothing on it describes combining the two. The
+  link text is "mix".
+- `/docs/synthetic-data-generation/generating-synthetic-data/#set-up-a-data-guide`
+  — the Data Guide is mentioned twice in prose and has no section of its own.
 
 They are listed in `ref/stale_anchors.txt`, one line per link, and excused from
 validation. The alternative was `errorOnInvalidHashes: false`, which would have
@@ -570,11 +688,78 @@ fails, naming the line, if it has stopped being true:
 | The target page now has an element with that `id` | The heading came back |
 
 Each entry excuses one link on one page, so the same dead anchor appearing on a
-page that is not listed still fails — three pages link
-`/docs/prompts/#prompt-generators` and all three are listed individually.
+page that is not listed still fails — when three pages linked
+`/docs/prompts/#prompt-generators`, all three needed their own line.
 
 **Repairing one is: fix the link or add the heading, then delete its line.** The
 build tells you to.
+
+## Page QA
+
+```sh
+npm run qa                                   # static: the content sources
+npm run qa -- --browser                      # + a real Chromium render of every built page
+npm run qa -- --browser --base-url https://<preview>.pages.dev
+```
+
+`scripts/qa_pages.mjs` is the migration's substitute for a baseline. Phase 1 was
+meant to capture the live GitBook site — its rendered text and a screenshot of
+every page — so that per-page QA could be a diff; that capture never ran,
+because egress to `docs.kiln.tech` is blocked from the build environment. This
+asks a weaker but mechanical question instead: not "does this page still say
+what GitBook said", but **"is anything on this page detectably wrong"**.
+
+What it checks:
+
+| Check | What it catches | Needs a browser |
+| --- | --- | --- |
+| Residual GitBook markup | `data-view="cards"`, `data-hidden`, `data-card-*`, `data-full-width`, `data-search`, `app.gitbook.com` links, `.gitbook/assets` paths — attributes that meant something to GitBook and nothing here. Fenced code blocks are skipped, so a page *documenting* the markup is not a defect. | no |
+| Literal markup in rendered text | Markdown or HTML being *displayed* instead of interpreted: a visible `<figure …>`, an unrendered `![alt](path)` or `[text](url)`, a leftover `{% … %}`. This is the class nothing else catches — see [figures inside a list](#inside-a-numbered-or-bulleted-list). | yes |
+| Page-level horizontal overflow | Anything that makes the page scroll sideways, naming the element responsible. An element clipped by a scrolling ancestor is not a finding, so a code block or a wide table that scrolls *inside its own box* is left alone. | yes |
+| Images that did not load | Broken `src`, wrong path, missing file. Lazy images are forced eager and awaited first, so "below the fold" is not mistaken for "broken". | yes |
+| Empty table columns | A column whose header and every cell are empty — what GitBook's hidden columns become. | yes |
+| Console and page errors | Script errors and failed same-origin requests. | yes |
+| Missing `title` / `description` | Asserted per page. | yes |
+
+Every page is rendered at 1280px and at 375px, because the defects this found
+were mostly mobile ones.
+
+Findings print as failures; things it cannot verify print as **notes** and do
+not fail — external images (`img.shields.io`, `github.com/user-attachments`)
+are unreachable from this environment, and a check that cries wolf about them
+gets ignored. Exit codes: `1` means it found something, `2` means it could not
+finish, and in that case whatever it *did* find is still printed first.
+
+**Playwright is not a dependency of this project** and `--browser` is opt-in.
+It is a large package with a browser download attached, this is a docs site,
+and CI already gates what must never regress. `--browser` resolves Playwright
+from wherever it is installed and says so plainly when it is not there, rather
+than failing with a stack trace — and it still prints the static findings it
+already has. Install it with:
+
+```sh
+npx playwright install chromium
+```
+
+`--base-url` points the same checks at a deployment instead of a local `dist`
+— **worth re-running against the Cloudflare preview and against production**,
+the same way [`verify_redirects.mjs`](#verifying-a-deployment) is. The page list
+still comes from `dist`, so build first.
+
+**It is deliberately not a CI gate.** CI has no browser, so the half worth
+gating is the half that could not run there; the gates that must never regress
+(build, link validation, the stale-anchor audit, the redirect verifier) are
+already in CI, and the static half's job is to stop GitBook markup coming back
+rather than to block a merge. Run it before a release, and after any change to
+layout, images or CSS.
+
+**What it cannot answer**, stated because it is the whole reason the phase plan
+exists: content GitBook rendered that the markdown never contained, and whether
+a page that is free of detectable defects is nonetheless a visual regression
+against a design nobody here has seen. Only the baseline answers those, and it
+is still outstanding — see [Still to do](#still-to-do).
+
+`npm test` covers the detectors themselves; the sweep is not part of it.
 
 ## Continuous integration
 
@@ -591,6 +776,9 @@ npm run verify:redirects -- --dist dist
 Node comes from `.nvmrc` **at the repo root**, which is also the file
 Cloudflare Pages reads — one pin, so CI cannot pass on a Node the deploy will
 not use.
+
+`npm run qa` is deliberately absent: the half of it worth gating needs a
+browser, and CI has none — see [Page QA](#page-qa).
 
 Most of the gating happens inside `npm run build`, because that is what
 Cloudflare runs too: link validation, the stale-anchor audit, the `dist/_headers`
@@ -615,9 +803,18 @@ answer — see [Verifying a deployment](#verifying-a-deployment).
   is committed and CI is green, but nobody has created the project or seen a
   real preview — see
   [Deploying to Cloudflare Pages](#deploying-to-cloudflare-pages).
-- **24 anchors are still broken**, inherited from GitBook and excused from link
-  validation until the content is fixed — see
-  [Link validation](#link-validation).
+- **The live-site baseline was never captured.** Egress to `docs.kiln.tech` is
+  blocked from this environment, so no page has been diffed — in text or in a
+  screenshot — against the GitBook original. The mechanical sweep in
+  [Page QA](#page-qa) reduces what such a diff has to find; it does not replace
+  it, and it cannot see content GitBook rendered that the markdown never
+  contained.
+- **2 anchors are still broken**, inherited from GitBook and excused from link
+  validation until someone writes the missing sections —
+  `#option-3-combining-git-and-shared-drives` in `docs/collaboration/index.md`
+  and `#set-up-a-data-guide` in
+  `docs/synthetic-data-generation/generating-synthetic-data.md`. See
+  [Link validation](#link-validation). The other 22 were repaired.
 - **The favicon and OG image are placeholders.** There is no Kiln logo in this
   repo to build them from — see
   [Social preview and favicon](#social-preview-and-favicon).

@@ -274,8 +274,11 @@ sweep.
 treatment) with a cover image above the title:
 
 ```astro
-interface Props { title: string; href: string; cover: ImageMetadata; }
+interface Props { title: string; description: string; href: string; cover: ImageMetadata; }
 ```
+
+`description` is the sentence GitBook's card table carried in its third column;
+dropping it would lose content the widget displayed.
 
 `cover` is an `ImageMetadata`, imported by the page and rendered through
 `astro:assets`'s `<Image>`. Taking the metadata rather than a filename is what
@@ -292,9 +295,15 @@ Consequences, checked rather than assumed:
 
 - URLs are unchanged: `index.md` → `index.mdx` still builds `/docs/fine-tuning/`.
 - The `.md` endpoints and the "Copy page" blob serve `entry.body`, which for
-  MDX is the JSX source. For these two pages that is a strict improvement on
-  today's single-line HTML table: a machine reading it sees a title, a
-  description and an href per card instead of `<td><a href="…">tuning2.png</a></td>`.
+  MDX is the JSX source. For these two pages that is a **trade, not a win**.
+  What it buys: a machine reading the endpoint sees a title, a description and
+  an href per card instead of `<td><a href="…">tuning2.png</a></td>`. What it
+  costs: the endpoint stops being markdown, it carries `import` statements
+  whose relative paths resolve against nothing a consumer of the endpoint can
+  see, and phase 5's asset absolutizer — which rewrites relative image paths to
+  absolute URLs on the way out — does not reach the covers, because they arrive
+  as JSX props rather than as markdown images. Two pages of 46, and both are
+  card indexes rather than prose, which is why it is acceptable.
 - Phase 9's reconciliation converts to `.md`. If either page is ever
   reconciled, the converter's output must be merged into the `.mdx` by hand
   rather than copied over it. Recorded in "Carried forward" and in the README.
@@ -361,11 +370,19 @@ is the sidebar's version of the same mistake.
 ### 7. Hero overflow (finding D) — `src/styles/custom.css`
 
 ```css
-.hero .hero-image img { max-width: min(70%, 20rem); height: auto; }
+.hero .hero-image {
+  max-width: 100%;
+}
+.hero .hero-image img {
+  max-width: 100%;
+  height: auto;
+}
 ```
 
-Restates the theme's own intent for the wrapper it does not reach, rather than
-inventing a size.
+Caps the image at the column it sits in rather than picking a new size, so the
+desktop hero — which already fits — is unchanged and only the 375px overflow
+goes away. Constraining the wrapper as well as the image is what makes it hold:
+the wrapper is the box the image is being measured against.
 
 ### 8. `data-full-width` and `data-search` (finding H)
 
@@ -409,6 +426,7 @@ its trailing hyphen. Verified against the built ids.
 | --- | --- |
 | `docs/collaboration/index.md` | `### **Recommended: Use Git!**` ← `#option-1-use-git` |
 | `docs/collaboration/index.md` | `### Option 2: Use Shared Drives` ← `#option-2-use-shared-drives-for-non-technical-team-members` |
+| `docs/collaboration/index.md` | `### Collaboration Design` ← `#technical-collaboration-architecture` — the link is on `developers/kiln-datamodel.md`, and this is what retires its allowlist line |
 | `docs/models-and-ai-providers.md` | `### Included Models from the Model Library - Recommended` ← `#included-models-recommended` (4 links) |
 | `docs/models-and-ai-providers.md` | `### Fine-Tuneable Models` ← `#additional-fine-tuneable-models` |
 | `docs/models-and-ai-providers.md` | `### Custom OpenAI Compatible Servers` ← `#litellm` |
@@ -517,7 +535,8 @@ in the absence of a baseline:
 - `npm run build` green: 47 pages, links valid, `staleAnchorsStillStale()`
   satisfied by a 2-line allowlist, `optimizedImagesOnly()` still under its
   cap with the nine covers added.
-- `npm test` green, including the existing 104 JS and 135 Python cases.
+- `npm test` green, including the existing 104 JS and 236 Python cases
+  (the counts phase 6 recorded).
 - `node scripts/qa_pages.mjs --browser` reports **zero** findings across all 46
   pages at 1280px and 375px, other than the external resources this
   environment cannot reach.
