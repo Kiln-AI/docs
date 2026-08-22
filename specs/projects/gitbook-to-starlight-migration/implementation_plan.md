@@ -23,7 +23,7 @@ ability to convert anything else.
   are non-destructive. Diff converted text against `baseline/pages/` to find
   systematic losses.
 
-- [ ] **Phase 3: Go Astro-native.** Run the transformer a final time, commit
+- [x] **Phase 3: Go Astro-native.** Run the transformer a final time, commit
   its output, and remove the gitignore rules for generated paths. **Unwire
   `npm run convert` from `npm run build` and `npm run dev`** — both call it
   today, so once `src/content/docs/` is committed the ordinary build would

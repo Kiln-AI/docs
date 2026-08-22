@@ -150,11 +150,13 @@ and `SUMMARY.md` were deleted once their content moved here, so a run has to
 restore them first. Use a worktree, not `git checkout … -- <paths>`, so the
 restored tree cannot be committed back by accident:
 
+From `site/`, where the rest of this README leaves you:
+
 ```sh
 # last commit carrying the GitBook tree
 git worktree add /tmp/gitbook 3e16f5af77fc0e0e27a6785ec78a5f6c1761a889
 # today's converter, not the one the worktree checked out
-cp site/scripts/gitbook_to_starlight.py /tmp/gitbook/site/scripts/
+cp scripts/gitbook_to_starlight.py /tmp/gitbook/site/scripts/
 cd /tmp/gitbook/site
 python3 scripts/gitbook_to_starlight.py --out /tmp/converted
 ```

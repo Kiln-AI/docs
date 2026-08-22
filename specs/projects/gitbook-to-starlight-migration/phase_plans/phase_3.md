@@ -1,5 +1,5 @@
 ---
-status: draft
+status: complete
 ---
 
 # Phase 3: Go Astro-Native
@@ -481,6 +481,8 @@ Phase 3 removed the inputs, so phase 3 records the recovery.
 `require_gitbook_sources()` runs before anything reads the tree and replaces
 that traceback with the procedure:
 
+From the repo root:
+
 ```sh
 git worktree add /tmp/gitbook 3e16f5af77fc0e0e27a6785ec78a5f6c1761a889
 cp site/scripts/gitbook_to_starlight.py /tmp/gitbook/site/scripts/
@@ -505,13 +507,28 @@ Copying is the only option: the main checkout's script cannot be pointed at the
 worktree, because `REPO` derives from `__file__`, so it would look back at the
 main checkout and re-trigger this same error.
 
-A worktree rather than `git checkout … -- .gitbook docs SUMMARY.md`, so the
-restored tree cannot be committed back by accident. `GITBOOK_TREE_COMMIT` holds
+The `cp` path is relative, so each copy of this procedure is written for where
+its reader is standing — repo root here, `site/` in `site/README.md`. The
+script's own printed copy uses `os.path.abspath(__file__)` and works from
+anywhere. This matters more than it looks: run from the wrong directory the
+`cp` fails loudly, and then the convert that follows **exits 0** and lands the
+29-page divergence anyway.
+
+A worktree rather than checking the old paths back out into the main checkout:
+it cannot be committed back by accident, and it cannot leave half the GitBook
+tree behind. (An earlier draft spelled out
+`git checkout … -- .gitbook docs SUMMARY.md` as the option not to take, which
+both invited a copy-paste and omitted `developers/`.) `GITBOOK_TREE_COMMIT` holds
 the **full 40-character SHA** — an abbreviation can go ambiguous as the repo
 grows, and the whole recovery path depends on that commit resolving — and
-`site/README.md` carries the same procedure. The check also covers `docs/`, so
-a partial restore fails here rather than converting zero pages and dying in
-`copy_assets`.
+`site/README.md` carries the same procedure.
+
+The check covers every input the run reads — `.gitbook/assets`, `docs`,
+`developers` and `SUMMARY.md` — because a partial restore is the same silent
+failure in miniature. Without `docs` the run converted zero pages and died in
+`copy_assets`; without `developers` it converted **42 of 45 and exited 0**,
+dropping `kiln-datamodel.md`, `python-library-quickstart.md` and `rest-api.md`
+with no warning at all.
 
 The same gap has a second half: `--out` copies no assets, so a reconciled page
 arrives referencing `../../../assets/some-safe-name.png` with no such file.
@@ -563,8 +580,9 @@ phase closes. Rewrite it around the site as it now is:
 
 ## Tests
 
-40 new cases in `site/scripts/test_gitbook_to_starlight.py`, taking the suite
-from 93 to 133. Fixtures only — nothing here reads the live corpus or `.git`.
+42 new cases in `site/scripts/test_gitbook_to_starlight.py`, taking the suite
+from 93 to 135. `fake_repo()` gained a `developers/` page so it mirrors the real
+repo's two source roots. Fixtures only — nothing here reads the live corpus or `.git`.
 
 **Asset names** (`AssetNameTest`) — Astro resolves a markdown image path
 literally, so the naming rule is load-bearing:
@@ -644,9 +662,14 @@ converter reads:
   `test_an_out_run_checks_too` — a `SystemExit` naming the missing paths, the
   commit and the `git worktree add` line, instead of a `FileNotFoundError`
   traceback out of `build_asset_index()`.
-- `test_a_complete_checkout_is_accepted`, and
-  `test_a_partial_restore_is_rejected` — restoring `.gitbook` and `SUMMARY.md`
-  but not `docs/` used to pass, convert zero pages and die in `copy_assets`.
+- `test_a_complete_checkout_is_accepted`,
+  `test_a_partial_restore_missing_docs_is_rejected` (used to convert zero pages
+  and die in `copy_assets`) and
+  `test_a_partial_restore_missing_developers_is_rejected` — the worse shape,
+  which used to succeed silently at 42 of 45 pages. Reverting either element of
+  the tuple fails its test.
+- `test_the_recovery_message_spells_no_partial_checkout` — the message must not
+  hand the reader a `git checkout … -- <paths>` line to copy.
 - `test_the_full_sha_is_recorded` — 40 characters, since an abbreviation can go
   ambiguous and the recovery path depends on the commit resolving.
 - The recovery message must carry the `cp` line, asserted in
@@ -673,7 +696,12 @@ Whole-corpus checks, run against the committed state:
   committed tree**: `src/content/docs`, `src/assets`, `public/assets` and
   `sidebar.json` all byte-identical, after the review-round changes as well as
   before them.
-- `npm test` — 133 tests, green.
+- `npm test` — 135 tests, green.
+- **Both documented procedures executed verbatim from the directory each names**
+  — `site/README.md`'s from `site/`, this plan's from the repo root — each
+  reproducing the committed pages with zero divergence. Run from the wrong
+  directory the `cp` fails and the convert still exits 0 at 29 pages diverged,
+  which is why the two copies differ.
 - **The recovery procedure was executed as written**, twice: once with the `cp`
   line and once without. With it, the `--out` tree is byte-identical to the
   committed pages. Without it, 29 of 45 pages differ and `agentsbg-2.png` is

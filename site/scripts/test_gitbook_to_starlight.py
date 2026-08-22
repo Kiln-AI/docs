@@ -52,8 +52,11 @@ def fake_repo():
             '<video src="../.gitbook/assets/clip.mp4"></video>\n\n'
             "[two](fine-tuning/two.md)\n")
         (repo / "docs" / "fine-tuning" / "two.md").write_text("# Two\n\nBody\n")
+        (repo / "developers").mkdir()
+        (repo / "developers" / "api.md").write_text("# API\n\nBody\n")
         (repo / "SUMMARY.md").write_text(
-            "## Docs\n\n* [One](docs/one.md)\n* [Two](docs/fine-tuning/two.md)\n")
+            "## Docs\n\n* [One](docs/one.md)\n* [Two](docs/fine-tuning/two.md)\n"
+            "* [API](developers/api.md)\n")
         site = repo / "site"
         (site / "src").mkdir(parents=True)
 
@@ -877,7 +880,7 @@ class OutFlagTest(unittest.TestCase):
             copy.assert_not_called()
             copytree.assert_not_called()
             self.assertEqual(sentinel.read_text(), "keep me")
-            self.assertEqual(len(list(pathlib.Path(scratch).rglob("*.md"))), 2)
+            self.assertEqual(len(list(pathlib.Path(scratch).rglob("*.md"))), 3)
             self.assertEqual(list(pathlib.Path(scratch).rglob("*.mdx")), [])
             self.assertFalse(sidebar.exists())
             self.assertFalse(pathlib.Path(G.DOCS_OUT).exists())
@@ -935,14 +938,33 @@ class MissingSourcesTest(unittest.TestCase):
                 silenced(lambda: G.main(["--out", os.path.join(scratch, "out")]))
         self.assertIn("git worktree add", str(raised.exception))
 
-    def test_a_partial_restore_is_rejected(self):
-        # Restoring .gitbook and SUMMARY.md but not docs/ used to pass the
-        # check, convert zero pages, and die in copy_assets instead.
+    def test_a_partial_restore_missing_docs_is_rejected(self):
+        # Used to pass the check, convert zero pages, and die in copy_assets.
         with fake_repo() as repo:
             shutil.rmtree(repo / "docs")
             with self.assertRaises(SystemExit) as raised:
                 silenced(lambda: G.main(["--list"]))
         self.assertIn("docs", str(raised.exception))
+
+    def test_a_partial_restore_missing_developers_is_rejected(self):
+        # The worse shape: this one used to succeed silently, converting every
+        # page except the ones under developers/ and exiting 0.
+        with fake_repo() as repo, tempfile.TemporaryDirectory() as scratch:
+            shutil.rmtree(repo / "developers")
+            with self.assertRaises(SystemExit) as raised:
+                silenced(lambda: G.main(["--out", os.path.join(scratch, "out")]))
+            self.assertIn("developers", str(raised.exception))
+            self.assertFalse(os.path.exists(os.path.join(scratch, "out")))
+
+    def test_the_recovery_message_spells_no_partial_checkout(self):
+        # An earlier draft wrote out `git checkout ... -- .gitbook docs
+        # SUMMARY.md` as the option not to take. It omitted developers/, and it
+        # was sitting there ready to be copied.
+        with fake_repo() as repo:
+            shutil.rmtree(repo / ".gitbook")
+            with self.assertRaises(SystemExit) as raised:
+                silenced(lambda: G.main(["--list"]))
+        self.assertNotIn("git checkout", str(raised.exception))
 
     def test_the_full_sha_is_recorded(self):
         # An abbreviation can go ambiguous as the repo grows, and the whole

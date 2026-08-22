@@ -1124,7 +1124,10 @@ def require_gitbook_sources():
     the working tree. Without this the first thing a reconciliation run hits is
     a bare FileNotFoundError out of build_asset_index().
     """
-    missing = [rel for rel in (".gitbook/assets", "docs", "SUMMARY.md")
+    # Every input the run reads. `developers` earns its place as much as the
+    # rest: it holds three pages, and without it the run converts 42 of 45 and
+    # exits 0, which is worse than the traceback this function replaced.
+    missing = [rel for rel in (".gitbook/assets", "docs", "developers", "SUMMARY.md")
                if not os.path.exists(os.path.join(REPO, rel))]
     if not missing:
         return
@@ -1142,10 +1145,10 @@ def require_gitbook_sources():
         "nothing validates. This script cannot simply be run in place, either: it locates\n"
         "the repo from its own path, so it would look right back here and fail again.\n"
         "\n"
-        "A worktree rather than `git checkout %s -- .gitbook docs SUMMARY.md`, so the\n"
-        "restored tree cannot be committed back by accident."
-        % (", ".join(missing), GITBOOK_TREE_COMMIT,
-           os.path.abspath(__file__), GITBOOK_TREE_COMMIT))
+        "Use a worktree rather than checking the old paths out into this one: a\n"
+        "worktree cannot be committed back here by accident, and it cannot leave\n"
+        "half the GitBook tree behind for the next run to trip over."
+        % (", ".join(missing), GITBOOK_TREE_COMMIT, os.path.abspath(__file__)))
 
 
 def list_sources(sources):
