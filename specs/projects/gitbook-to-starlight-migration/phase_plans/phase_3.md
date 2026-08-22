@@ -31,31 +31,57 @@ already uses.
 
 ## Findings that change the plan
 
-### Astro's image pipeline cannot resolve filenames containing spaces
+### Asset filenames are sanitized, but not for the reason first recorded
 
-The architecture says referenced images move to `src/assets/` and are referenced
-with relative markdown links so Astro optimizes them. Verified by spike: that is
-true, and the optimizer produces `<img>` with WebP `src` and intrinsic
-`width`/`height`. But **most of the referenced images have spaces, parentheses
-or U+202F in their filenames** (GitBook stored macOS screenshots verbatim), and
-Astro cannot resolve those:
+**Correction.** An earlier draft of this plan claimed, as spike-verified fact,
+that Astro cannot resolve an image filename containing a space, and quoted an
+`[ImageNotFound]` error to prove it. That is false. Code review reproduced the
+opposite; re-verified here against the installed toolchain, with distinct image
+content per file so content-hash dedup could not mask a miss:
 
-```
-[ImageNotFound] Could not find requested image `../../assets/two words.png`. Does it exist?
-```
+| Reference form | Result |
+| --- | --- |
+| `![](<../../assets/plain spaces.png>)` — angle brackets, raw space | builds, optimizes to WebP |
+| `![](../../assets/plain%20spaces.png)` — percent-encoded | builds, optimizes |
+| `![](<../../assets/narrow␟space.png>)` — real U+202F name, angle brackets | builds, optimizes |
+| `![](../../assets/narrow%E2%80%AFspace.png)` — U+202F percent-encoded | builds, optimizes |
+| `![](../../assets/paren%20%281%29.png)` — parentheses percent-encoded | builds, optimizes |
+| `![](../../assets/plain spaces.png)` — **raw space, no angle brackets** | **silently renders as literal text** |
+| target file genuinely absent | `[ImageNotFound]` |
 
-Reproduced with a plain space, with the path percent-encoded (`two%20words.png`)
-and with an angle-bracket destination (`![](<../../assets/two words.png>)`).
-`remark-collect-images` `decodeURI`s the destination and hands the literal
-string to Vite's importer, which does not find it. This is not something
-encoding can work around.
+Astro handles every encoded form. The original spike referenced
+`../assets/…` from a page at `src/content/docs/spike.md`, which resolves to
+`src/content/assets/` — the file was never at that path. `[ImageNotFound]` was
+telling the truth; the diagnosis was wrong. The depth was corrected and a
+sanitized name adopted in the same edit, and the fix was credited to the rename.
+It is recorded here at length because two later phases plan off this text.
 
-**Decision:** sanitize filenames on the way into `src/assets/`.
+The failure mode that *does* exist is the last-but-one row, and it is the
+dangerous one: a raw space with no angle brackets is not an image as far as
+CommonMark is concerned, so the line renders as literal `![alt](path)` text.
+**No error, no warning, and `starlight-links-validator` in phase 6 will not
+catch it** — it is not a link.
+
+**Decision, unchanged:** sanitize filenames on the way into `src/assets/`.
+The reasons are now the honest ones, and they are conventions rather than
+constraints:
+
+- a raw space silently degrades to literal text, and sanitized names make that
+  unreachable rather than merely unlikely;
+- `%20` and `%E2%80%AF` propagate into the built asset URLs
+  (`/_astro/narrow%E2%80%AFspace.9MbsIu8D_Z1faDRK.webp`), which is ugly in a
+  URL bar, in a bug report, and in the "Copy page" markdown blob.
+
 `safe_asset_name()` maps every run of characters outside `[A-Za-z0-9._-]` to a
 single `-`, collapses repeats, strips leading/trailing `-`/`.`, and lowercases
 the extension. Over the 68 images that land in `src/assets/`: 22 unchanged, 46
-renamed, **zero collisions**, and no collision with `hero.png`. The converter
-raises on a collision rather than trusting that.
+renamed, **zero collisions**, and none against `hero.png` — which the converter
+now enforces rather than observing.
+
+Nothing about the output changes. The nine card covers phase 7 inherits can be
+moved to `src/assets/` under their original names if that is ever preferable;
+the only requirement is that the reference be angle-bracketed or
+percent-encoded.
 
 Videos keep their original names — they live in `public/`, are referenced by
 absolute URL, and percent-encoding works there.
@@ -183,8 +209,91 @@ nothing on the new site uses.
 The delete list includes both oversized videos — `final_1080.mp4` (38 MB) and
 `final_1080p_web_fast_start.mp4` (27 MB) — which is what clears Cloudflare
 Pages' 25 MiB per-file limit. The largest surviving file is `Datagen720.mp4` at
-4.8 MB. The full 75-name list is printed by the converter (step 6) and is
-recoverable from git history at any time.
+4.8 MB. The full list is below rather than left to git archaeology: it is the one
+piece of working here that nobody can re-derive once the tree is gone, and a
+squash-merge would take the history with it. The files are all present in
+**`3e16f5a`**, the last commit that carries the GitBook tree.
+
+<details>
+<summary>The 75 pruned assets</summary>
+
+- `393636240-a5d51b8b-b30a-4a16-a902-ab6ef1d58dc0.png`
+- `App2 (1).png`
+- `App2.png`
+- `ChatGPT Image Feb 2, 2026 at 03_31_53 PM.png`
+- `Collab.png`
+- `CreateTask720.mov`
+- `Distill2.png`
+- `Eval (1).png`
+- `Eval.png`
+- `KBD (1).png`
+- `Models (1).png`
+- `Prompts2.png`
+- `RAG Quick.mp4`
+- `Screenshot 2025-01-05 at 12.06.43 PM.png`
+- `Screenshot 2025-01-05 at 12.12.38 PM (1).png`
+- `Screenshot 2025-01-05 at 12.18.52 PM.png`
+- `Screenshot 2025-01-09 at 11.40.48 AM.png`
+- `Screenshot 2025-02-05 at 9.29.09 AM (1).png`
+- `Screenshot 2025-02-05 at 9.29.09 AM.png`
+- `Screenshot 2025-02-05 at 9.34.47 AM.png`
+- `Screenshot 2025-02-07 at 9.31.39 AM.png`
+- `Screenshot 2025-03-19 at 7.26.53 PM.png`
+- `Screenshot 2025-06-27 at 11.06.03 AM.png`
+- `Screenshot 2025-07-16 at 10.15.49 AM.png`
+- `Screenshot 2025-07-16 at 10.21.14 AM (1).png`
+- `Screenshot 2025-07-16 at 10.21.14 AM.png`
+- `Screenshot 2025-07-16 at 10.31.08 AM.png`
+- `Screenshot 2025-07-16 at 10.38.10 AM.png`
+- `Screenshot 2025-07-16 at 10.42.02 AM.png`
+- `Screenshot 2025-07-16 at 10.48.14 AM.png`
+- `Screenshot 2025-07-16 at 10.54.50 AM.png`
+- `Screenshot 2025-07-16 at 10.56.16 AM.png`
+- `Screenshot 2025-07-16 at 11.13.57 AM.png`
+- `Screenshot 2025-07-17 at 1.39.06 PM (1).png`
+- `Screenshot 2025-09-04 at 1.32.45 PM.png`
+- `Screenshot 2025-09-04 at 1.47.57 PM (1).png`
+- `Screenshot 2025-09-05 at 4.03.10 PM.png`
+- `Screenshot 2025-09-11 at 1.21.32 PM.png`
+- `Screenshot 2025-09-11 at 1.34.04 PM.png`
+- `Screenshot 2025-09-11 at 1.37.16 PM.png`
+- `Screenshot 2025-09-11 at 1.41.04 PM.png`
+- `Screenshot 2025-09-11 at 1.41.25 PM.png`
+- `Screenshot 2025-09-11 at 1.45.58 PM.png`
+- `Screenshot 2025-09-22 at 7.17.28 PM.png`
+- `Screenshot 2025-09-22 at 7.19.49 PM.png`
+- `Screenshot 2025-09-22 at 7.21.43 PM.png`
+- `Screenshot 2025-09-22 at 7.27.27 PM.png`
+- `Screenshot 2026-01-08 at 8.07.16 PM (1).png`
+- `Screenshot 2026-01-08 at 8.07.16 PM (2).png`
+- `Video-2.png`
+- `app.png`
+- `context mgmt.png`
+- `context_mgmt.png`
+- `data_guide.png`
+- `dataset-2 (1).png`
+- `evals.png`
+- `filter 1.png`
+- `final_1080.mp4`
+- `final_1080p_web_fast_start.mp4`
+- `providers.png`
+- `providers2.png`
+- `providers3.png`
+- `python.png`
+- `python2.png`
+- `python3.png`
+- `reasoning.png`
+- `specs img.png`
+- `synth.png`
+- `synth_data-2 (2).png`
+- `synthetic data gen walkthrough (1).mp4`
+- `synthetic data gen walkthrough.mp4`
+- `tool_use.png`
+- `tune.png`
+- `tuning (1).png`
+- `tuning.png`
+
+</details>
 
 `prune_assets.py` from the architecture is **not written**. It was specified to
 delete orphans out of `.gitbook/assets`, and this phase deletes that entire
@@ -362,12 +471,45 @@ from the step 6 snapshot over the moved file:
 hand-written `index.mdx`), `SUMMARY.md` (replaced by `sidebar.json`), and the
 75 unreferenced assets. `.gitbook/` is then empty and disappears.
 
+### 10. Record how phase 9 gets the converter's inputs back
+
+Deleting the GitBook tree deletes what the converter reads. Without this step
+the phase 9 reconciliation run — `--out DIR`, the only supported mode — dies in
+`build_asset_index()` with a bare `FileNotFoundError` on `.gitbook/assets`.
+Phase 3 removed the inputs, so phase 3 records the recovery.
+
+`require_gitbook_sources()` runs before anything reads the tree and replaces
+that traceback with the procedure:
+
+```
+git worktree add /tmp/gitbook 3e16f5a
+cd /tmp/gitbook/site && python3 scripts/gitbook_to_starlight.py --out /tmp/converted
+```
+
+A worktree rather than `git checkout 3e16f5a -- .gitbook docs SUMMARY.md`, so
+the restored tree cannot be committed back by accident. `GITBOOK_TREE_COMMIT` in
+the converter holds the SHA, and `site/README.md` carries the same procedure.
+
+The same gap has a second half: `--out` copies no assets, so a reconciled page
+arrives referencing `../../../assets/some-safe-name.png` with no such file.
+`ctx.image_assets` already knows the mapping, so the `--out` summary now prints
+it — `.gitbook/assets/<original>` → `site/src/assets/<safe name>` — instead of
+leaving the operator to reapply `safe_asset_name()` by hand.
+
 Git stores no rename records — `git log --follow` recovers them by content
 similarity — so `git mv` and `rm`+`add` produce byte-identical commits here.
 Using `git mv` anyway keeps the deletion and the addition staged together, which
 is what makes the diff readable.
 
-### 10. `site/astro.config.mjs`
+**Three pages fall below git's default rename threshold** and show as
+delete-plus-add: `docs/optimizers.md`, `docs/fine-tuning/README.md` and
+`docs/end-to-end-project-demo.md`. All three are short files whose few very long
+lines (the card tables, an embed) were entirely rewritten, so similarity lands
+under 50%. Nothing is lost — `git log --follow -M20%` or `git diff -M20%`
+recovers all three cleanly — but "`git mv` where paths map cleanly" should not
+be read as "history follows everywhere by default".
+
+### 11. `site/astro.config.mjs`
 
 - `editLink.baseUrl` → `https://github.com/Kiln-AI/docs/edit/main/site/` (see
   findings).
@@ -375,7 +517,7 @@ is what makes the diff readable.
   generated and tell the reader to run `npm run convert`. It is now committed
   content; say so.
 
-### 11. Rewrite `site/README.md`
+### 12. Rewrite `site/README.md`
 
 It currently opens "A working proof-of-concept port … The GitBook content in
 this repo is untouched", documents `npm run dev` as running the converter first,
@@ -398,8 +540,8 @@ phase closes. Rewrite it around the site as it now is:
 
 ## Tests
 
-28 new cases in `site/scripts/test_gitbook_to_starlight.py`, taking the suite
-from 93 to 121. Fixtures only — nothing here reads the live corpus or `.git`.
+38 new cases in `site/scripts/test_gitbook_to_starlight.py`, taking the suite
+from 93 to 131. Fixtures only — nothing here reads the live corpus or `.git`.
 
 **Asset names** (`AssetNameTest`) — Astro resolves a markdown image path
 literally, so the naming rule is load-bearing:
@@ -463,12 +605,44 @@ with a plain image, an image whose name needs sanitizing, a video and an orphan:
 - `test_a_stale_copy_does_not_survive_a_rerun`.
 - `test_colliding_safe_names_fail_the_run`.
 - `test_out_runs_copy_nothing` — `--out` still writes pages and nothing else.
+- `test_the_hero_cannot_be_overwritten_by_an_asset` — the hero is copied after
+  the collision loop, so it is the one destination the loop does not cover
+  unless it is seeded.
+- `test_case_only_collisions_fail_the_run` — `Foo.png` and `foo.png` are two
+  keys but one file on APFS, which is where a corpus of macOS screenshots comes
+  from.
+- `test_the_copy_count_matches_what_was_copied` — the summary counted the
+  directory, so it reported the hero as a 69th image.
+
+**Phase 9's inputs** (`MissingSourcesTest`) — phase 3 deletes what the
+converter reads:
+
+- `test_a_checkout_without_the_gitbook_tree_names_the_recovery` and
+  `test_an_out_run_checks_too` — a `SystemExit` naming the missing paths, the
+  commit and the `git worktree add` line, instead of a `FileNotFoundError`
+  traceback out of `build_asset_index()`.
+- `test_a_complete_checkout_is_accepted`.
+- `test_out_names_the_assets_its_pages_reference` — the `--out` summary prints
+  `.gitbook/assets/<original>` → `site/src/assets/<safe name>` for each asset
+  its pages reference, since it copies none of them.
+
+**Silent optimizer opt-outs** (`FigureTest`)
+
+- `test_an_unmatched_figure_is_reported` — a `<figure>` shape the pattern does
+  not cover still works, via `public/assets` and unoptimized, so it warns.
+- `test_a_converted_figure_is_not_reported` and
+  `test_an_embed_figure_is_not_reported` — no false positives on the 68 image
+  figures or the 8 video ones.
 
 ## Verification
 
 Whole-corpus checks, run against the committed state:
 
-- `npm test` — 121 tests, green.
+- **Re-converted from a clean worktree of `3e16f5a` and diffed against the
+  committed tree**: `src/content/docs`, `src/assets`, `public/assets` and
+  `sidebar.json` all byte-identical, after the review-round changes as well as
+  before them.
+- `npm test` — 131 tests, green.
 - `npm run build`, which is now plain `astro build` — 47 pages, 68 images
   optimized to WebP, no `ImageNotFound`.
 - **Rendered figure nesting**, read out of `site/dist`:
@@ -505,4 +679,12 @@ New findings, on top of the phase 2 list that phases 5 and 7 already inherit:
   `<table data-view="cards">` becomes a real card grid, those covers become
   images and should move to `src/assets/` to pick up the optimizer. They are
   the only images on the site that skip it for a reason that is going to
-  disappear.
+  disappear. Their filenames are already safe, so no rename is needed; if one
+  ever is, an angle-bracketed or percent-encoded reference works too — see the
+  correction at the top of this document before planning around it.
+- **`docs/tools-and-mcp/index.md` links the model library at
+  `https://app.gitbook.com/u/lbKlVk0pqscWejhogcdq9NRaUtP2`.** Pre-existing,
+  came through the converter unchanged, and out of scope here — but it is a
+  GitBook-hosted URL that dies when phase 8 cancels the subscription. Phase 2
+  recorded it against phase 7; repeating it here because phase 8 is the
+  deadline, not phase 7.

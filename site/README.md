@@ -53,15 +53,21 @@ loading. Nothing else gets that treatment — a raw `<img src="/assets/…">`
 served out of `public/` is passed through untouched, and Astro's own image
 handling only ever sees markdown image syntax.
 
-Two rules follow from how that resolution works:
+Two things to get right:
 
-- **No spaces in filenames.** Astro resolves the path as a literal string
-  through Vite, and a space fails the build whether it is written raw,
-  percent-encoded, or inside `<angle brackets>`. Use
-  `lowercase-with-hyphens.png`.
 - **Count the `../` from the page, not the site root.** A page at
   `src/content/docs/docs/agents.md` reaches `src/assets/` with
-  `../../../assets/`.
+  `../../../assets/`. Too few or too many segments fails the build with
+  `Could not find requested image` — loud, and the usual cause of it.
+- **Keep filenames free of spaces.** Astro itself copes fine with a space, as
+  long as the reference is percent-encoded (`my%20shot.png`) or wrapped in
+  `<angle brackets>`. The hazard is the third form: a **raw, unwrapped space is
+  not an image at all** as far as CommonMark is concerned, so the line renders
+  as literal `![alt](../../assets/my shot.png)` text — no error, no warning,
+  and the link checker will not catch it, because it is not a link. Spaces also
+  survive into the built URL as `%20`. Use `lowercase-with-hyphens.png` and
+  neither can happen; the assets migrated out of GitBook were renamed on that
+  basis.
 
 ### Screenshots with a caption
 
@@ -139,17 +145,28 @@ and `npm run build` are plain Astro commands; the converter is kept only for
 the final reconciliation step, which picks up any GitBook page that landed
 after the content freeze.
 
-Its default run rebuilds `src/content/docs/` from scratch, which would now
-delete hand-maintained content, so it refuses to start once that directory is
-committed to git. The safe mode is the only one to use:
+**Its inputs are not in this checkout.** `.gitbook/`, `docs/`, `developers/`
+and `SUMMARY.md` were deleted once their content moved here, so a run has to
+restore them first. Use a worktree, not `git checkout … -- <paths>`, so the
+restored tree cannot be committed back by accident:
 
 ```sh
+git worktree add /tmp/gitbook 3e16f5a      # last commit with the GitBook tree
+cd /tmp/gitbook/site
 python3 scripts/gitbook_to_starlight.py --out /tmp/converted
 ```
 
-That writes the converted pages to a scratch directory and nothing else — no
+The script says as much if you forget.
+
+`--out` writes the converted pages to a scratch directory and nothing else — no
 assets, no `sidebar.json`, no deletions — so pages can be copied in one at a
-time.
+time. Because it copies no assets, it finishes by printing every asset its
+pages reference and the `src/assets`/`public/assets` name to copy it to; bring
+those across by hand from the worktree.
+
+Its default run rebuilds `src/content/docs/` from scratch, which would delete
+hand-maintained content, so it refuses to start once that directory is
+committed to git. `--out` is the only mode to use.
 
 | Flag | Effect |
 | --- | --- |

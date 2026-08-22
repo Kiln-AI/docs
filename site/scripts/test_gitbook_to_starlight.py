@@ -436,6 +436,27 @@ class FigureTest(unittest.TestCase):
         self.assertIn("<figure><div", out)
         self.assertIn("<figcaption><p>Cap</p></figcaption></figure>", out)
 
+    def test_an_unmatched_figure_is_reported(self):
+        # It still works -- the image falls through to public/assets -- but it
+        # quietly opts out of the optimizer, so it must not be silent.
+        ctx = context(self.ASSETS)
+        out = self.figure('<figure class="wide"><img src="../.gitbook/assets/shot.png" '
+                          'alt=""></figure>', ctx=ctx)
+        self.assertIn('<img src="/assets/shot.png"', out)
+        self.assertEqual(ctx.unconverted_figures, ["docs/page.md"])
+
+    def test_a_converted_figure_is_not_reported(self):
+        ctx = context(self.ASSETS)
+        self.figure('<figure><img src="../.gitbook/assets/shot.png" alt=""></figure>',
+                    ctx=ctx)
+        self.assertEqual(ctx.unconverted_figures, [])
+
+    def test_an_embed_figure_is_not_reported(self):
+        ctx = context(self.ASSETS)
+        convert('# P\n\n{% embed url="https://vimeo.com/1" %}\nCap\n{% endembed %}\n',
+                ctx=ctx)
+        self.assertEqual(ctx.unconverted_figures, [])
+
     def test_a_figure_inside_a_code_fence_is_untouched(self):
         source = ('# P\n\n```html\n<figure><img src="../.gitbook/assets/shot.png" '
                   'alt=""></figure>\n```\n')
@@ -862,6 +883,18 @@ class OutFlagTest(unittest.TestCase):
             self.assertFalse(pathlib.Path(G.DOCS_OUT).exists())
             self.assertIn("# One", (repo / "docs" / "one.md").read_text())
 
+    def test_out_names_the_assets_its_pages_reference(self):
+        # --out copies nothing, so the mapping to safe names is the only way an
+        # operator knows what to bring across by hand.
+        with fake_repo(), tempfile.TemporaryDirectory() as scratch:
+            out = io.StringIO()
+            with contextlib.redirect_stdout(out), contextlib.redirect_stderr(io.StringIO()):
+                G.main(["--out", os.path.join(scratch, "out")])
+        message = out.getvalue()
+        self.assertIn(".gitbook/assets/wide shot.png", message)
+        self.assertIn("site/src/assets/wide-shot.png", message)
+        self.assertIn("site/public/assets/clip.mp4", message)
+
     def test_the_completion_message_does_not_overclaim(self):
         with fake_repo(), tempfile.TemporaryDirectory() as scratch:
             out = io.StringIO()
@@ -870,6 +903,35 @@ class OutFlagTest(unittest.TestCase):
         message = out.getvalue()
         self.assertNotIn("Nothing else was written", message)
         self.assertIn("Left untouched:", message)
+
+
+class MissingSourcesTest(unittest.TestCase):
+    """Phase 3 deleted the converter's inputs; running anyway must explain that."""
+
+    def test_a_checkout_without_the_gitbook_tree_names_the_recovery(self):
+        with fake_repo() as repo:
+            shutil.rmtree(repo / ".gitbook")
+            (repo / "SUMMARY.md").unlink()
+            with self.assertRaises(SystemExit) as raised:
+                silenced(lambda: G.main(["--list"]))
+        message = str(raised.exception)
+        self.assertIn(".gitbook/assets", message)
+        self.assertIn("SUMMARY.md", message)
+        self.assertIn(G.GITBOOK_TREE_COMMIT, message)
+        self.assertIn("git worktree add", message)
+
+    def test_an_out_run_checks_too(self):
+        # --out is the only supported mode, so it is the one that must not
+        # die in build_asset_index with a bare FileNotFoundError.
+        with fake_repo() as repo, tempfile.TemporaryDirectory() as scratch:
+            shutil.rmtree(repo / ".gitbook")
+            with self.assertRaises(SystemExit) as raised:
+                silenced(lambda: G.main(["--out", os.path.join(scratch, "out")]))
+        self.assertIn("git worktree add", str(raised.exception))
+
+    def test_a_complete_checkout_is_accepted(self):
+        with fake_repo():
+            G.require_gitbook_sources()
 
 
 class CopyAssetsTest(unittest.TestCase):
@@ -932,6 +994,33 @@ class CopyAssetsTest(unittest.TestCase):
             with self.assertRaises(SystemExit) as raised:
                 self.run_default()
             self.assertIn("wide-shot.png", str(raised.exception))
+
+    def test_the_hero_cannot_be_overwritten_by_an_asset(self):
+        # The hero is copied after the loop, so without seeding it the loop's
+        # collision check is the one destination it does not cover.
+        with fake_repo() as repo:
+            (repo / ".gitbook" / "assets" / "hero.png").write_bytes(b"other")
+            (repo / "docs" / "one.md").write_text(
+                "# One\n\n![](../.gitbook/assets/hero.png)\n")
+            with self.assertRaises(SystemExit) as raised:
+                self.run_default()
+            self.assertIn("hero.png", str(raised.exception))
+
+    def test_case_only_collisions_fail_the_run(self):
+        # Distinct keys, one file on a case-insensitive filesystem.
+        with fake_repo() as repo:
+            (repo / ".gitbook" / "assets" / "Shot.png").write_bytes(b"other")
+            (repo / "docs" / "one.md").write_text(
+                "# One\n\n![](../.gitbook/assets/shot.png)\n"
+                "![](../.gitbook/assets/Shot.png)\n")
+            with self.assertRaises(SystemExit) as raised:
+                self.run_default()
+            self.assertIn("sanitize", str(raised.exception))
+
+    def test_the_copy_count_matches_what_was_copied(self):
+        with fake_repo():
+            printed = self.run_default()
+            self.assertIn("Copied 2 image(s) plus the hero", printed)
 
     def test_out_runs_copy_nothing(self):
         with fake_repo(), tempfile.TemporaryDirectory() as scratch:

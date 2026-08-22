@@ -246,14 +246,15 @@ UNSAFE_IN_ASSET_NAME = re.compile(r"[^A-Za-z0-9._-]+")
 
 
 def safe_asset_name(name):
-    """Asset filename -> a name Astro's image pipeline can actually resolve.
+    """Asset filename -> a name that is safe to write as a markdown image.
 
-    Astro optimizes an image only when it is written as a markdown image with a
-    relative path, and it resolves that path as a literal string through Vite.
-    A space anywhere in the filename fails the build -- percent-encoding and
-    <angle brackets> both fail the same way -- and most of the referenced files
-    are macOS screenshots whose names are full of spaces, parentheses and
-    U+202F. So the names change on the way into src/assets.
+    Astro resolves an encoded destination fine: `%20` and `<angle brackets>`
+    both optimize, U+202F included. The hazard is the unencoded form -- a raw
+    space makes the line stop being an image as far as CommonMark is concerned,
+    so it renders as literal `![alt](path)` text with no error and nothing in
+    CI to catch it. Most of the referenced files are macOS screenshots full of
+    spaces, parentheses and U+202F, so the names change on the way into
+    src/assets and neither that nor a `%20` in the built URL can happen.
     """
     stem, ext = os.path.splitext(name)
     stem = UNSAFE_IN_ASSET_NAME.sub("-", stem)
@@ -386,6 +387,7 @@ class Conversion:
         # not. Only what lands in one of these is copied out of .gitbook.
         self.image_assets = set()
         self.public_assets = set()
+        self.unconverted_figures = []
 
     def image_asset(self, relpath, name):
         """An asset referenced as a markdown image -> its src/assets path."""
@@ -637,6 +639,13 @@ def convert_figures(body):
     return FIGURE_IMAGE.sub(figure, body)
 
 
+# A <figure> that still contains an <img> after convert_figures ran: a shape the
+# pattern above does not cover. Nothing breaks -- the reference falls through to
+# the HTML-attribute path and the image is served unoptimized out of
+# public/assets -- which is exactly why it needs saying out loud.
+UNCONVERTED_FIGURE = re.compile(r"<figure[^>]*>(?:(?!</figure>).)*<img", re.S)
+
+
 # --- page conversion --------------------------------------------------------
 
 
@@ -665,6 +674,8 @@ def convert(text, relpath, ctx):
         # thing that gets resolved -- asset resolution stays in one place, and
         # the figure pass stays a pure structural transform.
         chunk = convert_figures(chunk)
+        if UNCONVERTED_FIGURE.search(chunk):
+            ctx.record(ctx.unconverted_figures, relpath)
         chunk = rewrite_references(chunk, relpath, ctx, page_url)
         return chunk.replace(":desktop:", "\U0001f5a5️")
 
@@ -966,6 +977,10 @@ def report(ctx, list_anchors=False):
               "stale in the GitBook source too. Re-run with --anchors to list them."
               % len(ctx.unresolved_anchors), file=sys.stderr)
 
+    for relpath in ctx.unconverted_figures:
+        print("warning: %s has a <figure> the image pass did not match, so its "
+              "image skips Astro's optimizer" % relpath, file=sys.stderr)
+
     if ctx.missing_assets:
         for relpath, name in ctx.missing_assets:
             print("error: %s references missing asset %r" % (relpath, name), file=sys.stderr)
@@ -1029,6 +1044,24 @@ def refuse_to_rebuild_committed_output():
             % (relative, detail, REPO, advice))
 
 
+def report_assets_to_copy(ctx):
+    """Name the assets an --out run's pages reference but did not copy.
+
+    --out deliberately writes pages and nothing else, so a reconciled page
+    arrives referencing ../../assets/some-safe-name.png with no such file. The
+    mapping is right here in the Conversion and is otherwise thrown away, which
+    would leave the operator to rediscover safe_asset_name() by hand.
+    """
+    if not ctx.image_assets and not ctx.public_assets:
+        return
+    print("\nAssets these pages reference. Copy any the site does not already have:")
+    for name in sorted(ctx.image_assets):
+        print("  %-52s -> site/src/assets/%s"
+              % (".gitbook/assets/" + name, safe_asset_name(name)))
+    for name in sorted(ctx.public_assets):
+        print("  %-52s -> site/public/assets/%s" % (".gitbook/assets/" + name, name))
+
+
 def copy_assets(ctx):
     """Copy the referenced assets out of .gitbook, and report what was left.
 
@@ -1043,14 +1076,20 @@ def copy_assets(ctx):
             shutil.rmtree(directory)
         os.makedirs(directory)
 
-    safe_names = {}
+    # Keyed casefolded: on a case-insensitive filesystem -- APFS, which is where
+    # a corpus of macOS screenshots comes from -- Foo.png and foo.png are two
+    # keys but one file, so the second copy would silently win.
+    # Seeded with the hero, which is copied unconditionally below and would
+    # otherwise be the one destination no collision check covers.
+    safe_names = {"hero.png".casefold(): HERO_SOURCE}
     for name in sorted(ctx.image_assets):
         safe = safe_asset_name(name)
-        if safe in safe_names:
+        clash = safe_names.get(safe.casefold())
+        if clash is not None:
             raise SystemExit(
                 "Assets %r and %r both sanitize to %r. Rename one in "
-                ".gitbook/assets." % (safe_names[safe], name, safe))
-        safe_names[safe] = name
+                ".gitbook/assets." % (clash, name, safe))
+        safe_names[safe.casefold()] = name
         shutil.copy(os.path.join(GITBOOK_ASSETS, name), os.path.join(SRC_ASSETS, safe))
 
     for name in sorted(ctx.public_assets):
@@ -1061,13 +1100,40 @@ def copy_assets(ctx):
 
     referenced = ctx.image_assets | ctx.public_assets | {HERO_SOURCE}
     unreferenced = sorted(set(os.listdir(GITBOOK_ASSETS)) - referenced)
-    print("Copied %d image(s) to %s and %d file(s) to %s."
-          % (len(os.listdir(SRC_ASSETS)), os.path.relpath(SRC_ASSETS, REPO),
-             len(os.listdir(ASSETS_OUT)), os.path.relpath(ASSETS_OUT, REPO)))
+    print("Copied %d image(s) plus the hero to %s, and %d file(s) to %s."
+          % (len(ctx.image_assets), os.path.relpath(SRC_ASSETS, REPO),
+             len(ctx.public_assets), os.path.relpath(ASSETS_OUT, REPO)))
     print("%d unreferenced asset(s) in %s were not copied:"
           % (len(unreferenced), os.path.relpath(GITBOOK_ASSETS, REPO)))
     for name in unreferenced:
         print("  " + name)
+
+
+# The last commit that still carries the GitBook tree. Phase 3 deleted it, so
+# any later run has to restore it first, and the error below has to say so.
+GITBOOK_TREE_COMMIT = "3e16f5a"
+
+
+def require_gitbook_sources():
+    """Fail with the recovery procedure, not a traceback, once the inputs are gone.
+
+    Phase 3 deleted `.gitbook/`, `docs/`, `developers/` and `SUMMARY.md` from
+    the working tree. Without this the first thing a reconciliation run hits is
+    a bare FileNotFoundError out of build_asset_index().
+    """
+    missing = [rel for rel in (".gitbook/assets", "SUMMARY.md")
+               if not os.path.exists(os.path.join(REPO, rel))]
+    if not missing:
+        return
+    raise SystemExit(
+        "The GitBook source tree is not in this checkout (missing: %s).\n"
+        "It was deleted once its content moved into site/src/content/docs.\n"
+        "Restore it into a worktree and convert from there:\n"
+        "    git worktree add /tmp/gitbook %s\n"
+        "    cd /tmp/gitbook/site && python3 scripts/gitbook_to_starlight.py --out /tmp/converted\n"
+        "A worktree rather than `git checkout %s -- .gitbook docs SUMMARY.md`, so the\n"
+        "restored tree cannot be committed back by accident."
+        % (", ".join(missing), GITBOOK_TREE_COMMIT, GITBOOK_TREE_COMMIT))
 
 
 def list_sources(sources):
@@ -1086,6 +1152,7 @@ def list_sources(sources):
 def main(argv=None):
     args = parse_args(sys.argv[1:] if argv is None else argv)
 
+    require_gitbook_sources()
     sources = find_sources()
     if args.list:
         list_sources(sources)
@@ -1117,6 +1184,7 @@ def main(argv=None):
                  os.path.relpath(DOCS_OUT, REPO),
                  os.path.relpath(ASSETS_OUT, REPO),
                  os.path.relpath(os.path.join(SITE, "sidebar.json"), REPO)))
+        report_assets_to_copy(ctx)
         return
 
     copy_assets(ctx)
