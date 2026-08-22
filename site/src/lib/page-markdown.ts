@@ -81,8 +81,8 @@ async function resolveReferencedAssets(markdown: string): Promise<Map<string, st
  * Rewrite a page body's asset references to absolute URLs.
  *
  * Shared by the per-page `.md` endpoints and the route middleware that feeds
- * the theme's "Copy page" blob, so the bodies of the two cannot drift. Their
- * frontmatter headers have separate owners — see `pageMarkdown`.
+ * the theme's "Copy page" blob, so the body text of the two cannot drift.
+ * Their frontmatter headers have separate owners — see `pageMarkdown`.
  */
 export async function absolutizePageBody(body: string, origin: string): Promise<string> {
 	const urls = await resolveReferencedAssets(body);
@@ -93,8 +93,9 @@ export async function absolutizePageBody(body: string, origin: string): Promise<
  * The markdown for one page, as machines should see it: a small frontmatter
  * header and the page body with every asset reference made absolute.
  *
- * The *body* is byte-identical to the theme's "Copy page" blob, because both
- * come from `absolutizePageBody`. The *header* deliberately is not: the theme
+ * The body text is the same as the theme's "Copy page" blob, because both come
+ * from `absolutizePageBody` — identical output, then a trailing newline added
+ * here that the blob does not carry. The *header* deliberately differs: the theme
  * interpolates the title raw, which produces
  * `title: Evaluate RAG Accuracy: Q&A Evals` — invalid YAML — on two of the 45
  * pages. Quoting here fixes the endpoint; the blob is the theme's to fix.

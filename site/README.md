@@ -170,6 +170,15 @@ build instead, naming each `.md` path explicitly. Confirm it survives the
 first real deployment: `curl -sI https://<preview>/docs/quickstart.md` should
 report `text/markdown`.
 
+Enumerating costs one of Cloudflare's **100** `_headers` rules per page, so
+the build fails at 90 with instructions to switch to the single documented
+rule `/*.md` (Cloudflare's `_headers` uses `_redirects`' matching, allows one
+splat, and documents `/*.jpg` as an example). Enumeration is the default only
+because it is generated from the files actually emitted, which proves the
+rules match the output instead of asserting a pattern. A hand-added
+`public/_headers` also fails the build rather than silently replacing all 45
+rules; the error says how to merge them.
+
 The first three come from the
 [`starlight-llms-txt`](https://github.com/delucis/starlight-llms-txt) plugin,
 configured in `astro.config.mjs`. All of it is linked from the site footer,
@@ -203,8 +212,10 @@ middleware in `src/starlightRouteData.ts`. That is why the middleware exists:
 the blob is built inside the theme's `PageTitle` component, and rewriting the
 route data avoids copying 130 lines of theme markup into this repo.
 
-The blob and the endpoint therefore have identical **bodies**. Their
-frontmatter differs: `src/lib/frontmatter.mjs` quotes every scalar
+The blob and the endpoint therefore carry the same **body text** — identical
+`absolutizePageBody` output, plus a trailing newline on the endpoint that the
+blob does not have, so the two files differ by that one byte. Their
+frontmatter differs by more: `src/lib/frontmatter.mjs` quotes every scalar
 (`title: "Evaluate RAG Accuracy: Q&A Evals"`), matching what
 `gitbook_to_starlight.py` writes into the content files, while the theme
 interpolates the title raw. Two of the 45 titles and descriptions contain YAML
@@ -553,6 +564,31 @@ does not resolve. Check the number of `../` segments and check the filename for
 spaces — see [Images](#images).
 
 ## Deploying to Cloudflare Pages
+
+### Before cutover: things only a human can do
+
+None of these can be done from a sandbox, and two of them stop being possible
+once GitBook is switched off. Work through them before pointing DNS at the new
+site.
+
+- [ ] **Set the Cloudflare Web Analytics token.** Create a Web Analytics site
+      for `docs.kiln.tech`, then set `CLOUDFLARE_ANALYTICS_TOKEN` as a Pages
+      build environment variable. Without it the site deploys with no
+      analytics at all — see [Analytics](#analytics).
+- [ ] **Replace `public/favicon.svg` and `public/og.png`.** Both are
+      placeholders built from type and the site's palette, because **there is
+      no Kiln logo anywhere in this repo or its git history**. They are what
+      every share card and browser tab will show — see
+      [Social preview and favicon](#social-preview-and-favicon).
+- [ ] **Fetch one `.md` URL from the live GitBook site**, e.g.
+      `curl -sI https://docs.kiln.tech/docs/quickstart.md`, to confirm the
+      spelling the `.md` endpoints reproduce. **Last chance:** after
+      decommissioning, that evidence is gone permanently.
+- [ ] **Check `Content-Type` on the preview URL**:
+      `curl -sI https://<preview>/docs/quickstart.md` should report
+      `text/markdown` — see [Machine-readable output](#machine-readable-output).
+- [ ] **Submit `https://docs.kiln.tech/sitemap-index.xml`** to Search Console,
+      not `/sitemap.xml`, which is a redirect kept for the URL already on file.
 
 `npm run build` emits a fully static `site/dist`. Point Cloudflare Pages at
 this repo with build command `cd site && npm run build` and output directory

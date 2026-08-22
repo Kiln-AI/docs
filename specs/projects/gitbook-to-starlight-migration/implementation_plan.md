@@ -44,7 +44,7 @@ ability to convert anything else.
   tests for chain-flattening and duplicate detection) and
   `verify_redirects.mjs`. Set `trailingSlash`/`build.format` explicitly.
 
-- [ ] **Phase 5: Feature parity.** `starlight-llms-txt` plus a visible link to
+- [x] **Phase 5: Feature parity.** `starlight-llms-txt` plus a visible link to
   it. Static OG image wired through `head`. Cloudflare Web Analytics. Confirm
   the 404 page is useful. Check whether GitBook's per-page `.md` URLs need
   redirect rules.

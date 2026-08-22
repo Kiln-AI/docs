@@ -1,5 +1,5 @@
 ---
-status: draft
+status: complete
 ---
 
 # Phase 5: Feature Parity
@@ -41,6 +41,12 @@ The favicon is the one place where "do nothing" was not an option: Starlight
 emits `<link rel="shortcut icon" href="/favicon.svg">` on every page whether
 or not the file exists, so the choice was between a placeholder and a 404 on
 all 47 pages.
+
+Both, plus the three other things only a human can do before cutover, are
+written as a checklist at the top of
+[`site/README.md` → Deploying to Cloudflare Pages](../../../../site/README.md#deploying-to-cloudflare-pages)
+— that is the page someone doing the cutover is actually reading, so it is the
+copy that has to be found rather than this one.
 
 ## Findings that shape the plan
 
@@ -267,9 +273,10 @@ why the metadata is read through `image.clone`.
 
 The frontmatter header carries the same fields the theme uses for its copy
 blob (`title`, `description`), but is built by `src/lib/frontmatter.mjs`
-rather than by string interpolation — see the correction below. The **bodies**
-of the blob and the endpoint are byte-identical, because both come from
-`absolutizePageBody`; the headers are owned separately.
+rather than by string interpolation — see the correction below. The **body
+text** of the blob and the endpoint is the same, because both come from
+`absolutizePageBody`; the endpoint adds a trailing newline the blob has no
+use for, and the headers are owned separately.
 
 ### 3. `site/src/pages/[...slug].md.ts` — per-page markdown endpoints
 
@@ -300,15 +307,29 @@ Also from code review. Both guard failures that leave the build green.
 endpoint response headers — `core/build/generate.js` keeps `responseHeaders`
 only when an adapter declares `staticHeaders`, and there is no adapter — so
 the `Content-Type` set in `[...slug].md.ts` never ships and Cloudflare is left
-to infer one. Every `.md` path is listed explicitly rather than matched with
-`/*.md`: Cloudflare documents `*` in `_headers` paths but not whether a splat
-may precede a literal suffix, and `developers.cloudflare.com` is blocked from
-this environment, so that could not be confirmed. Generating from the emitted
-files removes both the glob question and the drift a committed list would
-have.
+to infer one.
+
+Every `.md` path is listed explicitly rather than matched with `/*.md`.
+**Settled fact, from round 2 review:** Cloudflare's `_headers` "uses the same
+URL matching features that `_redirects` offers", permits a single splat, and
+documents `/*.jpg` as an example — so a splat before a literal suffix *is*
+supported. (An earlier draft recorded this as unresolvable because
+`developers.cloudflare.com` is egress-blocked here; it is resolved.)
+Enumeration is kept anyway, because generating from the files actually emitted
+proves the rules match the output, which is a stronger property than asserting
+a pattern.
+
+Its one cost is the rule budget: Cloudflare applies at most **100** `_headers`
+rules and drops the overflow silently, and this spends one per page. So the
+build fails at `MAX_HEADER_RULES = 90` with the `/*.md` rule in the error text
+as the escape hatch. A hand-added `public/_headers` fails the build too, with
+merge instructions — losing all 45 rules to a green build is exactly the class
+of failure this module exists to prevent. Both paths were triggered and
+checked, not just written.
 
 `optimizedImagesOnly()` fails the build if `dist/_astro` holds more than four
-unoptimized originals. The `image.clone` trick below is undocumented and its
+unoptimized originals — and fails just as loudly if it cannot read `_astro` at
+all, since a gate that cannot find its subject must not report a pass. The `image.clone` trick below is undocumented and its
 `?? image` fallback is silent: if Astro drops `clone`, every original gets
 pinned, `dist` gains ~7 MB, and nothing in 300 tests notices. **Verified by
 patching `plainMetadata` to `return image`:** the build now fails with
@@ -508,8 +529,16 @@ All of the above ran and passed on a clean build:
   byte-identical once that attribute is blanked.
 - `verify_redirects.mjs --dist dist --min-paths 176`: 176 paths, all resolve,
   84 through local rules.
-- Dangling-reference sweep over `dist`: 220 local references, **0 dangling**.
-  This is the phase 2 `/favicon.svg` finding closed.
+- Dangling-reference sweep over `dist`: **0 dangling**. This is the phase 2
+  `/favicon.svg` finding closed.
+
+  The "220 references" figure originally reported here counts each distinct
+  `href` value, so `/docs/prompts/` and `/docs/prompts/#custom-prompts` are
+  two. Collapsing `#fragment`s gives **141 unique paths**, which is what an
+  independent sweep found — 79 of the 220 carry an anchor. Nothing is missing
+  either way; the zero is the result, and it reproduces under both countings.
+  Recorded because a phase 6 agent re-running the sweep and seeing 141 would
+  otherwise think references had disappeared.
 - With `CLOUDFLARE_ANALYTICS_TOKEN` set, `beacon.min.js` appears on 47/47
   pages; with it unset, on 0.
 - Served from `dist` over HTTP, every path returns 200: `/docs/quickstart.md`,
@@ -524,8 +553,9 @@ All of the above ran and passed on a clean build:
 - **All 45 endpoints' frontmatter parses** under `yaml.safe_load`. The same
   check over the theme's copy blobs fails on 2 of 45, which is the defect
   quoting was added for and which this phase cannot reach.
-- The blob and the endpoint have **identical bodies on all 45 pages**; only
-  the frontmatter quoting differs.
+- The blob and the endpoint carry **identical body text on all 45 pages** —
+  `absolutizePageBody` output byte for byte, plus a trailing newline on the
+  endpoint. Only the frontmatter quoting differs beyond that.
 - `optimizedImagesOnly()` was proved to fire, not merely written: patching
   `plainMetadata` to `return image` fails the build with a message naming the
   count and the function.
@@ -566,16 +596,18 @@ New findings, on top of the phase 2, 3 and 4 lists later phases inherit.
   YAML parser accepts. The `.md` endpoints quote properly, so they are
   correct; the blob is upstream's. Worth an upstream issue, and worth phase 7
   knowing that "Copy page" and the `.md` URL now differ in their headers even
-  though their bodies are byte-identical.
+  though their body text is the same.
 - **`dist/_headers` is generated, not committed.** `scripts/build_integrations.mjs`
-  writes it because Astro discards endpoint response headers and because a
-  `/*.md` glob could not be confirmed against Cloudflare's docs from this
-  environment. Phase 6 should confirm on the preview URL that
+  writes it because Astro discards endpoint response headers. Phase 6 should
+  confirm on the preview URL that
   `curl -sI https://<preview>/docs/quickstart.md` reports `text/markdown`; if
-  it does not, the file's shape is what to look at first. Note also that a
-  hand-added `public/_headers` would now be the thing Cloudflare reads for
-  everything else — the integration refuses to overwrite a file it did not
-  write, and warns.
+  it does not, the file's shape is what to look at first.
+- **`/*.md` is a supported `_headers` rule, and is the fallback when the
+  corpus outgrows enumeration.** Cloudflare caps `_headers` at 100 rules and
+  drops the overflow silently; one rule per page means ~90 pages is the
+  ceiling. The build now fails at 90 rather than shipping a truncated file,
+  and the error carries the replacement rule. Nothing to do until the corpus
+  roughly doubles.
 - **`plainMetadata`'s `image.clone` escape hatch is undocumented Astro
   behaviour.** `optimizedImagesOnly()` fails the build if it ever stops
   working, so a dependency bump in phase 6 or 7 will surface it loudly rather
