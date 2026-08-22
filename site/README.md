@@ -884,6 +884,13 @@ than alongside it.
   is committed and CI is green, but nobody has created the project or seen a
   real preview — see
   [Deploying to Cloudflare Pages](#deploying-to-cloudflare-pages).
+- **The GitBook converter is still here, and is meant to be deleted.**
+  Reconciliation is finished — no GitBook page is outstanding — but
+  `scripts/gitbook_to_starlight.py` and `scripts/test_gitbook_to_starlight.py`
+  are kept deliberately, because GitBook is still live and an edit made there
+  before decommissioning would need them. **Deleting them is the last step of
+  the project**, and it is gated on step 8 of the cutover, not on anything
+  here — see [The GitBook converter](#the-gitbook-converter).
 - **The live-site baseline was never captured.** Egress to `docs.kiln.tech` is
   blocked from this environment, so no page has been diffed — in text or in a
   screenshot — against the GitBook original. The mechanical sweep in
@@ -1306,6 +1313,14 @@ from step 4 on, see [If it goes wrong](#if-it-goes-wrong-rolling-back).
    404 watch has been quiet for a full Search Console reporting cycle — see
    [Watching for 404s](#watching-for-404s) for what "quiet" means. Only then
    decommission the space and cancel the subscription.
+
+   **Once you have, delete the converter.** `scripts/gitbook_to_starlight.py`
+   and `scripts/test_gitbook_to_starlight.py` are still in the repo only
+   because GitBook was still editable; this step is the moment that stops being
+   true, and nothing else in the repo depends on them. See
+   [The GitBook converter](#the-gitbook-converter). It is the last piece of
+   migration machinery left, and this is the step that is supposed to remove
+   it — if it is skipped here, it will not come up again.
 
    **This is the irreversible step in the whole project.** It ends the rollback
    option, and it destroys every group 1 answer. Nothing else here is worth

@@ -8,6 +8,22 @@ Ordered by dependency. Phases 1 and 2 come first because they must happen
 while GitBook is still live; phase 9 must be last because it removes our
 ability to convert anything else.
 
+## Where this stands
+
+Phases 2-7 are done. **Three checkboxes are open, and none of them is open
+because the work was forgotten.** Each is blocked on something this environment
+cannot provide, and each has a different closing condition:
+
+| Phase | Why it is open | What closes it |
+| --- | --- | --- |
+| **1. Capture the baseline** | Needs real Chrome and public internet; egress to `docs.kiln.tech` is blocked here. Never performed. | Nothing, now. It had to happen while GitBook was live and before phase 7 needed it, and neither is still true. Phase 7 was completed against a mechanical sweep instead — see `phase_plans/phase_7.md`. **It expires entirely at cutover step 8**; the parts still worth capturing are collected as group 1 of the pre-cutover checklist in `site/README.md`. |
+| **8. Cutover** | Every action needs credentials on an account nobody in this session holds — Cloudflare, the `kiln.tech` DNS zone, Search Console, GitBook billing — and each is irreversible. Deliberately not attempted; see `phase_plans/phase_8.md`. | A human following the cutover runbook in `site/README.md`. The phase's deliverable is that runbook, and it is finished. |
+| **9. Reconcile, then remove the transformer** | Reconciliation is **done and proven** (nothing landed on `main` after the freeze that is not already here). The deletion half is deliberately deferred, because phase 8 has not run and GitBook is still editable. | Cutover step 8. Once GitBook is decommissioned, delete `site/scripts/gitbook_to_starlight.py` and `site/scripts/test_gitbook_to_starlight.py`. Step 8 and the `Still to do` list in `site/README.md` both say so, so it is not reachable only from here. |
+
+Read together: **the project is complete up to the point where it needs
+credentials.** What is left is one human-operated cutover, plus a two-file
+deletion that the cutover's own final step triggers.
+
 ## Phases
 
 - [ ] **Phase 1: Capture the baseline.** Crawl the live GitBook site for the
@@ -29,7 +45,8 @@ ability to convert anything else.
   today, so once `src/content/docs/` is committed the ordinary build would
   delete the hand-maintained content and regenerate it from `docs/`, which the
   functional spec forbids. `convert` stays as a standalone script for the phase
-  9 reconciliation. (Phase 2 added a backstop: the default run refuses when
+  9 reconciliation (and was removed in phase 9, once that reconciliation proved
+  to be already complete). (Phase 2 added a backstop: the default run refuses when
   `src/content/docs/` is tracked in git. Unwiring is still the actual fix — the
   backstop only stops the build rather than letting it work.) Move referenced
   images into `src/assets/` and convert `<figure>` blocks per the architecture.
@@ -64,6 +81,13 @@ ability to convert anything else.
   redirects against production. Submit the new sitemap to Search Console and
   watch for 404 spikes. Keep GitBook running until the new site is confirmed
   good, then decommission it and cancel the subscription.
+
+  **Deliberately unperformed.** Every action here needs credentials nobody in
+  this session holds, and each is irreversible; egress to `docs.kiln.tech` is
+  blocked besides. The phase instead produced the cutover runbook in
+  `site/README.md` and verified locally everything that could be verified
+  locally. A human runs it from there. The checkbox stays unticked until
+  someone does. See `phase_plans/phase_8.md`.
 
 - [ ] **Phase 9: Reconcile late content, then remove the transformer.** Diff
   `origin/main` against the freeze commit `1dde281` for anything that landed

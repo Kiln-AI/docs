@@ -99,19 +99,26 @@ it costs nothing.
 `npm run convert` goes now. It is the "wiring" the plan names, it is
 undocumented, and it cannot do anything useful:
 
-- It invokes the transformer with no arguments, which is the destructive
-  full-rebuild mode. `refuse_to_rebuild_committed_output()` refuses that mode
-  outright, because `src/content/docs` is tracked. So the script always exits
-  non-zero.
-- The documented reconciliation path never uses it. `site/README.md` and the
-  script's own failure message both spell out
-  `python3 scripts/gitbook_to_starlight.py --out DIR`, run from a worktree,
-  never from this checkout — an npm script in `site/package.json` cannot be the
-  vehicle for that.
+- **The script cannot run from this checkout at all, in any mode.** `main()`
+  calls `require_gitbook_sources()` before anything else, and `.gitbook/`,
+  `docs/`, `developers/` and `SUMMARY.md` were deleted in phase 3 — so the run
+  exits 1 with the recovery procedure. Both `npm run convert` and
+  `npm run convert -- --out DIR` die there. Note the ordering: the source-tree
+  guard fires *first*, so `refuse_to_rebuild_committed_output()` is never
+  reached from here. It is not what stops `npm run convert`; it is a second
+  guard, for a checkout that still has the sources.
+- The documented reconciliation path never uses it, and could not. It is
+  `python3 scripts/gitbook_to_starlight.py --out DIR` run from *the worktree's*
+  copy of the script — a different working directory, and a different
+  `site/package.json`. An npm script here cannot be the vehicle for a run that
+  by definition happens somewhere else.
 
-So the entry is a footgun with no upside: the only thing it can do is the one
-thing the functional spec forbids. Removing it costs no capability, because the
-capability lives in `--out`, which is invoked directly.
+So the entry is a footgun with no upside: it names a capability this checkout
+does not have. The one thing it could plausibly teach a reader — that
+`npm run convert` is how you convert — is exactly the thing that is false, and
+the failure it produces is a wall of recovery text rather than an obvious
+"wrong command". Removing it costs no capability, because the capability lives
+in `--out`, invoked directly from a worktree.
 
 ### What is not migration scaffolding
 
