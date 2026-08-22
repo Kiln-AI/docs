@@ -273,7 +273,11 @@ export async function verify(options) {
   if (checks.length < floor) {
     throw new VerifyError(
       `only ${checks.length} paths to check, expected at least ${floor} - `
-      + `is ${path.basename(options.csvPath)} truncated?`,
+      + `is ${path.basename(options.csvPath)} truncated? If instead the inventory `
+      + `legitimately shrank - the alias probe disproved a row, say - lower the floor `
+      + `in the verify:redirects script in package.json to ${checks.length} and commit `
+      + `that with the inventory change. Passing --min-paths on the command line to get `
+      + `a green run leaves the floor wrong for everyone else.`,
     );
   }
 

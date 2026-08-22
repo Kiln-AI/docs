@@ -15,7 +15,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { execFile } from 'node:child_process';
-import { mkdtemp, mkdir, writeFile } from 'node:fs/promises';
+import { copyFile, mkdtemp, mkdir, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -359,6 +359,16 @@ test('parseArgs rejects an unknown argument rather than ignoring it', () => {
   assert.throws(() => parseArgs(['--dist']), QaError);
 });
 
+// The cutover runbook points --base-url at production. Silently ignoring it
+// there would print "no findings" for a site nothing had requested.
+test('parseArgs refuses --base-url without --browser rather than ignoring it', () => {
+  assert.throws(
+    () => parseArgs(['--base-url', 'https://docs.kiln.tech']),
+    (error) => error instanceof QaError && /--browser/.test(error.message),
+  );
+  assert.equal(parseArgs(['--browser', '--base-url', 'https://x']).baseUrl, 'https://x');
+});
+
 // --------------------------------------------------------------------------
 // The CLI
 // --------------------------------------------------------------------------
@@ -378,32 +388,46 @@ async function fixtureSite() {
   return root;
 }
 
-async function runCli(args, env) {
-  return run(process.execPath, [SCRIPT, ...args], { env: { ...process.env, ...env } }).catch(
-    (error) => error,
-  );
+async function runScript(script, args) {
+  return run(process.execPath, [script, ...args], { env: process.env }).catch((error) => error);
+}
+
+async function runCli(args) {
+  return runScript(SCRIPT, args);
 }
 
 /**
- * A `playwright` this project can resolve, whose `launch()` fails.
+ * A copy of the sweep whose only resolvable `playwright` has a failing
+ * `launch()`.
  *
  * Stands in for the common half-installed case — the package is there, the
  * Chromium binary is not — which fails *after* the module has loaded, and so
- * is not a `QaError`. Returned as a `NODE_PATH` value rather than written into
- * `node_modules`, so the test never touches the real install.
+ * is not a `QaError`.
+ *
+ * The stub has to be found by ordinary `node_modules` resolution, not
+ * `NODE_PATH`: `NODE_PATH` is consulted only after the directory walk, so a
+ * real `site/node_modules/playwright` would win and the stub would never
+ * load. The README tells a reader to install exactly that before a
+ * `--browser` sweep, so the test cannot assume it is absent. Copying the
+ * script into a scratch tree moves the walk somewhere the test owns: the
+ * sweep imports nothing but node builtins, and it resolves `playwright`
+ * relative to its own location.
  */
-async function stubPlaywrightPath(root) {
-  const dir = path.join(root, 'stub', 'playwright');
-  await mkdir(dir, { recursive: true });
+async function stubbedSweepPath(root) {
+  const stub = path.join(root, 'stub', 'node_modules', 'playwright');
+  await mkdir(stub, { recursive: true });
   await writeFile(
-    path.join(dir, 'package.json'),
+    path.join(stub, 'package.json'),
     '{ "name": "playwright", "version": "0.0.0-stub", "main": "index.js" }',
   );
   await writeFile(
-    path.join(dir, 'index.js'),
+    path.join(stub, 'index.js'),
     "module.exports = { chromium: { launch: async () => { throw new Error('stub: Executable does not exist'); } } };",
   );
-  return path.join(root, 'stub');
+  const scripts = path.join(root, 'stub', 'scripts');
+  await mkdir(scripts, { recursive: true });
+  await copyFile(SCRIPT, path.join(scripts, 'qa_pages.mjs'));
+  return path.join(scripts, 'qa_pages.mjs');
 }
 
 test('the static report is printed and exits non-zero', async () => {
@@ -429,10 +453,13 @@ test('a browser that fails after it loads does not swallow them either', async (
   // The failure that is not a QaError: Playwright resolves, its browser binary
   // does not exist. Catching only QaError would print nothing but a stack.
   const root = await fixtureSite();
-  const result = await runCli(
-    ['--browser', '--content', `${root}/content`, '--dist', `${root}/dist`],
-    { NODE_PATH: await stubPlaywrightPath(root) },
-  );
+  const result = await runScript(await stubbedSweepPath(root), [
+    '--browser',
+    '--content',
+    `${root}/content`,
+    '--dist',
+    `${root}/dist`,
+  ]);
   assert.equal(result.code, 2);
   assert.match(result.stdout, /gitbook-card-table/);
   assert.match(result.stdout, /gitbook-hidden-column/);

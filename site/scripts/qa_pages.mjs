@@ -562,6 +562,17 @@ export function parseArgs(args) {
 			args.splice(index--, 1, arg.slice(0, split), arg.slice(split + 1));
 		} else throw new QaError(`unknown argument: ${arg}`);
 	}
+	// Only the browser half fetches anything: the static half reads the content
+	// sources off disk and would not notice a URL. Accepting the flag on its own
+	// would print "no findings" for a deployment nothing had contacted — the
+	// exact false green a cutover check must not produce.
+	if (options.baseUrl && !options.browser) {
+		throw new QaError(
+			'--base-url only means something with --browser: the static checks read ' +
+				'src/content/docs off disk and never fetch anything. Add --browser, or ' +
+				'drop --base-url to sweep the local sources.',
+		);
+	}
 	return options;
 }
 

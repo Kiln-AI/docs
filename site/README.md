@@ -452,12 +452,21 @@ move in step with the inventory and a floor only some callers pass has stopped
 being a floor.
 
 It is **176** today: 131 URLs from the inventory, plus 45 `md-endpoint`
-identity rows that assert our own build output rather than GitBook's. Raise it
-in `package.json` when the inventory grows.
+identity rows that assert our own build output rather than GitBook's.
+
+**It moves in both directions, and it moves in `package.json`.** Raise it when
+the inventory grows. Lower it when the inventory legitimately shrinks — which
+it does on one specific, expected path: the alias probe disproving a generated
+row, whose settle-up is to *delete* both of its rows (see [Adding to the
+inventory](#adding-to-the-inventory)). Do that and the very next verifier run
+fails the floor, which is the gate working, not a defect. The error names the
+number to put in `package.json`; commit it in the same change as the inventory
+edit, so the floor and the inventory never disagree.
 
 Appending `--min-paths N` still works and wins, since the last flag is the one
 read. That is an escape hatch for a one-off, not a way to make a failing run
-pass — lowering the floor to get a green run is how a truncated inventory ships.
+pass — lowering the floor **on the command line** to get a green run leaves it
+wrong for everyone else, and is how a truncated inventory ships.
 
 ### Adding to the inventory
 
@@ -481,7 +490,11 @@ them like this rather than rebuilding:
 4. Run `python3 scripts/build_redirects.py --refresh-csv`. It regenerates the
    `sitemap`, `alias-generated` and `structural` rows from `ref/`, keeps every
    other row verbatim, prints what changed, and rewrites `public/_redirects`.
-5. Review the diff and re-run the verification above.
+5. **Move the floor if the path count changed.** Step 3 removes rows, so a
+   probe that disproves aliases drops the count below `--min-paths` and the
+   verifier stops with `only N paths to check`. Put that `N` in the
+   `verify:redirects` script in `package.json` — see [The floor](#the-floor).
+6. Review the diff and re-run the verification above.
 
 ### Trailing slashes
 
@@ -753,10 +766,16 @@ package, and the script resolves `playwright` the way `require` does — through
 install populates. `--no-save` keeps it out of `package.json`, which is the
 point of not depending on it.
 
-`--base-url` points the same checks at a deployment instead of a local `dist`
+`--base-url` points the browser half at a deployment instead of a local `dist`
 — **worth re-running against the Cloudflare preview and against production**,
 the same way [`verify_redirects.mjs`](#verifying-a-deployment) is. The page list
 still comes from `dist`, so build first.
+
+**It needs `--browser`, and is refused without it.** The static half reads
+`src/content/docs` off disk and never fetches anything, so accepting the flag
+on its own would print `no findings` for a deployment nothing had contacted —
+a false green in the one place it costs most, the check run against production
+during [Cutover](#cutover).
 
 **It is deliberately not a CI gate.** CI has no browser, so the half worth
 gating is the half that could not run there; the gates that must never regress
@@ -802,10 +821,23 @@ answer — see [Verifying a deployment](#verifying-a-deployment).
 
 ## Still to do
 
+**Some of this expires.** Everything that needs an answer from the live
+GitBook site — the alias probe, the Search Console export, the `.md` URL
+spelling, the page baseline — is impossible the moment that space is
+decommissioned. Those items are collected as
+[group 1 of the pre-cutover checklist](#group-1--while-gitbook-is-still-live),
+and they are the reason the checklist comes before the cutover procedure rather
+than alongside it.
+
 - **The redirect inventory is incomplete.** It is built from GitBook's sitemap
   plus an inferred alias pattern. The live-site crawl, alias probe and Search
   Console export have not landed — see
-  [Adding to the inventory](#adding-to-the-inventory).
+  [Adding to the inventory](#adding-to-the-inventory) for how to merge them,
+  and [group 1](#group-1--while-gitbook-is-still-live) for the deadline.
+- **The `.md` URL spelling is inferred.** The 45 `md-endpoint` rows assert what
+  this site builds, not what GitBook served; nobody has fetched one. One
+  request settles it, and only while GitBook is live —
+  [group 1](#group-1--while-gitbook-is-still-live).
 - **No WYSIWYG editor.** Starlight pairs with git-backed CMSes such as
   [Keystatic](https://keystatic.com/) or [TinaCMS](https://tina.io/); neither
   is wired up.
@@ -879,25 +911,112 @@ database and no external search service — Pagefind is built at build time — 
 deployment is "upload a directory", plus three text files Cloudflare reads out
 of it: `_redirects`, `_headers` and `404.html`.
 
+**Every command in this section runs from `site/`, not the repo root**, against
+an installed tree:
+
+```sh
+cd site
+npm ci
+```
+
+Nothing below repeats it. Where a command has to run from somewhere else, it
+says so.
+
+Read [Before cutover](#before-cutover-things-only-a-human-can-do) before
+[Cutover](#cutover). Part of it is only answerable while GitBook is still
+serving `docs.kiln.tech`, and stops being answerable forever the moment that
+space is deleted.
+
 ### Before cutover: things only a human can do
 
 None of these can be done from a sandbox. They are ordered so that each one is
-possible when you reach it: the expiring one first, then the Pages project, then
-everything that needs the project to exist.
+possible when you reach it: the expiring ones first, then the Pages project,
+then everything that needs the project to exist.
 
-**Do this one first — it expires.**
+#### Group 1 — while GitBook is still live
 
-- [ ] **Fetch one `.md` URL from the live GitBook site**, e.g.
-      `curl -sI https://docs.kiln.tech/docs/quickstart.md`, to confirm the
-      spelling the `.md` endpoints reproduce. The endpoints reproduce a URL
-      family nobody has ever probed; the decision was argued from the sitemap,
-      not from an observation. If the spelling differs the fix is one line in
-      `src/pages/[...slug].md.ts` plus a `redirects.csv` refresh. **This is the
-      last moment it is physically possible** — once GitBook is decommissioned
-      the evidence is gone permanently, and it does not depend on anything else
-      here.
+**Everything in this group is a question only the live `docs.kiln.tech` can
+answer, and deleting the GitBook space destroys the answer permanently.** None
+of it depends on the Pages project or on DNS, so do it *now*, even if cutover
+is weeks away. Doing it early is also what makes the redirect map right *at*
+cutover rather than patched afterwards.
 
-**Then set up the deployment.**
+Save raw output — into `ref/`, an issue, anywhere durable. A remembered answer
+is not evidence, and this is the one part of the migration that cannot be
+redone.
+
+- [ ] **Probe the `.md` URL spelling.** The `.md` endpoints reproduce a URL
+      family nobody has ever requested; the spelling was argued from the
+      sitemap, not observed. One request settles it:
+
+      ```sh
+      for path in /docs/quickstart.md /docs/quickstart/index.md /docs/quickstart/; do
+        curl -sS -o /dev/null -w "%{http_code} %{content_type} <- $path\n" \
+          "https://docs.kiln.tech$path"
+      done
+      ```
+
+      Want: `200 text/markdown` on the first. If a different candidate is the
+      one that answers, the fix is one line in `src/pages/[...slug].md.ts` plus
+      a `redirects.csv` refresh. If *none* answers as markdown, GitBook did not
+      serve this family at all and the 45 `md-endpoint` rows assert something
+      no one will ever request — harmless, but say so in the CSV rather than
+      leaving the claim standing.
+
+- [ ] **Probe the 34 `alias-generated` rows.** These are the redirect map's one
+      soft spot: inferred from GitBook's flat-alias pattern, never requested.
+      This loop asks the live site about all 17 slashless forms.
+
+      ```sh
+      awk -F, '$4=="alias-generated" && $1 !~ /\/$/ {print $1}' redirects.csv \
+      | while read -r path; do
+          printf '%s %s\n' \
+            "$(curl -sS -o /dev/null -w '%{http_code}' "https://docs.kiln.tech$path")" \
+            "$path"
+        done | tee ref/alias_probe.txt
+      ```
+
+      **What the probe is really for.** A generated row that GitBook never
+      served is dead weight, not a bug — nothing links to that URL, so the rule
+      never fires. The risk runs the other way: aliases the pattern *failed* to
+      generate are live URLs with no redirect, and they are what a 404 spike is
+      made of. So the 404s in that output are hygiene; the reason to run it is
+      to find out whether the pattern is right at all. Also try the shape phase
+      4 flagged and could not settle — an alias at the site root rather than
+      under `/docs`:
+
+      ```sh
+      curl -sS -o /dev/null -w '%{http_code}\n' https://docs.kiln.tech/fine-tuning-guide
+      ```
+
+      A 200 there means a whole second family of live URLs is missing from the
+      inventory, and `_alias_rows` in `scripts/build_redirects.py` needs one
+      more generated form. Settle up per
+      [Adding to the inventory](#adding-to-the-inventory).
+
+- [ ] **Export Search Console's indexed pages.** Search Console → Indexing →
+      Pages → *All submitted pages* → Export. **This is the only source for
+      historical URLs that have already dropped out of GitBook's sitemap**, and
+      it is the source the inventory has never had. Nothing in this repo or in
+      a crawl can reconstruct it. Merge each URL not already in `redirects.csv`
+      as a `gsc` row per
+      [Adding to the inventory](#adding-to-the-inventory).
+
+      Do this even if you plan to watch Search Console after cutover anyway:
+      the export tells you the gaps *before* users find them, and the export
+      does not survive the property being reworked around a new site.
+
+- [ ] **Capture the page baseline, if it is ever going to be captured.**
+      `specs/projects/gitbook-to-starlight-migration/phase_plans/phase_1.md` is
+      a self-contained brief for it: rendered text and a full-page screenshot
+      of all 45 pages. It never ran, because this environment cannot reach
+      `docs.kiln.tech`. Page QA has been done without it — see
+      [Page QA](#page-qa) — and the migration is not blocking on it, but it is
+      the only thing that can ever answer "did this page lose something GitBook
+      rendered that the markdown never contained". After decommission, that
+      question is permanently unanswerable.
+
+#### Group 2 — set up the deployment
 
 - [ ] **Create the Cloudflare Pages project** and connect it to this repo, with
       the settings in [Project settings](#project-settings). Nothing below can
@@ -937,7 +1056,7 @@ everything that needs the project to exist.
       Until either is settled, run the workflow by hand — see
       [Verifying a deployment](#verifying-a-deployment).
 
-**Then, before the site becomes the public one.**
+#### Group 3 — before the site becomes the public one
 
 - [ ] **Replace `public/favicon.svg` and `public/og.png`.** Both are
       placeholders built from type and the site's palette, because **there is
@@ -951,6 +1070,18 @@ everything that needs the project to exist.
       `MAX_RULES` in `scripts/build_redirects.py` is 2,000, taken from the
       architecture with a note to confirm it. We emit 84, so the margin is
       large and this is bookkeeping rather than risk.
+- [ ] **Write down the DNS record `docs.kiln.tech` has today** — type, name,
+      target, proxy status, TTL — verbatim, somewhere you will still have it in
+      a hurry. It is the only thing that gets you back to GitBook, and once
+      Cloudflare has replaced it the previous value is not shown anywhere. See
+      [If it goes wrong](#if-it-goes-wrong-rolling-back).
+- [ ] **Lower that record's TTL to 60 seconds, at least a day before cutover.**
+      TTL is what bounds how long a rollback takes to reach people who have
+      already resolved the name. Lowering it after you have a problem does
+      nothing — resolvers are already holding the old value for the old TTL.
+      A record proxied through Cloudflare (orange cloud) has an effectively
+      short TTL already; an unproxied record inherits whatever it was set to,
+      which is commonly an hour or more.
 
 Then work through [Cutover](#cutover), which is the ordered procedure rather
 than a checklist. One thing to know before you start it: the sitemap to submit
@@ -979,6 +1110,52 @@ The build needs **no Python**. `public/_redirects` is committed rather than
 generated at deploy time, so the rules that ship are the rules reviewable in
 git, and `npm run redirects:check` in CI is what keeps the two in step.
 
+### The pre-cutover check
+
+One command that runs everything this repo can prove without a deployment. Run
+it on the commit you are about to cut over from. **This is the one block that
+starts at the repo root** — it carries its own `cd site`, so it can be pasted
+into a fresh shell:
+
+```sh
+cd site && npm ci \
+  && npm test \
+  && npm run redirects:check \
+  && npm run build \
+  && npm run verify:redirects -- --dist dist \
+  && npm run qa \
+  && echo "PRE-CUTOVER CHECKS PASSED"
+```
+
+`&&` throughout on purpose: the first failure stops the chain, so a green
+`PRE-CUTOVER CHECKS PASSED` is the only way to see that line. What each link
+proves:
+
+| Step | What a pass means |
+| --- | --- |
+| `npm test` | The Python and JS suites: chain-flattening, duplicate detection, the redirect verifier's own logic, the QA detectors. |
+| `npm run redirects:check` | `public/_redirects` still matches `redirects.csv` — nobody hand-edited one without the other. |
+| `npm run build` | Builds, **and** every internal link resolves, the stale-anchor list is current, `dist/_headers` was written, and no unoptimized image original leaked into `dist/_astro`. |
+| `npm run verify:redirects -- --dist dist` | All 176 paths resolve when the rules in `dist/_redirects` are applied — offline, so this is about the rules, not the host. |
+| `npm run qa` | No residual GitBook markup in the content sources. |
+
+This is the same set CI runs on every PR, in the same order, minus the one
+thing CI cannot do. Add that one by hand — it needs a browser, and it is the
+half worth having before a launch:
+
+```sh
+npm install --no-save playwright && npx playwright install chromium
+npm run qa -- --browser
+```
+
+Both commands, from `site/`, and in that order — see [Page QA](#page-qa) for
+why the second one alone is not enough. `--no-save` keeps Playwright out of
+`package.json` and out of `package-lock.json`, so this leaves the repo clean.
+
+**Nothing above touches a deployment.** The checks that need the real host are
+[Verifying a deployment](#verifying-a-deployment), and they are the ones that
+gate the DNS move.
+
 ### Verifying a deployment
 
 Everything CI can prove offline, it already has. What is left needs the real
@@ -999,19 +1176,36 @@ commit's site, and any disagreement is reported as a redirect failure. The
 automatic trigger has no such trap: it checks out
 `github.event.deployment.sha`, the commit that was actually deployed.
 
-Or run the same checks locally:
+Or run the same checks locally, from `site/`, with `URL` set to the deployment
+you are checking — a `*.pages.dev` preview, or `https://docs.kiln.tech` once
+DNS has moved:
 
 ```sh
-npm run verify:redirects -- --base-url https://<preview>.pages.dev
-curl -sI https://<preview>.pages.dev/docs/quickstart.md   # want: text/markdown
-curl -sI https://<preview>.pages.dev/docs/quickstart      # want: 301, or 308
+URL=https://<preview>.pages.dev
+
+npm run verify:redirects -- --base-url "$URL"
+curl -sS -o /dev/null -w '%{content_type}\n' "$URL/docs/quickstart.md"  # want: text/markdown
+curl -sS -o /dev/null -w '%{http_code}\n'    "$URL/docs/quickstart"     # want: 301, or 308
 ```
+
+No `--dist` on the verifier, deliberately: the server has to do the redirecting
+for this run to say anything the offline check has not already said.
 
 That last one is the open question from the migration: a **301** means our
 `_redirects` rule ran, a **308** means Cloudflare's own trailing-slash
 normalisation got there first. Both are fine. A **200** is not — it would mean
 Cloudflare serves the page at a URL that disagrees with its own canonical tag,
 and the verifier above fails on it too.
+
+The browser sweep is worth pointing at a deployment too. `--base-url` needs
+`--browser`; on its own it is refused rather than quietly ignored, because
+"no findings" for a site nothing requested is the worst possible cutover
+result:
+
+```sh
+npm run build                                   # the page list comes from dist
+npm run qa -- --browser --base-url "$URL"
+```
 
 Also worth an eye on the first preview, none of which is automated:
 
@@ -1021,25 +1215,139 @@ Also worth an eye on the first preview, none of which is automated:
 
 ### Cutover
 
-The order matters, and every step before the last is reversible.
+The order matters. Everything before step 4 is reversible by doing nothing;
+from step 4 on, see [If it goes wrong](#if-it-goes-wrong-rolling-back).
 
-1. **Deploy to preview and verify it**, as above. Do not skip the manual look
-   at the 404 page and search.
-2. **Add `docs.kiln.tech` as a custom domain** on the Pages project. Cloudflare
-   walks through the DNS record; if the zone is already on Cloudflare it is one
-   click.
-3. **Point DNS at the Pages project.** This is the only irreversible-feeling
-   step, and it is not really — the record can be pointed back at GitBook.
-4. **Re-run the verification against production**, without `--dist`, before
-   telling anyone. A rule that worked on `*.pages.dev` and not on the custom
-   domain would be a surprise, but this is a two-minute check.
-5. **Submit `https://docs.kiln.tech/sitemap-index.xml`** to Search Console and
-   watch the coverage report. A 404 spike means the redirect map has a gap —
-   the inventory is built from GitBook's sitemap plus an inferred alias
-   pattern, so gaps are expected rather than surprising. Add the missing URLs
-   as `gsc` rows and re-run; see
-   [Adding to the inventory](#adding-to-the-inventory).
-6. **Confirm analytics is receiving data** before assuming the token is right.
-7. **Keep GitBook running** until all of the above is settled. Only then
-   decommission the space and cancel the subscription — at which point the
-   `.md` URL evidence and the live-site baseline are gone permanently.
+1. **Finish [Before cutover](#before-cutover-things-only-a-human-can-do).**
+   Group 1 especially — after step 8 those answers no longer exist, and group 1
+   is what makes the redirect map right rather than patched.
+2. **Run [the pre-cutover check](#the-pre-cutover-check)** on the commit you
+   are cutting over from. It must end with `PRE-CUTOVER CHECKS PASSED`.
+3. **Deploy to preview and verify it**, per
+   [Verifying a deployment](#verifying-a-deployment). Do not skip the manual
+   look at the 404 page and search.
+4. **Add `docs.kiln.tech` as a custom domain** on the Pages project, and let it
+   issue the certificate. If the `kiln.tech` zone is already on Cloudflare this
+   also writes the DNS record, replacing whatever pointed at GitBook — which is
+   why you wrote that record down first. If the zone is elsewhere, Cloudflare
+   gives you a `CNAME` to `<project>.pages.dev` to set there.
+
+   **Give the certificate fifteen minutes before concluding anything.** A TLS
+   error or a Cloudflare error page in the first few minutes after a custom
+   domain is added is normal and resolves itself. Rolling back on it wastes the
+   window and teaches you nothing.
+5. **Re-run the verification against production**, before telling anyone:
+
+   ```sh
+   npm run verify:redirects -- --base-url https://docs.kiln.tech
+   npm run qa -- --browser --base-url https://docs.kiln.tech
+   ```
+
+   No `--dist`. A rule that worked on `*.pages.dev` and not on the custom
+   domain would be a surprise, but this is a two-minute check and it is the
+   last point at which a rollback is cheap.
+
+   The `npm ci` in step 2 removed any `--no-save` Playwright, so the second
+   line needs `npm install --no-save playwright && npx playwright install
+   chromium` again first — see [The pre-cutover check](#the-pre-cutover-check).
+   The redirect verifier is the one that gates the cutover; the sweep is the
+   one that reads the pages.
+6. **Submit `https://docs.kiln.tech/sitemap-index.xml`** to Search Console,
+   then watch it — see [Watching for 404s](#watching-for-404s).
+7. **Confirm analytics is receiving data** before assuming the token is right.
+   Cloudflare Web Analytics, not Search Console; give it an hour and a few real
+   page views.
+8. **Keep GitBook running until all of the above is settled**, and until the
+   404 watch has been quiet for a full Search Console reporting cycle — see
+   [Watching for 404s](#watching-for-404s) for what "quiet" means. Only then
+   decommission the space and cancel the subscription.
+
+   **This is the irreversible step in the whole project.** It ends the rollback
+   option, and it destroys every group 1 answer. Nothing else here is worth
+   hurrying to reach it; the subscription is cheaper than the evidence.
+
+### If it goes wrong: rolling back
+
+Rollback is putting the old DNS record back. It works because step 8 has not
+happened — GitBook is still serving, and the only thing that changed is where
+the name points.
+
+1. **Restore the DNS record you wrote down** in group 3. If Cloudflare replaced
+   it when you added the custom domain, delete the Pages record and recreate
+   the original.
+2. **Remove `docs.kiln.tech` as a custom domain** on the Pages project, so
+   Cloudflare stops claiming the hostname.
+3. **Wait out the TTL.** This is the 60 seconds you set a day ahead, not the
+   hour it may have been before.
+4. Confirm with a resolver you have not used yet — `curl -sSI
+   https://docs.kiln.tech/docs/quickstart` from a machine that has not visited
+   today, or `dig +short docs.kiln.tech @1.1.1.1`.
+
+**What rollback does not undo: the 301s already served.** A browser that
+followed one caches it, often until its cache is cleared, and will keep
+rewriting that URL after the name points back at GitBook. The blast radius is
+whoever visited during the window, so a short window is the mitigation.
+
+If you want that risk gone rather than bounded, the functional spec allows
+serving **302** for launch week and flipping to 301 once the site is settled.
+The mechanics: change the `status` column in `redirects.csv` from `301` to
+`302`, `npm run redirects`, redeploy, and pass `--allow-temporary` to the
+verifier — without it, a temporary redirect is reported as a failure, which is
+the correct default and exactly wrong during a deliberate 302 window. Flipping
+back to 301 is a tracked follow-up, not an optional one: 302s do not pass
+ranking signals on.
+
+**When to roll back, and when not to.** Roll back for: the site not serving at
+all past the certificate window, or `verify:redirects` failing broadly against
+production — dozens of paths, which means `_redirects` is not being applied
+rather than that the inventory has a gap. Do not roll back for: a handful of
+404s on paths nobody predicted (that is [the 404
+watch](#watching-for-404s), and the fix ships forward in minutes), a missing
+analytics beacon, or a rendering complaint on one page.
+
+### Watching for 404s
+
+The redirect inventory is built from GitBook's sitemap plus an inferred alias
+pattern. If group 1's probes ran, the gaps are already closed and this is
+confirmation. If they did not, this is the only remaining instrument — and the
+gaps it finds are permanent, because the site that could have answered them is
+gone.
+
+**Where to look.** Search Console → Indexing → **Pages** → *Not found (404)*.
+The Pages report lags two to three days, so the first two days showing nothing
+is not evidence of anything. Watch it for two weeks, then check again at 28
+days.
+
+**What counts as a spike.** Not the hit count — this is a 45-page docs site,
+and volumes are small enough that a raw count says nothing. Count **distinct
+paths**, and read them, because the two shapes of failure need different
+responses:
+
+| What you see | What it means | What to do |
+| --- | --- | --- |
+| A handful of distinct 404 paths, none of them in `redirects.csv` | The inventory has a gap: a live GitBook URL nobody knew about. Most likely a flat alias the pattern did not generate, or a historical URL that had already left the sitemap and was only ever in the Search Console export. | Add rows and ship forward — below. |
+| A 404 on a path that **is** in `redirects.csv` | Different problem, and a serious one: the rules are not being applied. `_redirects` did not ship, or Cloudflare is not reading it. | Run `npm run verify:redirects -- --base-url https://docs.kiln.tech`. If it fails broadly, this is a rollback case, not an inventory case. |
+| Nothing new for a full reporting cycle after the last fix | Quiet. This is the condition step 8 waits for. | Decommission GitBook. |
+
+There is no acceptable floor above zero for the first row: every distinct path
+is one real URL that used to work. But it is also not an emergency — a missing
+redirect is a fix that ships in the time it takes to build.
+
+**The fix.** Every gap is the same shape: a URL that should have been in the
+inventory. From `site/`:
+
+1. Add each one to `redirects.csv` as a row with `source` set to `gsc`, with
+   the page it should land on as `new_path`.
+2. `python3 scripts/build_redirects.py --refresh-csv`
+3. Move the floor if the path count changed — the verifier's error message
+   names the new number. See [The floor](#the-floor).
+4. `npm run verify:redirects -- --dist dist`, review the diff, ship it.
+
+Full detail, including the alias promote-and-exclude rules, is in
+[Adding to the inventory](#adding-to-the-inventory).
+
+**Why the inferred rows cannot cause this.** A generated alias for a URL
+GitBook never served is a rule that never fires: nothing links to it, so
+nothing requests it. The 34 `alias-generated` rows can only fail by being *too
+few*, never by being wrong — which is why the response to a 404 spike is always
+to add rows, and never to remove them.
