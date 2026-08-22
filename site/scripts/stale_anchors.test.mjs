@@ -66,6 +66,19 @@ test('rejects a page path that is not under src/content/docs', () => {
   );
 });
 
+test('rejects a page path that escapes the content directory', () => {
+  // Self-inflicted only, but such an entry excuses nothing while the audit
+  // could still read a file and report it "still stale", which passes.
+  assert.throws(
+    () => parseStaleAnchors('../../secrets.md /docs/prompts/#gone'),
+    /is not a page path under src\/content\/docs/,
+  );
+  assert.throws(
+    () => parseStaleAnchors('docs/../../x.md /docs/prompts/#gone'),
+    /is not a page path under src\/content\/docs/,
+  );
+});
+
 test('rejects a page path that is not markdown', () => {
   assert.throws(
     () => parseStaleAnchors('docs/prompts /docs/prompts/#gone'),
@@ -191,6 +204,32 @@ test('retires an entry whose page is gone', () => {
 test('retires an entry whose page no longer carries the link', () => {
   const [retired] = retiredStaleAnchors(ENTRY, () => 'the link was rewritten', LIVE_PAGE);
   assert.match(retired.reason, /no longer links to \/docs\/prompts\/#prompt-generators/);
+});
+
+test('retires an entry whose link only survives as the prefix of a longer one', () => {
+  // `/docs/prompts/#custom-prompts` is a strict prefix of
+  // `/docs/prompts/#custom-prompts-saved-prompts`, and both are on the
+  // allowlist. A substring test would keep the shorter line alive forever
+  // after it was repaired.
+  const entry = parseStaleAnchors('docs/prompts.md /docs/prompts/#custom-prompts');
+  const onlyTheLonger = () => 'see [saved](/docs/prompts/#custom-prompts-saved-prompts)';
+  const [retired] = retiredStaleAnchors(entry, onlyTheLonger, LIVE_PAGE);
+  assert.match(retired.reason, /no longer links to \/docs\/prompts\/#custom-prompts$/);
+});
+
+test('keeps an entry whose link is itself the prefix of another link present', () => {
+  const entry = parseStaleAnchors('docs/prompts.md /docs/prompts/#custom-prompts');
+  const both = () =>
+    'see [a](/docs/prompts/#custom-prompts) and [b](/docs/prompts/#custom-prompts-saved-prompts)';
+  assert.deepEqual(retiredStaleAnchors(entry, both, LIVE_PAGE), []);
+});
+
+test('does not treat a regex metacharacter in a link as a pattern', () => {
+  const entry = parseStaleAnchors('docs/prompts.md /docs/a.b/#c');
+  const literal = () => 'see [x](/docs/a.b/#c)';
+  const wouldMatchIfRegex = () => 'see [x](/docs/axb/#c)';
+  assert.deepEqual(retiredStaleAnchors(entry, literal, LIVE_PAGE), []);
+  assert.equal(retiredStaleAnchors(entry, wouldMatchIfRegex, LIVE_PAGE).length, 1);
 });
 
 test('retires an entry whose target page no longer builds', () => {

@@ -7,14 +7,14 @@
 #
 # Two triggers on purpose:
 #
-#   deployment_status  — automatic, and the one to prefer. It fires when the
-#     Cloudflare Pages GitHub integration reports a deployment, so every
-#     preview gets checked with no one remembering to. It is also the half
-#     that has never run here: this repo had no Pages project when the
-#     workflow was written, so **confirm on the first preview that this job
-#     actually ran**, and fall back to the manual trigger if it did not. Note
-#     that GitHub only runs `deployment_status` workflows from the default
-#     branch, so this file has to be on `main` before it fires at all.
+#   deployment_status  — automatic, and the one to prefer. It fires whenever
+#     *anything* reports a GitHub Deployment, so the job condition below has to
+#     pick out the ones this workflow is about. It is also the half that has
+#     never run here: this repo had no Pages project when the workflow was
+#     written, so **confirm on the first preview that this job actually ran its
+#     steps**, and fall back to the manual trigger if it did not. Note that
+#     GitHub only runs `deployment_status` workflows from the default branch,
+#     so this file has to be on `main` before it fires at all.
 #
 #   workflow_dispatch  — manual, certain, and what the cutover checklist in
 #     site/README.md points at. Paste any deployment URL, preview or
@@ -33,15 +33,41 @@ on:
 permissions:
   contents: read
 
+# Keyed on the branch that was deployed, so a new push supersedes the
+# verification of the preview it replaces, while different branches — and
+# different pasted URLs — stay independent. Grouping on the environment instead
+# would make every open PR cancel every other, since Cloudflare calls them all
+# `Preview`.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.deployment.ref || inputs.deployment_url || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   verify:
     name: Verify a deployment
-    # deployment_status fires on every state transition; only a finished,
-    # successful deployment has a URL worth requesting.
+    # deployment_status fires on every state transition of every Deployment in
+    # the repo, so this narrows twice: to a finished, successful deployment,
+    # and to one of the two environments the Cloudflare Pages integration uses.
+    # Without the second clause any future integration that creates a
+    # Deployment — actions/deploy-pages, another host's app, a hand-rolled
+    # `gh api` call — would send this job at an unrelated environment_url and
+    # fail 176 requests for reasons nobody would connect to this file.
+    #
+    # Those two environment names are unverified here: no Pages project existed
+    # when this was written. GitHub compares strings case-insensitively, so
+    # casing is not the risk; a different name would be, and it would show up
+    # as this job never running its steps. That is exactly what the "confirm
+    # the deployment checks actually ran" item in site/README.md checks, and
+    # this condition is the first place to look if it did not.
     if: >-
       github.event_name == 'workflow_dispatch' ||
-      github.event.deployment_status.state == 'success'
+      (github.event.deployment_status.state == 'success' &&
+       (github.event.deployment_status.environment == 'Preview' ||
+        github.event.deployment_status.environment == 'Production'))
     runs-on: ubuntu-latest
+    # The steps below talk to a host that can hang; the 360-minute default
+    # would burn a runner for six hours to learn that.
+    timeout-minutes: 15
     defaults:
       run:
         working-directory: site
@@ -71,6 +97,7 @@ jobs:
         env:
           DISPATCH_URL: ${{ inputs.deployment_url }}
           DEPLOYMENT_URL: ${{ github.event.deployment_status.environment_url }}
+          ENVIRONMENT: ${{ github.event.deployment_status.environment }}
         run: |
           url="${DISPATCH_URL:-$DEPLOYMENT_URL}"
           if [ -z "$url" ]; then
@@ -78,6 +105,7 @@ jobs:
             exit 1
           fi
           echo "Checking ${url}"
+          echo "Deployment environment: ${ENVIRONMENT:-n/a (manual run)}"
           echo "url=${url%/}" >> "$GITHUB_OUTPUT"
 
       # No --dist, deliberately: the server has to do the redirecting for this
@@ -85,7 +113,7 @@ jobs:
       - name: Every inventoried URL resolves on the deployment
         env:
           BASE_URL: ${{ steps.target.outputs.url }}
-        run: node scripts/verify_redirects.mjs --base-url "$BASE_URL" --min-paths 176
+        run: npm run verify:redirects -- --base-url "$BASE_URL"
 
       # Astro discards the Content-Type an endpoint sets, so the .md endpoints
       # depend on the dist/_headers file scripts/build_integrations.mjs

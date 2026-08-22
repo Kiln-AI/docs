@@ -30,6 +30,7 @@ jobs:
   site:
     name: Build and check the site
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     defaults:
       run:
         working-directory: site
@@ -68,8 +69,11 @@ jobs:
 
       # The offline half of the redirect gate: resolve every inventoried path
       # through the built rules and assert it reaches the page redirects.csv
-      # names for it. --min-paths is a floor, not an equality — raise it when
-      # the inventory grows, never lower it to make a run pass. See
-      # site/README.md > Redirects > Verifying.
+      # names for it.
+      #
+      # The `verify:redirects` script carries `--min-paths`, so the floor lives
+      # in site/package.json and not in this file — it has to move in step with
+      # the inventory, and a floor that only some callers pass has stopped
+      # being a floor. See site/README.md > Redirects > Verifying.
       - name: Every inventoried URL resolves in the build output
-        run: node scripts/verify_redirects.mjs --dist dist --min-paths 176
+        run: npm run verify:redirects -- --dist dist

@@ -60,10 +60,12 @@ export function parseStaleAnchors(text) {
 		}
 
 		const [page, link] = /** @type {[string, string]} */ (fields);
-		if (page.startsWith('/') || !/\.mdx?$/.test(page)) {
+		if (page.startsWith('/') || page.includes('..') || !/\.mdx?$/.test(page)) {
 			throw new Error(
 				`${STALE_ANCHORS_FILE} line ${line}: "${page}" is not a page path under ` +
-					'src/content/docs/, e.g. docs/prompts.md',
+					'src/content/docs/, e.g. docs/prompts.md. Absolute paths and `..` are ' +
+					'rejected: the audit joins this onto the content directory, and a path ' +
+					'that escapes it would excuse nothing while reporting itself still stale.',
 			);
 		}
 		if (!link.startsWith('/') || !link.includes('#') || link.endsWith('#')) {
@@ -146,7 +148,7 @@ export function retiredStaleAnchors(entries, readSource, readBuiltPage) {
 			retired.push({ entry, reason: `${entry.page} no longer exists` });
 			continue;
 		}
-		if (!source.includes(entry.link)) {
+		if (!linksTo(source, entry.link)) {
 			retired.push({ entry, reason: `${entry.page} no longer links to ${entry.link}` });
 			continue;
 		}
@@ -168,6 +170,21 @@ export function retiredStaleAnchors(entries, readSource, readBuiltPage) {
 	}
 
 	return retired;
+}
+
+/**
+ * Whether `source` still carries `link` as a whole link.
+ *
+ * A bare substring test would keep a repaired entry alive whenever one link is
+ * a strict prefix of another on the same page — `/docs/prompts/#custom-prompts`
+ * is a prefix of `/docs/prompts/#custom-prompts-saved-prompts`, and both are on
+ * the allowlist today, just not on the same page. So require the match to end
+ * where a slug can end: anything a heading id could continue with disqualifies
+ * it.
+ */
+function linksTo(source, link) {
+	const escaped = link.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+	return new RegExp(`${escaped}(?![\\w-])`).test(source);
 }
 
 /** `/docs/prompts/#prompt-generators` -> `['/docs/prompts/', 'prompt-generators']`. */

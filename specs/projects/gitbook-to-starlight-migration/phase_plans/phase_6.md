@@ -22,7 +22,7 @@ started rather than a competing one.
 | --- | --- |
 | Create the Cloudflare Pages project | Every setting it needs is written down in `README.md` > Project settings, and pinned in-repo where it can be: `.nvmrc` is the Node version Cloudflare reads. |
 | Run a real preview deployment | The preview workflow's commands were rehearsed against a local server built to serve `dist` the way Pages documents it — rules, `_headers`, 308 normalisation, `404.html` — in both the passing and the failing direction. |
-| Run GitHub Actions | Both workflows pass `actionlint` (which was first shown to catch a bad event name, a malformed expression and a mistyped step id, so the pass is not vacuous), and **every command in them was run locally, in order, on a clean checkout**. |
+| Run GitHub Actions | Both workflows pass `actionlint` (first shown to catch a bad event name, a malformed expression, a `needs:` on a missing job and a mistyped step id, so the pass is not vacuous), and **every command in them was run locally, in order, on a clean checkout**. |
 | Reach `docs.kiln.tech` or `developers.cloudflare.com` | Action versions were resolved through the git proxy (`git ls-remote`), which does work — `actions/checkout` and `actions/setup-node` are both on **v7**, not the v4/v5 that memory suggested. |
 
 The Cloudflare-shaped rehearsal server is deliberately **not committed**. It
@@ -172,6 +172,14 @@ node scripts/verify_redirects.mjs --dist dist --min-paths 176
 `npm test`, never `test:py` or the bare discovery line — phase 4 recorded that
 calling either suite directly silently skips the other.
 
+`--min-paths` is **not** written in either workflow. It lives once, in the
+`verify:redirects` script in `site/package.json`, and the callers pass only
+their oracle (`-- --dist dist`, `-- --base-url "$BASE_URL"`). The floor has to
+move in step with the inventory — the cutover procedure explicitly anticipates
+adding `gsc` rows — and a floor that only some callers pass has stopped being a
+floor. Verified by raising the script's floor to 9999 and watching the npm
+invocation fail, so the flag demonstrably reaches the tool through `--`.
+
 Most of the gating is inside `npm run build`, deliberately, because that is
 what Cloudflare runs too: link validation, the stale-anchor audit, the
 `dist/_headers` writer, and `optimizedImagesOnly()`.
@@ -180,10 +188,15 @@ what Cloudflare runs too: link validation, the stale-anchor audit, the
 
 The three checks that need a real host, on two triggers:
 
-- `deployment_status` — automatic, fires when the Pages GitHub integration
-  reports a deployment. **Never exercised here**, so the checklist asks a human
-  to confirm it actually ran on the first preview. It also has to be on `main`
-  before GitHub will fire it at all.
+- `deployment_status` — automatic. It fires for *every* GitHub Deployment in
+  the repo, so the job condition narrows twice: to a successful deployment, and
+  to one of the two environments the Cloudflare Pages integration uses
+  (`Preview`, `Production`). Without the second clause any future integration
+  that creates a Deployment would send this job at an unrelated
+  `environment_url` and fail 176 requests for reasons nobody would connect to
+  this file. **Never exercised here**, so the checklist asks a human to confirm
+  it ran on the first preview. It also has to be on `main` before GitHub will
+  fire it at all.
 - `workflow_dispatch` with a `deployment_url` input — manual, certain, and
   what the cutover procedure points at.
 
@@ -193,6 +206,13 @@ slashless path answers with. The URL is read through the environment rather
 than interpolated into the shell, since it arrives in a webhook payload, and
 `checkout` takes `ref: github.event.deployment.sha` so the inventory comes
 from the commit that was actually deployed.
+
+`concurrency` is keyed on the deployed *branch* rather than the environment: a
+new push should supersede the verification of the preview it replaces, while
+different PRs stay independent — and Cloudflare calls every preview `Preview`,
+so grouping on that would make every open PR cancel every other. Both jobs
+carry `timeout-minutes: 15`; the preview job talks to a host that can hang and
+the 360-minute default would burn a runner for six hours to learn that.
 
 ### 8. `site/README.md`
 
@@ -221,8 +241,9 @@ down the *limits* of the one place a check is deliberately switched off:
 
 **Parsing** — a page and a link with comments and blanks ignored; `.mdx`; the
 real line number with comments counted; a third field; a page path that is
-absolute or not markdown; a link that is not root-relative, has no hash, or has
-an empty hash; a duplicate naming the line it repeats.
+absolute, escapes the content directory via `..`, or is not markdown; a link
+that is not root-relative, has no hash, or has an empty hash; a duplicate
+naming the line it repeats.
 
 **The committed file** — parses, holds no more than the 24 phase 2 recorded,
 and every entry's link still appears in the page it names. A regression guard
@@ -239,9 +260,16 @@ per way a line dies: page gone, link gone, **target page gone** (the
 single-quoted id. Plus: the hash appearing in prose is not an element id, and
 several retirements are reported in listed order.
 
+**Link matching is by whole link, not substring** — `/docs/prompts/#custom-prompts`
+is a strict prefix of `/docs/prompts/#custom-prompts-saved-prompts` and both are
+on the allowlist, so a bare `includes()` would keep the shorter line alive
+forever after it was repaired. Three tests: the prefix case retires, the exact
+link does not, and a `.` in a link is matched literally rather than as a regex
+wildcard.
+
 **Path helpers** — `splitHash`, and `builtPagePath` for a page and for the root.
 
-Totals: **336 tests**, up from 311 — 236 Python unchanged, 100 JavaScript.
+Totals: **340 tests**, up from 311 — 236 Python unchanged, 104 JavaScript.
 
 ## Verification
 
@@ -288,6 +316,14 @@ adopting one belongs in its own commit.)
 webhook event, an unparseable `if:` expression, a `needs:` on a missing job and
 a mistyped `steps.<id>.outputs` reference, so the pass means something.
 
+**What it does not check: webhook payload field names.** Mutating
+`github.event.deployment_status.environment` to `.environmentt`, and
+`github.event.deployment.ref` to `.deploymentt.ref`, both still lint clean —
+`github.event` is an open object to it. So the environment clause in the
+preview workflow has no automated check at all, in this session or in CI, and
+the first-preview checklist item in `site/README.md` is the only thing that
+verifies it. That item is written to say so.
+
 The commands were then run against a local server that serves `dist` the way
 Pages documents it, in both directions:
 
@@ -309,13 +345,22 @@ New findings, on top of the phase 2–5 lists later phases inherit.
   first time `_redirects`, `_headers` and the trailing-slash behaviour meet the
   actual host, and the checklist in `site/README.md` is written on that
   assumption. Phase 8's deadline.
-- **`deployment_status` has never fired.** The automatic half of the preview
-  workflow is the one piece of this phase that could not be exercised even
-  indirectly: it depends on the Pages GitHub integration creating deployments,
-  and GitHub only runs `deployment_status` workflows from the default branch.
-  A job that silently never runs is worse than no job, so *confirm it ran on
-  the first preview* is a checklist item, and `workflow_dispatch` is there as
-  the certain path.
+- **`deployment_status` has never fired, and nothing here can check its
+  condition.** The automatic half of the preview workflow is the one piece of
+  this phase that could not be exercised even indirectly: it depends on the
+  Pages GitHub integration creating deployments, and GitHub only runs
+  `deployment_status` workflows from the default branch. `actionlint` does not
+  validate webhook payload fields, so the two environment names the job
+  condition tests for (`Preview`, `Production`) are unverified by any tool.
+
+  A job that silently never runs is worse than no job, and this one has a
+  second trap: `deployment_status` fires on every state transition, so a
+  *healthy* deploy produces several runs whose job is **Skipped** — and a
+  skipped job reports success. "The job is present and green" therefore looks
+  identical in the working and the broken case. The checklist item is written
+  to say what to look for instead: a run whose job **executed its steps**, with
+  the redirect step showing 176 paths. `workflow_dispatch` is the certain path
+  until that is confirmed.
 - **`phase_4.md`'s asset-versus-rule note is stale and has been superseded
   here.** The verifier does catch a 200 at a slashless path; phase 4's own
   step 4 closed it and the Carried-forward note was written before that. Left
@@ -338,6 +383,15 @@ New findings, on top of the phase 2–5 lists later phases inherit.
   image toolchain in a CI phase is the wrong place for it. `npm audit` is
   deliberately **not** a CI gate for the same reason: it would fail every run
   today. Worth a small dedicated change.
+- **The manual trigger checks out the dispatcher's ref, not the deployment's.**
+  `workflow_dispatch` verifies whatever URL is pasted against the
+  `redirects.csv` of whatever branch it was dispatched from, so dispatching
+  from `main` against a PR's preview compares one commit's inventory with
+  another commit's site and reports the disagreement as redirect failures. The
+  `deployment_status` path has no such trap — it checks out
+  `github.event.deployment.sha`. Documented in *Verifying a deployment* rather
+  than fixed, because "verify this URL against this ref" is the useful shape
+  for a cutover check against production.
 - **`ruff check` is not in CI.** It passes, and adding it would mean a Python
   setup step and a lint gate the architecture does not ask for, which a future
   ruff release could break unrelatedly. Recorded as a deliberate omission

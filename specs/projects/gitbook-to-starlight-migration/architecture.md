@@ -185,7 +185,10 @@ Cloudflare Pages, connected to the repo:
 
 - Build command: `cd site && npm run build`
 - Output directory: `site/dist`
-- Node version pinned via environment variable
+- Node version pinned in `.nvmrc` at the repo root — which is where Cloudflare
+  looks, given the build command starts there — so CI and the deploy read one
+  file. `NODE_VERSION` remains as a documented fallback. (Amended in phase 6;
+  the original said "pinned via environment variable".)
 - Preview deployments on PRs, production on the branch we cut over from
 
 `site/README.md` gains a deployment section covering project setup, custom

@@ -369,11 +369,15 @@ for the pre-cutover run against production, where a truncated `redirects.csv`
 is the failure you least want to sail through:
 
 ```sh
-node scripts/verify_redirects.mjs --dist dist --min-paths 176
+npm run verify:redirects -- --dist dist
 ```
 
-176 is today's count: 131 URLs from the inventory, plus 45 `md-endpoint`
-identity rows that assert our own build output rather than GitBook's.
+The floor lives in the `verify:redirects` script in `package.json`, not in the
+callers, because every gate has to move in step with the inventory and a floor
+only some callers pass has stopped being a floor. It is **176** today: 131 URLs
+from the inventory, plus 45 `md-endpoint` identity rows that assert our own
+build output rather than GitBook's. Raise it when the inventory grows; never
+lower it to make a run pass.
 
 ### Adding to the inventory
 
@@ -570,7 +574,7 @@ npm ci
 npm test                  # both suites
 npm run redirects:check   # public/_redirects still matches redirects.csv
 npm run build             # + link validation and the three post-build assertions
-node scripts/verify_redirects.mjs --dist dist --min-paths 176
+npm run verify:redirects -- --dist dist
 ```
 
 Node comes from `.nvmrc` **at the repo root**, which is also the file
@@ -680,11 +684,25 @@ site.
 - [ ] **Confirm the deployment checks actually ran on the first preview.**
       `.github/workflows/verify-preview.yml` is triggered by
       `deployment_status`, which has never fired here because there was no
-      Pages project when it was written. Open the first preview's Actions run:
-      if "Verify a deployment" is absent, the Pages GitHub integration is not
-      reporting deployments and the job must be run by hand instead — see
-      [Verifying a deployment](#verifying-a-deployment). The workflow also has
-      to be on `main` before GitHub will fire it at all.
+      Pages project when it was written.
+
+      **Present and green is not the same as run.** `deployment_status` fires
+      on every state transition, and the job's condition lets only a
+      *successful* deployment in one of Cloudflare's two environments through.
+      So a perfectly healthy deploy produces several workflow runs whose
+      "Verify a deployment" job is **Skipped** — and a skipped job reports
+      success. A broken setup looks identical at a glance.
+
+      What to look for: a run in which "Verify a deployment" **executed its
+      steps**, with "Every inventoried URL resolves on the deployment" showing
+      `176 paths` and green. If every run shows the job skipped, the condition
+      is not matching — the deployment's `environment` is the first thing to
+      check, since the two names it tests for were never verified against a
+      real Cloudflare payload and no linter checks them. Until it matches, run
+      the workflow by hand — see
+      [Verifying a deployment](#verifying-a-deployment).
+
+      The workflow also has to be on `main` before GitHub will fire it at all.
 - [ ] **Check the static-redirect rule cap against current Cloudflare docs.**
       `MAX_RULES` in `scripts/build_redirects.py` is 2,000, taken from the
       architecture with a note to confirm it. We emit 84, so the margin is
@@ -726,10 +744,17 @@ with. Trigger it by hand from the Actions tab against any deployment URL:
 
 > Actions → **Verify deployment** → Run workflow → paste the URL
 
-or run the same checks locally:
+**Run it from the branch that produced the deployment.** The URL is checked
+against the `redirects.csv` in whatever ref you dispatch from — dispatching
+from `main` against a PR's preview compares one commit's inventory with another
+commit's site, and any disagreement is reported as a redirect failure. The
+automatic trigger has no such trap: it checks out
+`github.event.deployment.sha`, the commit that was actually deployed.
+
+Or run the same checks locally:
 
 ```sh
-node scripts/verify_redirects.mjs --base-url https://<preview>.pages.dev --min-paths 176
+npm run verify:redirects -- --base-url https://<preview>.pages.dev
 curl -sI https://<preview>.pages.dev/docs/quickstart.md   # want: text/markdown
 curl -sI https://<preview>.pages.dev/docs/quickstart      # want: 301, or 308
 ```
