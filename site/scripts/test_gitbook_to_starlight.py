@@ -622,8 +622,9 @@ class OutTargetTest(unittest.TestCase):
             (target / "docs").symlink_to(repo / "docs")
             self.assertIsNone(G.stray_markdown(str(target)))
 
-            with self.assertRaises(SystemExit):
+            with self.assertRaises(SystemExit) as raised:
                 silenced(lambda: G.main(["--out", str(target)]))
+            self.assertIn("outside the output directory", str(raised.exception))
             self.assertEqual((repo / "docs" / "one.md").read_text(), source)
 
     def test_a_symlinked_subdirectory_holding_markdown_is_rejected_at_parse_time(self):
@@ -645,12 +646,44 @@ class OutTargetTest(unittest.TestCase):
             self.assertIsNone(G.stray_markdown(scratch))
 
     def test_a_dangling_symlink_is_a_parser_error_not_a_traceback(self):
+        # Broken at the target itself, and one and two levels above it: all three
+        # used to die in os.makedirs instead of reporting like every other bad
+        # target.
         with fake_repo(), tempfile.TemporaryDirectory() as scratch:
-            target = pathlib.Path(scratch, "dangling")
-            target.symlink_to(pathlib.Path(scratch, "nowhere"))
-            with self.assertRaises(SystemExit) as raised:
-                silenced(lambda: G.parse_args(["--out", str(target)]))
-            self.assertEqual(raised.exception.code, 2)
+            broken = pathlib.Path(scratch, "dangling")
+            broken.symlink_to(pathlib.Path(scratch, "nowhere"))
+            for target in (broken, broken / "sub", broken / "a" / "b"):
+                with self.subTest(target=str(target)):
+                    with self.assertRaises(SystemExit) as raised:
+                        silenced(lambda: G.parse_args(["--out", str(target)]))
+                    self.assertEqual(raised.exception.code, 2)
+
+    def test_a_hardlinked_destination_is_replaced_not_written_through(self):
+        # os.replace unlinks the destination name, so a page hardlinked to a
+        # GitBook source cannot truncate the inode they share. Needs a deliberate
+        # `ln` into a stamped target, but it is the round-1 damage signature.
+        with fake_repo() as repo, tempfile.TemporaryDirectory() as scratch:
+            target = pathlib.Path(scratch, "out")
+            silenced(lambda: G.main(["--out", str(target)]))
+            source = repo / "docs" / "one.md"
+            original = source.read_text()
+
+            written = target / "docs" / "one.md"
+            written.unlink()
+            os.link(source, written)
+            self.assertEqual(source.stat().st_nlink, 2)
+
+            silenced(lambda: G.main(["--out", str(target)]))
+
+            self.assertEqual(source.read_text(), original)
+            self.assertIn('title: "One"', written.read_text())
+            self.assertEqual(source.stat().st_nlink, 1)
+
+    def test_no_partial_files_are_left_behind(self):
+        with fake_repo(), tempfile.TemporaryDirectory() as scratch:
+            target = pathlib.Path(scratch, "out")
+            silenced(lambda: G.main(["--out", str(target)]))
+            self.assertEqual(list(target.rglob("*.part")), [])
 
     def test_rerunning_into_our_own_output_is_accepted(self):
         # The stamp is what tells our markdown apart from somebody else's.

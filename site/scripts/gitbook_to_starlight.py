@@ -638,9 +638,10 @@ def stray_markdown(directory):
     """The first .md file under `directory` that this converter did not write.
 
     Follows symlinks: a symlinked subdirectory is markdown that a write would
-    reach, so it is markdown this check has to see. Directories are visited by
-    real path, which both stops a symlink cycle from looping forever and keeps
-    an aliased subtree from being reported twice.
+    reach, so it is markdown this check has to see. Directories already visited
+    are skipped by real path, which is what stops a symlink cycle from looping
+    forever. Two links to the same subtree in one directory are still both
+    walked; the check only needs the first .md it finds, so that costs nothing.
     """
     if not os.path.isdir(directory) or os.path.exists(os.path.join(directory, OUT_STAMP)):
         return None
@@ -665,10 +666,22 @@ def path_within(root, relative):
     alone. Enumerating bad targets cannot close that: the gap is the distance
     between validating a path and acting on it.
 
-    So containment is asserted again here, for every single file, immediately
-    before it is opened. `realpath` resolves every existing component, and any
-    component that does not exist yet cannot be a symlink -- which makes the
-    property hold by construction rather than by having listed the ways in.
+    So containment is asserted again here, immediately before the write.
+    `realpath` resolves every existing component, and a component that does not
+    exist yet cannot be a symlink, so symlink escapes are closed by construction
+    rather than by having listed the ways in.
+
+    Scope, precisely. This gates everything written into the output directory --
+    the 45 pages, the stamp, and the landing-page copy -- which is the only
+    destination a caller supplies. `sidebar.json`, `src/assets/hero.png` and the
+    `public/assets` copytree do *not* go through it: their destinations are
+    module constants derived from `__file__`, never user input, and they are
+    written only on the default run, never under `--out`.
+
+    It remains a check-then-use assertion, not an atomic one. Nothing stops a
+    concurrent writer with access to the output directory from swapping a
+    component between the check and the write. That is fine for a local
+    development script and is not a claim this makes.
     """
     resolved = os.path.realpath(os.path.join(root, relative))
     if not is_within(os.path.realpath(root), resolved):
@@ -678,6 +691,50 @@ def path_within(root, relative):
             "target would put converted pages on top of real files."
             % (relative, resolved, os.path.realpath(root)))
     return os.path.join(root, relative)
+
+
+def write_within(root, relative, text):
+    """Write `text` to `root/relative`, refusing anything that escapes `root`.
+
+    Written to a sibling temp file and moved into place. `os.replace` unlinks the
+    destination name rather than writing through it, so a destination that is a
+    hardlink to a GitBook source keeps its own inode and the source is left
+    alone; a page also appears whole or not at all. `O_NOFOLLOW` covers the temp
+    name itself, which `path_within` validated as a path but which could still be
+    a pre-existing symlink at its final component.
+    """
+    path = path_within(root, relative)
+    partial = path_within(root, relative + ".part")
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    try:
+        fd = os.open(partial, os.O_WRONLY | os.O_CREAT | os.O_TRUNC | os.O_NOFOLLOW, 0o644)
+        with os.fdopen(fd, "w") as f:
+            f.write(text)
+        os.replace(partial, path)
+    except BaseException:
+        if os.path.lexists(partial):
+            os.remove(partial)
+        raise
+
+
+def dangling_component(path):
+    """The first component of `path` that is a symlink pointing nowhere.
+
+    Checked so a broken link anywhere in the target -- not just at its last
+    component -- reports as a one-line error rather than a traceback out of
+    os.makedirs.
+    """
+    components, current = [], os.path.abspath(path)
+    while True:
+        components.append(current)
+        parent = os.path.dirname(current)
+        if parent == current:
+            break
+        current = parent
+    for component in reversed(components):
+        if os.path.islink(component) and not os.path.exists(component):
+            return component
+    return None
 
 
 def unusable_out_dir(target):
@@ -708,6 +765,10 @@ def unusable_out_dir(target):
         return ("%s contains the repo, so writing the converted tree into it "
                 "would overwrite the source markdown. Use a directory outside %s."
                 % (resolved, repo))
+
+    broken = dangling_component(target)
+    if broken:
+        return "%s is unusable: %s is a symlink that points nowhere." % (target, broken)
 
     if os.path.islink(target) and not os.path.isdir(target):
         return "%s is a symlink that does not point at a directory." % target
@@ -880,15 +941,12 @@ def main(argv=None):
     os.makedirs(docs_out, exist_ok=True)
 
     for rel, converted in pages.items():
-        out_path = path_within(docs_out, out_for(rel))
-        os.makedirs(os.path.dirname(out_path), exist_ok=True)
-        with open(out_path, "w") as f:
-            f.write(converted)
+        write_within(docs_out, out_for(rel), converted)
 
     if args.out is not None:
-        with open(path_within(docs_out, OUT_STAMP), "w") as f:
-            f.write("Converted pages written by site/scripts/gitbook_to_starlight.py"
-                    " --out. Safe to delete.\n")
+        write_within(docs_out, OUT_STAMP,
+                     "Converted pages written by site/scripts/gitbook_to_starlight.py"
+                     " --out. Safe to delete.\n")
         print("Converted %d pages into %s.\nLeft untouched: %s, %s, %s."
               % (len(pages), docs_out,
                  os.path.relpath(DOCS_OUT, REPO),

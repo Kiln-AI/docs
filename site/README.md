@@ -133,10 +133,13 @@ conversion safe and a bad target makes it the opposite. It is refused when it
 - **exists and is not a directory**, including a symlink that does not point at
   one.
 
-Beyond that, every output path is re-checked at the moment it is opened: if it
+Beyond that, each page is re-checked at the moment it is written: if the path
 resolves outside the target — through a symlinked subdirectory, say — the run
 stops rather than writing. Target validation happens once, but the writes happen
-later, and that gap is where `--out` has gone wrong before.
+later, and that gap is where `--out` has gone wrong before. Pages are written to
+a sibling temp file and moved into place with `os.replace`, so a destination
+that is a hardlink to a source file keeps its own inode rather than being
+truncated, and a page appears whole or not at all.
 
 What is *not* checked is whether the target holds unrelated non-markdown
 content, so `--out ~` will happily scatter 45 pages across a home directory that

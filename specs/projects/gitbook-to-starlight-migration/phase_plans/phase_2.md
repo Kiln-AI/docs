@@ -296,20 +296,36 @@ concentrated in links, assets, titles, and frontmatter.
    or deleted" — it names what it left untouched. Documented in the module
    docstring and in `site/README.md`.
 
-   **`path_within(root, relative)` re-checks containment at the moment of every
-   write**, and this is the part that actually closes the class. A fourth face
-   of the same bug — a symlinked subdirectory under an *accepted* target —
-   showed that the flaw was never "some targets are bad". It is that a path is
-   validated at one moment and acted on at a later moment without being
-   re-checked, and `open()` follows symlinks. Enumerating more rejection rules
-   cannot close that gap; asserting the property where the write happens does.
-   Every file the converter writes — the 45 pages, the stamp, the landing page
-   copy — goes through it, and `realpath` resolves every existing component
-   while a component that does not exist yet cannot be a symlink. The
-   `stray_markdown` walk also gained `followlinks=True` (visiting directories by
-   real path, so a cycle terminates), but that is the secondary check: it is
-   short-circuited by the stamp on a re-run, and the write-time assertion has to
-   hold on its own.
+   **`write_within` re-checks containment at the moment of the write**, and this
+   is the part that actually closes the class. A fourth face of the same bug — a
+   symlinked subdirectory under an *accepted* target — showed that the flaw was
+   never "some targets are bad". It is that a path is validated at one moment and
+   acted on at a later moment without being re-checked, and `open()` follows
+   symlinks. Enumerating more rejection rules cannot close that gap; asserting
+   the property where the write happens does. `path_within` resolves the path
+   with `realpath` immediately before use, and a component that does not exist
+   yet cannot be a symlink, so **symlink escapes are closed completely and by
+   construction**. The write then goes to a sibling temp file that `os.replace`
+   moves into position: `replace` unlinks the destination name instead of writing
+   through it, so a destination hardlinked to a GitBook source keeps its own
+   inode and the source is untouched.
+
+   What that does *not* claim. It is a check-then-use assertion, not an atomic
+   one: a concurrent writer with access to the output directory could swap a
+   component between the check and the write. Fine for a local development
+   script, and not a property this offers. And **`path_within` gates the output
+   directory only** — the 45 pages, the stamp, and the landing-page copy, which
+   are the only writes whose destination a caller supplies. `sidebar.json`,
+   `src/assets/hero.png` and the `public/assets` copytree do **not** go through
+   it. That is deliberate: their destinations are module constants derived from
+   `__file__`, never user input, and they are written only on the default run,
+   never under `--out`. Phase 9 reuses `--out`; if it ever routes a
+   caller-supplied path to one of those, this gate does not cover it.
+
+   The `stray_markdown` walk also gained `followlinks=True` (skipping
+   already-visited directories by real path, so a cycle terminates), but that is
+   the secondary check: it is short-circuited by the stamp on a re-run, and the
+   write-time assertion has to hold on its own.
 
 11. **Refuse the destructive run over committed content.** `npm run build` and
    `npm run dev` both shell out to this script, so from phase 3 on the ordinary
@@ -458,7 +474,11 @@ honest:
   `test_a_symlinked_subdirectory_holding_markdown_is_rejected_at_parse_time`
   (the secondary `followlinks` check),
   `test_stray_markdown_survives_a_symlink_cycle`, and
-  `test_a_dangling_symlink_is_a_parser_error_not_a_traceback`.
+  `test_a_dangling_symlink_is_a_parser_error_not_a_traceback` (broken at the
+  target and at one and two levels above it).
+- `test_a_hardlinked_destination_is_replaced_not_written_through` — a page
+  hardlinked to a GitBook source, in a stamped target, must not truncate the
+  shared inode; plus `test_no_partial_files_are_left_behind`.
 - `test_unknown_arguments_are_rejected` — `--outt DIR`, bare `garbage`, and a
   trailing unknown flag all raise rather than falling through to the run that
   deletes `src/content/docs/`.
