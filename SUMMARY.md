@@ -28,6 +28,7 @@
   * [Prompt Generators](docs/prompts/prompt-generators.md)
 * [Documents & Search (RAG)](docs/documents-and-search-rag.md)
 * [Agents](docs/agents.md)
+* [Multi-turn Tasks](docs/multi-turn-tasks.md)
 * [Skills](docs/skills.md)
 * [Synthetic Data Generation](docs/synthetic-data-generation/README.md)
   * [Synthetic Data Guides](docs/synthetic-data-generation/synthetic-data-guides.md)
