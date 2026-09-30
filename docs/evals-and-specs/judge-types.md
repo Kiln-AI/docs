@@ -34,7 +34,7 @@ Save LLM judges for the questions that genuinely require subjective judgement.
 | [Set Check](judge-types.md#set-check) | Programmatic Judge | A set of values from the output matches an expected set |
 | [Step Count Check](judge-types.md#step-count-check) | Programmatic Judge | The agent finished within an expected number of steps |
 
-To add a judge, open your eval and create a new judge, or pick a type directly from the "Select an Eval Type" screen when creating a new eval. Programmatic judges are listed under the "Programmatic Judges" heading.
+To add a judge, open your eval and create a new judge, or pick a type directly from the "Create Eval" page when creating a new eval. Programmatic judges are listed under the "Programmatic Checks" heading.
 
 ### Choosing a Judge Type
 

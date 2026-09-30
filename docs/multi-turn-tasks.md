@@ -23,7 +23,7 @@ The **Dataset** tab shows one row per conversation, with each fork as its own ro
 
 ### Importing Conversations
 
-Click **Add Data**, then **Add CSV**. Each row holds one conversation in a `trace` column, and the dialog explains the format and has a sample CSV.
+Click **Add Data** (**Manually Add Data** if the dataset is empty), then **Add CSV**. Each row holds one conversation in a `trace` column, and the dialog explains the format and has a sample CSV.
 
 ### Evaluating
 

@@ -8,8 +8,8 @@ icon: brackets-curly
 
 Structured data is a first-class citizen in Kiln.
 
-* JSON input/output is supported for any task.
-* You can define input/output schemas for each task you create.
+* JSON input/output is supported for any single-turn task. [Multi-turn tasks](multi-turn-tasks.md) are plain text.
+* You can define input/output schemas for each single-turn task you create.
 * We automatically detect when a AI model doesn't produce output in the correct format.
 * No data will be saved into the dataset without first passing validation, which keeps the dataset clean.
 * Our [included models](models-and-ai-providers.md#included-models-recommended) are tested for JSON compatibility, and models that don't perform well with structured data will show a warning if you attempt to use them on tasks with structured output.
