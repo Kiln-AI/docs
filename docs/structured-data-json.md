@@ -8,7 +8,7 @@ icon: brackets-curly
 
 Structured data is a first-class citizen in Kiln.
 
-* JSON input/output is supported for any single-turn task. [Multi-turn tasks](multi-turn-tasks.md) are plain text.
+* JSON input/output is supported for any single-turn task. [Multi-turn tasks](tasks.md#single-turn-or-multi-turn) are plain text.
 * You can define input/output schemas for each single-turn task you create.
 * We automatically detect when a AI model doesn't produce output in the correct format.
 * No data will be saved into the dataset without first passing validation, which keeps the dataset clean.

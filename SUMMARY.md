@@ -5,6 +5,7 @@
 ## Docs
 
 * [Quickstart](docs/quickstart.md)
+* [Tasks](docs/tasks.md)
 * [Models and AI Providers](docs/models-and-ai-providers.md)
 * [End to End Project Demo](docs/end-to-end-project-demo.md)
 * [Optimizers](docs/optimizers.md)
@@ -28,7 +29,6 @@
   * [Prompt Generators](docs/prompts/prompt-generators.md)
 * [Documents & Search (RAG)](docs/documents-and-search-rag.md)
 * [Agents](docs/agents.md)
-* [Multi-turn Tasks](docs/multi-turn-tasks.md)
 * [Skills](docs/skills.md)
 * [Synthetic Data Generation](docs/synthetic-data-generation/README.md)
   * [Synthetic Data Guides](docs/synthetic-data-generation/synthetic-data-guides.md)
