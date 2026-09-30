@@ -5,21 +5,21 @@ icon: comments
 
 # Multi-turn Tasks
 
-A multi-turn task is a back-and-forth conversation: the user sends a message, the model replies, and the conversation continues. You chat with it on the **Run** page and evaluate it with the [Eval Builder](evals-and-specs/specifications.md).
+A multi-turn task is a back-and-forth conversation: the user sends a message, the model replies, and the conversation continues. You chat with it in the **Run** tab and evaluate it with the [Eval Builder](evals-and-specs/specifications.md).
 
 ### Creating a Multi-turn Task
 
-When you create a task, pick **Multi-turn** under **Part 2: Task Type**. Multi-turn tasks are plain text, with no input or output schema. The task type can't be changed later, so clone the task to switch.
+When you create a task, pick **Multi-turn** under **Part 2: Task Type**. Multi-turn tasks are plain text, with no [input or output schema](structured-data-json.md). The task type can't be changed later, so clone the task to switch.
 
 ### Chatting and Your Dataset
 
-Send a first message from **Run**. The conversation then continues on its **Dataset Run** page, where you can:
+Send a first message from the **Run** tab. The conversation then continues on its **Dataset Run** page, where you can:
 
 * Change the model or tools in **Options** between turns. The prompt stays as it was on the first turn.
 * Hover an earlier reply and click **Fork** to start a new branch from that point. The original stays unchanged.
 * Rate the conversation. Ratings and tags attach to the turn you're viewing, and a new turn starts unrated.
 
-The **Dataset** shows one row per conversation, with each fork as its own row.
+The **Dataset** tab shows one row per conversation, with each fork as its own row.
 
 ### Importing Conversations
 
@@ -27,11 +27,11 @@ Click **Add Data**, then **Add CSV**. Each row holds one conversation in a `trac
 
 ### Evaluating
 
-Use the [Eval Builder](evals-and-specs/specifications.md#multi-turn-tasks). It creates simulated users and a judge that scores each whole conversation, and every run config you compare holds its own conversation with each simulated user. Conversations stored in your dataset can't be re-run for a run config.
+Use the [Eval Builder](evals-and-specs/specifications.md). It creates simulated users and a judge that scores each whole conversation, and every run configuration you compare holds its own conversation with each simulated user. Conversations stored in your dataset can't be re-run for a run configuration.
 
 ### Not Supported
 
-Synthetic Data Generation, the Automatic Prompt Optimizer and Fine Tuning aren't available for multi-turn tasks. To generate test conversations, use the Eval Builder.
+[Synthetic Data Generation](synthetic-data-generation/), the [Automatic Prompt Optimizer](prompts/automatic-prompt-optimizer.md) and [Fine Tuning](fine-tuning/) aren't available for multi-turn tasks. To generate test conversations, use the Eval Builder.
 
 ### Python Library
 
