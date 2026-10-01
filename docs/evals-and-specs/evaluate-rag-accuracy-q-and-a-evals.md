@@ -40,10 +40,10 @@ For general eval concepts like judges, run configurations, and comparing results
 
 ### Creating a Reference Answer Accuracy Eval
 
-From the "Eval" tab in Kiln's UI, create a new evaluator using the "Reference Answer Accuracy Eval (RAG)" template.
+From the "Evals" tab in Kiln's UI, click "Create Eval" and pick the "Reference Answer Accuracy (RAG)" template under "LLM Judge Templates".
 
 {% hint style="info" %}
-**Reference Answer Accuracy Eval (RAG)**: This template is designed for evaluating Q\&A pairs and includes a Reference Answer Accuracy score (pass/fail) that evaluates if the model's output is accurate as per the reference answer. The template is configured to work with Q\&A datasets built from your documents.
+**Reference Answer Accuracy (RAG)**: This template is designed for evaluating Q\&A pairs and includes a Reference Answer Accuracy score (pass/fail) that evaluates if the model's output is accurate as per the reference answer. The template is configured to work with Q\&A datasets built from your documents.
 {% endhint %}
 
 Select the template, edit if desired, and save your eval.

@@ -38,7 +38,7 @@ The rule of thumb: if you can write down the tool calls you expect, use a Tool C
 
 #### Creating the Eval
 
-From the "Evals" tab in Kiln's UI, create a new eval and select "Tool Call Check" under "Programmatic Judges".
+From the "Evals" tab in Kiln's UI, create a new eval and select "Tool Call Check" under "Programmatic Checks".
 
 You'll configure:
 

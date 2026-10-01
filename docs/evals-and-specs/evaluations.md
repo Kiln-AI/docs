@@ -20,7 +20,7 @@ Kiln includes a complete platform for ensuring your tasks/models are of the high
 * Compare and benchmark your judges against human evals to find the best possible evaluator for your use case
 * Test a variety of different methods of running your task (prompts, models, fine-tunes) to find which perform best
 * Easily manage datasets for eval sets, golden sets, human ratings through our intuitive UI, including automatic synthetic data generation.
-* Generate evaluators automatically. Using your task definition we'll create an evaluator for your task's overall score and task requirements
+* Generate evals automatically: describe what to check, and the [Eval Builder](specifications.md) writes the judge and the eval data
 * Utilize built-in eval templates for toxicity, bias, jailbreaking, and other common eval scenarios
 * Integrate evals with the rest of Kiln: use synthetic data generation to build eval sets, or use evals to evaluate fine-tunes
 * Optional: Python Library Usage
@@ -63,20 +63,19 @@ Working with Evals in Kiln is easy. We'll walk through the flow of creating your
 
 ### Creating an Eval
 
-From the "Evals" tab in Kiln's UI, you can easily create a new evaluator.
+From the "Evals" tab in Kiln's UI, click "Create Eval". Templates are listed under "LLM Judge Templates".
 
 #### Pick a Goal / Select a Template
 
 Kiln has a number of built-in templates to make it easy to get started.
 
 {% hint style="info" %}
-We recommend starting with the "Overall Score and Task Requirements" template and "Issue" template for bugs.
+We recommend starting with the "Issue" template for bugs.
 {% endhint %}
 
-* **Overall Score and Task Requirement Scores:** Generate scores for the requirements you set up when you created this task, plus an overall-score. These can be compared to human ratings from the dataset UI.
+* **Desired Behaviour:** specify an expected behaviour you want this task to exhibit.
 * **Kiln Issue Template**: evaluate an issue or bug you've seen in your task. You'll describe the issue and provide examples. Kiln will help generate synthetic data to reproduce the issue which can help you ensure your fix works. For advanced issues, Kiln can generate synthetic training data for fine-tuning a model to avoid this issue.
 * **Built-in Templates**: Kiln includes a number of common templates for evaluating AI systems. These include evaluator templates for measuring **toxicity, bias, maliciousness, factual correctness, and jailbreak susceptibility**.
-* **Custom Goal and Scores**: If the templates aren't a good fit, feel free to create your own Eval from scratch using the custom option. However, prefer the "issue" template where possible as it's integrated into synthetic data generation.
 
 Select a template, edit if desired, and save your eval.
 
@@ -355,7 +354,7 @@ Your understanding of your model/product usually gets better over time. Consider
 
 #### Add New Evals
 
-You can always add additional evals to your Kiln project/task. Try some of our built-in templates like [issue evals](../issues.md), bias, toxicity, factual correctness, or jailbreak susceptibility — or create your own from scratch!
+You can always add additional evals to your Kiln project/task. Try some of our built-in templates like [issue evals](../issues.md), bias, toxicity, factual correctness, or jailbreak susceptibility, or describe your own with the [Eval Builder](specifications.md)!
 
 Most commonly, you'll collect a list of ["Issue" evals](../issues.md) over time. This set of evals helps you work with confidence that new changes aren't regressing old issues.
 

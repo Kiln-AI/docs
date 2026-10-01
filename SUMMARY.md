@@ -5,6 +5,7 @@
 ## Docs
 
 * [Quickstart](docs/quickstart.md)
+* [Tasks](docs/tasks.md)
 * [Models and AI Providers](docs/models-and-ai-providers.md)
 * [End to End Project Demo](docs/end-to-end-project-demo.md)
 * [Optimizers](docs/optimizers.md)

@@ -1,35 +1,33 @@
 ---
 description: >-
   The Kiln Eval Builder combines evals, synthetic data generation, automatic judge prompt creation,
-  and edge case detection into one easy to use feature
+  and judge alignment into one easy to use feature
 ---
 
 # Eval Builder
-
-### Demo & Quick Start
-
-{% embed url="https://vimeo.com/1161246105" %}
 
 {% hint style="info" %}
 **Note:** The Eval Builder requires a Kiln Pro account. Registration is free and easy inside the Kiln app.
 {% endhint %}
 
 {% hint style="info" %}
-The Eval Builder currently only supports the creation of LLM as Judge evals.
+The Eval Builder currently only supports the creation of LLM as Judge evals. For programmatic checks, see [Judge Types](judge-types.md).
 {% endhint %}
 
 ### What is the Kiln Eval Builder?&#x20;
 
 <figure><img src="../../.gitbook/assets/specs img (1).png" alt="" width="375"><figcaption></figcaption></figure>
 
-The Kiln Eval Builder combines Kiln’s best features into one interactive tool: evals, synthetic data generation, automatic judge prompt creation, and edge case detection. Together they go beyond making an eval manually in several ways:
+The Kiln Eval Builder combines Kiln’s best features into one interactive tool: evals, synthetic data generation, automatic judge prompt creation, and judge alignment. Together they go beyond making an eval manually in several ways:
 
-* **Identify Gaps with AI**: Kiln will read your judge prompt and help refine it. We detect underspecified aspects of your judge, conflicts with your task definition, ambiguous aspects that Judges may struggle with, and other common issues. It then works with you to close gaps and refine conflicts.
-* **Interactive Human Alignment & Accuracy**: Building a LLM-as-Judge as good as a human isn’t easy. Human judges make subtle and subjective decisions, and have a hard time articulating their judgement process in a way LLMs can duplicate. Our alignment loop finds tough edge cases, compares LLM judge to human preference, and works with you iteratively until your judge is aligned to your preference.
-* **Automatic Synthetic Data**: Build robust synthetic dataset generator as you work. By the time you save your eval you’ll have large and accurate datasets for evals and training.
+* **Identify Gaps with AI**: Describe what to check in plain language. Kiln asks clarifying questions where your description could use more clarity, then rewrites it into an eval you review and edit.
+* **Uses Your Tools and Skills**: you pick the run configuration to evaluate. Kiln uses its [tools](../tools-and-mcp/) and [skills](../skills.md) to write the clarifying questions and the judge, then runs it to create the eval data.
+* **Interactive Human Alignment & Accuracy**: Building a LLM-as-Judge as good as a human isn’t easy. Human judges make subtle and subjective decisions, and have a hard time articulating their judgement process in a way LLMs can duplicate. You review a sample of the judge's results and agree or disagree with each claim it makes. Kiln uses your feedback to improve the judge and re-check your data, and you can repeat until your judge is aligned to your preference.
+* **Batch Planning**: Kiln plans the whole eval dataset up front, one tailored item per sample, to cover your use cases and edge cases. You review and refine the plan in the "Eval Dataset Proposal" before anything is generated. See [Kiln Pro Batch Planning](../synthetic-data-generation/generating-synthetic-data.md#kiln-pro-plan-the-batch).
+* **Automatic Synthetic Data**: Kiln generates each planned item, then runs your task and the judge on it with your own API keys. By the time you save your eval you'll have datasets for evals and training, plus a golden dataset you've reviewed.
+* **Multi-turn Tasks**: for [multi-turn tasks](../tasks.md#multi-turn-tasks), a simulated user holds each test conversation with your agent, up to a turn limit you set, and the judge scores the whole conversation.
 * **Judge Meta-prompting**: Humans often struggle at writing effective eval judge prompts. Our judge meta-prompting takes your issues and concerns in human terms, and turns them into accurate and judge-able evals.
 * **Easy to Use**: Subject matter experts can easily create accurate evals, without a lengthy iteration loop with data scientists. The Eval Builder will walk you through all the steps of defining your judge, creating synthetic data, golden dataset, aligning your judge, and creating training datasets. You get the same rigorous process, without managing each step.
-* **Fast**: creating an eval can be done in as little as 5 minutes, compared to over 30 minutes manually.
 
 ### How to Get Started
 
@@ -39,7 +37,6 @@ Getting started is easy:
 * Click "Evals" in the sidebar
 * Click "Create Eval"
 * Connect Kiln Pro account (if you haven’t already)
+* Describe what the eval should check, click "Write My Eval", and pick the run configuration to evaluate
 * Follow the interactive steps until complete!
-
-See the video above for a complete walkthrough.
 
