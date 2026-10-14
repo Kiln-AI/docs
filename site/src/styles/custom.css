@@ -1,0 +1,39 @@
+/* Accent only. Starlight owns the rest of the palette -- in particular, don't
+   redefine --sl-color-white here: Starlight uses it as a foreground token and
+   flips it per theme. */
+:root {
+  --sl-color-accent-low: #1e1b4b;
+  --sl-color-accent: #6d5ef8;
+  --sl-color-accent-high: #c7c2fb;
+}
+:root[data-theme='light'] {
+  --sl-color-accent-low: #ddd9fd;
+  --sl-color-accent: #5b4ae0;
+  --sl-color-accent-high: #211a63;
+}
+
+/* GitBook exported screenshots as <figure> blocks; give them some polish. */
+.sl-markdown-content img {
+  border-radius: 8px;
+}
+.sl-markdown-content figure {
+  margin: 1.5rem 0;
+}
+.sl-markdown-content figcaption {
+  font-size: var(--sl-text-sm);
+  color: var(--sl-color-gray-3);
+  margin-top: 0.5rem;
+}
+
+/* starlight-theme-black gives sidebar links a fixed 30px height against a
+   ~22px line-height, so labels wrapping to two lines overflow their box and
+   collide with the next entry. Three of our sidebar labels are long enough to
+   wrap. Let the box grow instead. */
+a.entry-link {
+  height: auto;
+  min-height: 30px;
+  /* The theme's 8px block padding assumed a fixed 30px box. With the box free
+     to grow it would make every row 38px, so trade it down to keep the
+     intended 30px rhythm for single-line labels. */
+  padding-block: calc(var(--spacing) * 1);
+}
