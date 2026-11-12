@@ -1,8 +1,12 @@
 ---
-description: Find the best prompt for your task, automatically.
+description: Deprecated. Use Kiln Harness Tuner instead.
 ---
 
-# Automatic Prompt Optimizer
+# Automatic Prompt Optimizer (Deprecated)
+
+{% hint style="danger" %}
+**Deprecated: the Prompt Optimizer has been retired.** Use [Kiln Harness Tuner](https://github.com/Kiln-AI/harness-tuner), which tunes prompts, tools, skills and model together.
+{% endhint %}
 
 {% hint style="warning" %}
 **Kiln Prompt Optimizer Requires a Kiln Pro Enterprise Plan**
