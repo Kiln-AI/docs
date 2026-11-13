@@ -25,7 +25,7 @@
   * [Code Tools](docs/tools-and-mcp/code-tools.md)
   * [Connect to Existing Agents](docs/tools-and-mcp/connect-to-existing-agents.md)
 * [Prompts](docs/prompts.md)
-  * [Automatic Prompt Optimizer](docs/prompts/automatic-prompt-optimizer.md)
+  * [Automatic Prompt Optimizer (Deprecated)](docs/prompts/automatic-prompt-optimizer.md)
   * [Prompt Generators](docs/prompts/prompt-generators.md)
 * [Documents & Search (RAG)](docs/documents-and-search-rag.md)
 * [Agents](docs/agents.md)

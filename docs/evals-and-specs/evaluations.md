@@ -98,7 +98,7 @@ An eval in Kiln has several datasets, each defining a subset of the items in you
 
 * **Test Dataset**: held-out data for measuring final quality. This is the data used when evaluating different methods of running your task, and the scores shown in the "Compare" view. Every eval needs one.
 * **Golden Dataset**: the data used when trying to find the best judge for this eval. These items have human ratings, so we can compare judges to human preference.
-* **Training Dataset** \[optional]: used by optimizers, such as the [automatic prompt optimizer](../prompts/automatic-prompt-optimizer.md).
+* **Training Dataset** \[optional]: used by optimizers, such as [Kiln Harness Tuner](https://github.com/Kiln-AI/harness-tuner).
 * **Validation Dataset** \[optional]: also used by optimizers, to confirm a result generalizes beyond the data it was tuned on.
 
 This section will walk you through populating your eval datasets.
@@ -159,7 +159,7 @@ If your dataset items weren't automatically tagged for any reason, you can also 
 {% hint style="info" %}
 **Training and Validation Sets**
 
-If you plan to use an optimizer like the [automatic prompt optimizer](../prompts/automatic-prompt-optimizer.md), add training and validation datasets too. Keeping them separate from your test dataset is what stops an optimizer from tuning against the same data you use to measure the result.
+If you plan to use an optimizer like [Kiln Harness Tuner](https://github.com/Kiln-AI/harness-tuner), add training and validation datasets too. Keeping them separate from your test dataset is what stops an optimizer from tuning against the same data you use to measure the result.
 
 You can create these now, or generate them later — they're optional until an optimizer needs them.
 {% endhint %}
