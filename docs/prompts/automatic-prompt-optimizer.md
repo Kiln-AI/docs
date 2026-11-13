@@ -6,14 +6,8 @@ description: Deprecated. Use Kiln Harness Tuner instead.
 
 {% hint style="danger" %}
 **Deprecated: the Prompt Optimizer has been retired.** Use [Kiln Harness Tuner](https://github.com/Kiln-AI/harness-tuner), which tunes prompts, tools, skills and model together.
-{% endhint %}
 
-{% hint style="warning" %}
-**Kiln Prompt Optimizer Requires a Kiln Pro Enterprise Plan**
-
-The Kiln Prompt Optimizer runs on Kiln's servers, and consumes millions of tokens each run. Due to the high cost of running the optimizer, the prompt optimizer is a paid feature.
-
-[Contact us](mailto:support@kiln.tech) to discuss an enterprise plan.
+The rest of this page describes the retired feature. It is kept for reference only.
 {% endhint %}
 
 Kiln’s Prompt Optimizer automatically finds high-performing prompts for your task. It often beats manual prompt engineering by double-digit gains on evals.
