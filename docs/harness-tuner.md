@@ -13,12 +13,6 @@ Most optimizers tune only the prompt. Harness Tuner tunes everything around the 
 
 {% embed url="https://youtu.be/UJfpzHJc0PQ" %}
 
-{% hint style="info" %}
-**Harness Tuner replaces the Automatic Prompt Optimizer**
-
-The Automatic Prompt Optimizer has been removed from Kiln. Harness Tuner does the same job and more: it tunes your prompt, and also your tools, skills, model and settings. Prompts you created with the old optimizer stay in your project and keep working.
-{% endhint %}
-
 ## What It Tunes
 
 * **Tools:** often the biggest win. It rewrites your tools for the agent: smaller responses, better descriptions, no repeated calls. It doesn't touch your original tools. It writes wrappers as [code tools](tools-and-mcp/code-tools.md).
