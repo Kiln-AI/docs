@@ -1,0 +1,2 @@
+redirects:
+  docs/prompts/automatic-prompt-optimizer: docs/harness-tuner.md

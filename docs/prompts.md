@@ -7,7 +7,7 @@ icon: pen-to-square
 
 Kiln offers several methods to build and manage prompts
 
-* [Automatic Prompt Optimizer (Deprecated)](prompts/automatic-prompt-optimizer.md): The Prompt Optimizer has been retired. Use [Kiln Harness Tuner](https://github.com/Kiln-AI/harness-tuner), which tunes prompts, tools, skills and model together.
+* [Kiln Harness Tuner](harness-tuner.md): Automatically improves your prompt, along with your tools, skills, model and settings. It runs experiments and uses evals to pinpoint and fix failure modes — **no manual prompting required**.
 * [Prompt Generators](prompts.md#prompt-generators): Kiln can automatically generate many popular prompt styles from your task and dataset (few-shot, many-shot, chain of thought, chain of thought multi-shot, and more). The more you use your task, and rate the results, the richer your prompts become.
 * [Custom Prompts](prompts.md#custom-prompts): manually create, save and share any prompt.
 
@@ -51,12 +51,12 @@ It's worth evaluating a range of prompt/model pairs to find one that works best 
 {% hint style="success" %}
 **LLMs are often better at writing prompts than humans.** Given a good evaluator, they can test hundreds of unique prompts on thousands of test cases to find the ideal prompt.
 
-**Try** [**Kiln Harness Tuner**](https://github.com/Kiln-AI/harness-tuner) to tune your prompts, tools, skills and model together. It replaces the deprecated [automatic prompt optimizer](prompts/automatic-prompt-optimizer.md).
+**Try** [**Kiln Harness Tuner**](harness-tuner.md) to find the best prompt for your task, using evals. It also tunes your tools, skills, model and settings.
 {% endhint %}
 
 #### Don't Assume the Same Prompt Will Work on Every Model
 
-Different models will interpret a prompt differently. You may need to re-optimize your prompt when changing or upgrading your model.
+Different models will interpret a prompt differently. You may need to re-optimize your prompt when changing or upgrading your model. [Kiln Harness Tuner](harness-tuner.md) can re-tune your prompt for a new model.
 
 #### Prompts for Fine Tuning
 

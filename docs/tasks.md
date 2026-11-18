@@ -22,6 +22,7 @@ Pick the type under **Part 2: Task Type** when you create a task. It can't be ch
 | **Input and output** | Plain text or [structured JSON](structured-data-json.md) | Plain text |
 | **[Synthetic Data Generation](synthetic-data-generation/), [Fine Tuning](fine-tuning/)** | ✅ | Not supported |
 | **[Eval Builder](evals-and-specs/specifications.md)** | ✅ | ✅, with a simulated user |
+| **[Harness Tuner](harness-tuner.md)** | ✅ | ✅, with a simulated user |
 
 If the model needs earlier messages from the same conversation to reply, use multi-turn. Otherwise, use single-turn. One turn can include many tool calls, so an agent that handles each request on its own is still single-turn.
 
